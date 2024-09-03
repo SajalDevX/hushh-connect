@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
-import 'dart:math' as math;
-
 import 'package:hushhxtinder/ui/components/blockProgressbar.dart';
+import 'dart:math' as math;
+import 'package:url_launcher/url_launcher.dart';
 
 class DraggableCard extends StatefulWidget {
   final CardData cardData;
   final ValueNotifier<int> currentCardIndex;
   final ValueNotifier<List<int>> imageIndices;
-  final Function(int) onCardSwiped;
-
+  // final Function(int) onCardSwiped;
+  final HomeViewModel viewModel;
   DraggableCard({
     required this.cardData,
     required this.currentCardIndex,
     required this.imageIndices,
-    required this.onCardSwiped,
+    // required this.onCardSwiped,
+    required this.viewModel,
   });
 
   @override
@@ -66,23 +67,42 @@ class _DraggableCardState extends State<DraggableCard>
   }
 
   void _onDragEnd(DragEndDetails details) {
-    if (offsetX.abs() > screenWidth * 0.3 || _controller.isAnimating) {
-      if (widget.currentCardIndex.value < widget.cardData.cards.length - 1) {
-        // Move to the next card
-        widget.currentCardIndex.value++;
-        widget.imageIndices.value[widget.currentCardIndex.value] = 0;
-      } else {
-        // Show empty screen
-        widget.currentCardIndex.value = -1;
-        widget.imageIndices.value = [];
-      }
-      _controller.forward(from: 0).whenComplete(() {
-        setState(() {
-          offsetX = 0;
-          rotation = 0;
-          alpha = 1;
+    final bool isSwipeRight = offsetX > screenWidth * 0.3;
+    final bool isSwipeLeft = offsetX < screenWidth * 0.3;
+
+    if (isSwipeRight || _controller.isAnimating || isSwipeLeft) {
+      // Ensure the last card is processed
+      if (widget.currentCardIndex.value <= widget.cardData.cards.length - 1) {
+        // Check if it's the last card or not
+        final isLastCard =
+            widget.currentCardIndex.value == widget.cardData.cards.length - 1;
+
+        // Call the onCardSwiped function for right swipe
+        final index = widget.currentCardIndex.value;
+        final currentUserId = widget.cardData.cards[index].first.userId;
+
+        if (isSwipeRight) {
+          widget.viewModel.addToContact(currentUserId);
+        }
+
+        // Move to the next card if it's not the last card
+        if (!isLastCard) {
+          widget.currentCardIndex.value++;
+          widget.imageIndices.value[widget.currentCardIndex.value] = 0;
+        } else {
+          // Show empty screen or handle last card swipe
+          widget.currentCardIndex.value = -1;
+          widget.imageIndices.value = [];
+        }
+
+        _controller.forward(from: 0).whenComplete(() {
+          setState(() {
+            offsetX = 0;
+            rotation = 0;
+            alpha = 1;
+          });
         });
-      });
+      }
     } else {
       // Return to original position
       _controller.reverse(from: 0).whenComplete(() {
@@ -339,46 +359,58 @@ class _DraggableCardState extends State<DraggableCard>
             right: 0,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          imageData.name,
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        imageData.name,
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                        SizedBox(width: 5),
-                        Icon(
-                          Icons.verified,
-                          color: Colors.blue,
-                          size: 19,
-                        ),
-                      ],
+                      ),
+                      SizedBox(width: 5),
+                      Icon(
+                        Icons.verified,
+                        color: Colors.blue,
+                        size: 19,
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '${imageData.role} @ ${imageData.companyName}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
                     ),
-                    Text(
-                      '${imageData.role} @ ${imageData.companyName}',
+                    textAlign: TextAlign.justify,
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    imageData.location,
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  GestureDetector(
+                    onTap: _nextImage,
+                    child: Text(
+                      'Read more',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      imageData.location,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -491,6 +523,7 @@ class _DraggableCardState extends State<DraggableCard>
                       children: [
                         Text(
                           imageData.name,
+                          textAlign: TextAlign.justify,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -507,6 +540,7 @@ class _DraggableCardState extends State<DraggableCard>
                     ),
                     Text(
                       '${imageData.role} @ ${imageData.companyName}',
+                      textAlign: TextAlign.justify,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -516,6 +550,7 @@ class _DraggableCardState extends State<DraggableCard>
                     SizedBox(height: 8),
                     Text(
                       imageData.description,
+                      textAlign: TextAlign.justify,
                       style: TextStyle(
                           fontSize: 14,
                           color: Colors.white,
@@ -640,6 +675,7 @@ class _DraggableCardState extends State<DraggableCard>
                       children: [
                         Text(
                           imageData.name,
+                          textAlign: TextAlign.justify,
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -767,6 +803,7 @@ class _DraggableCardState extends State<DraggableCard>
                     children: [
                       Text(
                         imageData.name,
+                        textAlign: TextAlign.justify,
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -783,6 +820,7 @@ class _DraggableCardState extends State<DraggableCard>
                   ),
                   Text(
                     '${imageData.role} @ ${imageData.companyName}',
+                    textAlign: TextAlign.justify,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white,
@@ -820,6 +858,13 @@ class _DraggableCardState extends State<DraggableCard>
         ],
       ),
     );
+  }
+
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
   }
 
   Widget _buildSocialCard(ImageData imageData, double likeOpacity,
@@ -877,10 +922,13 @@ class _DraggableCardState extends State<DraggableCard>
               opacity: likeOpacity,
               child: Transform.rotate(
                 angle: -math.pi / 12, // Tilt the "Like" icon
-                child: Image.asset(
-                  "lib/assets/images/likehushhconnect.png",
-                  height: 148,
-                  width: 148,
+                child: GestureDetector(
+                  onTap: () => _launchURL('https://www.example.com/like'),
+                  child: Image.asset(
+                    "lib/assets/images/likehushhconnect.png",
+                    height: 148,
+                    width: 148,
+                  ),
                 ),
               ),
             ),
@@ -892,10 +940,13 @@ class _DraggableCardState extends State<DraggableCard>
               opacity: dislikeOpacity,
               child: Transform.rotate(
                 angle: math.pi / 12, // Tilt the "Dislike" icon
-                child: Image.asset(
-                  "lib/assets/images/nopehushhconnect.png",
-                  height: 148,
-                  width: 148,
+                child: GestureDetector(
+                  onTap: () => _launchURL('https://www.example.com/dislike'),
+                  child: Image.asset(
+                    "lib/assets/images/nopehushhconnect.png",
+                    height: 148,
+                    width: 148,
+                  ),
                 ),
               ),
             ),
@@ -960,30 +1011,54 @@ class _DraggableCardState extends State<DraggableCard>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      SvgPicture.asset('lib/assets/images/linkedin_svg.svg'),
-                      SvgPicture.asset('lib/assets/images/youtube_svg.svg'),
-                      SvgPicture.asset('lib/assets/images/facebook_svg.svg'),
-                      SvgPicture.asset('lib/assets/images/twitter_svg.svg'),
-                      SvgPicture.asset('lib/assets/images/instagram_svg.svg')
+                      GestureDetector(
+                        onTap: () => _launchURL(
+                            'https://www.linkedin.com/${imageData.linkedin}'),
+                        child: SvgPicture.asset(
+                            'lib/assets/images/linkedin_svg.svg'),
+                      ),
+                      GestureDetector(
+                        onTap: () => _launchURL(
+                            'https://www.youtube.com/${imageData.youtube}'),
+                        child: SvgPicture.asset(
+                            'lib/assets/images/youtube_svg.svg'),
+                      ),
+                      GestureDetector(
+                        onTap: () => _launchURL(
+                            'https://www.facebook.com/${imageData.otherlink}'),
+                        child: SvgPicture.asset(
+                            'lib/assets/images/facebook_svg.svg'),
+                      ),
+                      GestureDetector(
+                        onTap: () => _launchURL(
+                            'https://www.twitter.com/${imageData.twitter}'),
+                        child: SvgPicture.asset(
+                            'lib/assets/images/twitter_svg.svg'),
+                      ),
+                      GestureDetector(
+                        onTap: () => _launchURL(
+                            'https://www.instagram.com/${imageData.instagram}'),
+                        child: SvgPicture.asset(
+                            'lib/assets/images/instagram_svg.svg'),
+                      ),
                     ],
                   ),
                   SizedBox(height: 10),
                   Text(
-                    "www." + imageData.name + ".com",
+                    "www." + imageData.otherlink + ".com",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.blue,
                     ),
                   ),
                   SizedBox(height: 4),
-                  Text(
-                    "www." + imageData.companyName + ".com",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.blue,
-                    ),
-                  ),
-
+                  // Text(
+                  //   "www." + imageData.companyName + ".com",
+                  //   style: TextStyle(
+                  //     fontSize: 14,
+                  //     color: Colors.blue,
+                  //   ),
+                  // ),
                   SizedBox(height: 10),
                   // Add more widgets if needed
                 ],

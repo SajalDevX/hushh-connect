@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/ui/auth/authPassionsScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
@@ -34,16 +35,27 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
     }
   }
 
+  Future<File?> compressImage(File file) async {
+    final targetPath = '${file.parent.path}/temp.jpg';
+    final result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 70, // Adjust quality to compress
+    );
+
+    return result;
+  }
+
   Future<void> _uploadImages() async {
     setState(() {
-      _isLoading = true; // Start loading
+      _isLoading = true;
     });
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       print('No user logged in');
       setState(() {
-        _isLoading = false; // Stop loading
+        _isLoading = false;
       });
       return;
     }
@@ -54,23 +66,40 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
     for (var i = 0; i < _images.length; i++) {
       if (_images[i] != null) {
         final file = _images[i]!;
+
+        // Compress image before upload
+        final compressedFile = await compressImage(file);
+        if (compressedFile == null) {
+          print('Failed to compress image');
+          continue;
+        }
+
         final ref = storage.ref().child('user_photos/${user.uid}/photo$i');
         try {
-          await ref.putFile(file);
+          final uploadTask = ref.putFile(compressedFile);
+
+          uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+            print('Task state: ${snapshot.state}');
+            print(
+                'Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100} %');
+          });
+
+          await uploadTask;
           final url = await ref.getDownloadURL();
           imageUrls.add(url);
+        } on FirebaseException catch (e) {
+          print('Firebase error: ${e.message}');
         } catch (e) {
-          print('Failed to upload image: $e');
+          print('Unexpected error occurred: $e');
         }
       }
     }
 
-    // Save URLs to ViewModel
-    print(imageUrls);
+    print('Uploaded Image URLs: $imageUrls');
     await _viewModel.uploadImagesToSupabase(imageUrls);
 
     setState(() {
-      _isLoading = false; // Stop loading
+      _isLoading = false;
     });
   }
 
@@ -113,76 +142,59 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                    'lib/assets/images/app_bg.jpeg'), // Your background image
-                fit: BoxFit.cover,
-              ),
+          Positioned.fill(
+            child: Image.asset(
+              'lib/assets/images/app_bg.jpeg',
+              fit: BoxFit.cover,
             ),
           ),
-          // Main content
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: size.width * 0.05,
-              vertical: size.height * 0.02,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  children: [
-                    const SizedBox(height: 56),
-
-                    const GradientProgressBar(
-                      progress:
-                          0.8, // Set the current step for the email screen
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.05,
+                vertical: size.height * 0.03,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const GradientProgressBar(
+                    progress: 0.8, // Set the current step for the email screen
+                  ),
+                  const SizedBox(height: 16),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Color(0xff7c8591)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    iconSize: 40,
+                  ),
+                  const SizedBox(height: 36),
+                  Text(
+                    'Add Photos',
+                    style: GoogleFonts.figtree(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xffe9ebee),
                     ),
-                    const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: IconButton(
-                        icon: const Icon(Icons.close, color: Color(0xff7c8591)),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        iconSize: 40,
-                      ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Add at least 4 photos to continue',
+                    style: GoogleFonts.figtree(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xffe9ebee),
                     ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        'Add Photos',
-                        style: GoogleFonts.figtree(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xffe9ebee),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Add at least 4 photos to continue',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.figtree(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xffe9ebee),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // GridView to display images in 2 rows with 3 columns
-                    GridView.builder(
-                      shrinkWrap: true,
+                  ),
+                  const SizedBox(height: 36),
+                  Expanded(
+                    child: GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3, // 3 images per row
-                        crossAxisSpacing: spacing, // Spacing between columns
-                        mainAxisSpacing: spacing, // Spacing between rows
+                        crossAxisCount: 3,
+                        crossAxisSpacing: spacing,
+                        mainAxisSpacing: spacing,
                       ),
-                      itemCount: 6, // Total number of images
+                      itemCount: 6,
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () => _pickImage(index),
@@ -255,24 +267,20 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
                         );
                       },
                     ),
-                  ],
-                ),
-                SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: size.height * 0.02),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: _isLoading
-                          ? Center(child: CircularProgressIndicator())
-                          : IAgreeButton(
-                              text: 'Continue',
-                              onPressed: onNext,
-                              size: double.infinity,
-                            ),
-                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 36),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SizedBox(
+                          width: double.infinity,
+                          child: IAgreeButton(
+                            text: 'Continue',
+                            onPressed: onNext,
+                            size: double.infinity,
+                          ),
+                        ),
+                ],
+              ),
             ),
           ),
         ],

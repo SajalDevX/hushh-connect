@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/auth/authOfficeScreen.dart';
+import 'package:hushhxtinder/ui/auth/authPhotosScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:hushhxtinder/ui/components/customTextBox.dart';
@@ -20,7 +20,19 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
   final TextEditingController _youtubeController = TextEditingController();
   final TextEditingController _twitterController = TextEditingController();
   final TextEditingController _otherLinkController = TextEditingController();
-  bool _isLoading = false; // Add a loading state
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the controllers with existing values from the viewmodel if needed
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+    _instagramController.text = authViewModel.instagram;
+    _linkedInController.text = authViewModel.linkedin;
+    _youtubeController.text = authViewModel.youtube;
+    _twitterController.text = authViewModel.twitter;
+    _otherLinkController.text = authViewModel.other;
+  }
 
   @override
   void dispose() {
@@ -32,57 +44,32 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
     super.dispose();
   }
 
-  String _buildSocialMediaLink(String baseUrl, String username) {
-    if (username.startsWith('http://') || username.startsWith('https://')) {
-      return username;
-    }
-    return '$baseUrl$username';
+  void _updateSocialMediaLinks() {
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+    authViewModel.updateInstagram(_instagramController.text.trim());
+    authViewModel.updateLinkedIn(_linkedInController.text.trim());
+    authViewModel.updateYouTube(_youtubeController.text.trim());
+    authViewModel.updateTwitter(_twitterController.text.trim());
+    authViewModel.updateOther(_otherLinkController.text.trim());
   }
 
   Future<void> onNext() async {
     setState(() {
-      _isLoading = true; // Start loading
+      _isLoading = true;
     });
 
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-
-    final instagramLink = _instagramController.text.isEmpty
-        ? null
-        : _buildSocialMediaLink(
-            'https://www.instagram.com/', _instagramController.text);
-    final twitterLink = _twitterController.text.isEmpty
-        ? null
-        : _buildSocialMediaLink(
-            'https://www.twitter.com/', _twitterController.text);
-    final youtubeLink = _youtubeController.text.isEmpty
-        ? null
-        : _buildSocialMediaLink(
-            'https://www.youtube.com/', _youtubeController.text);
-    final linkedinLink = _linkedInController.text.isEmpty
-        ? null
-        : _buildSocialMediaLink(
-            'https://www.linkedin.com/in/', _linkedInController.text);
-    final otherLink =
-        _otherLinkController.text.isEmpty ? null : _otherLinkController.text;
-
-    authViewModel.updateSocialMedia(
-      instagram: instagramLink,
-      twitter: twitterLink,
-      youtube: youtubeLink,
-      linkedin: linkedinLink,
-      other: otherLink,
-    );
-
+    _updateSocialMediaLinks(); // Update the ViewModel with the latest input
     await authViewModel.uploadSocialMediaLinksToSupabase();
 
     setState(() {
-      _isLoading = false; // Stop loading
+      _isLoading = false;
     });
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AuthOfficeScreen(),
+        builder: (context) => AuthPhotosScreen(),
       ),
     );
   }
@@ -90,7 +77,7 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final double commonWidth = size.width * 0.9;
+    final double commonWidth = size.width * 0.85;
 
     return Scaffold(
       body: Stack(
@@ -101,94 +88,99 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: size.width * 0.05,
-              vertical: size.height * 0.02,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const GradientProgressBar(
-                  progress: 0.7, // Set the current step for the email screen
-                ),
-                const SizedBox(height: 16),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Color(0xff7c8591)),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  iconSize: 40,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Sync with social media',
-                  style: GoogleFonts.figtree(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xffe9ebee),
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.05,
+                vertical: size.height * 0.03,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const GradientProgressBar(
+                    progress: 0.7,
                   ),
-                ),
-                const SizedBox(height: 36),
-                _buildSocialMediaTextBox(
-                  iconPath: 'lib/assets/images/instagram.png',
-                  hintText: 'Enter your Instagram username...',
-                  controller: _instagramController,
-                  size: size,
-                ),
-                const SizedBox(height: 8),
-                _buildSocialMediaTextBox(
-                  iconPath: 'lib/assets/images/linkedin.png',
-                  hintText: 'Enter your LinkedIn username...',
-                  controller: _linkedInController,
-                  size: size,
-                ),
-                const SizedBox(height: 8),
-                _buildSocialMediaTextBox(
-                  iconPath: 'lib/assets/images/youtube.png',
-                  hintText: 'Enter your YouTube channel name...',
-                  controller: _youtubeController,
-                  size: size,
-                ),
-                const SizedBox(height: 8),
-                _buildSocialMediaTextBox(
-                  iconPath: 'lib/assets/images/twitter.png',
-                  hintText: 'Enter your Twitter username...',
-                  controller: _twitterController,
-                  size: size,
-                ),
-                const SizedBox(height: 8),
-                const SizedBox(height: 64),
-                Center(
-                  child: Text(
-                    'Add any other links...',
+                  const SizedBox(height: 16),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Color(0xff7c8591)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    iconSize: 40,
+                  ),
+                  const SizedBox(height: 36),
+                  Text(
+                    'Sync with social media',
                     style: GoogleFonts.figtree(
-                      color: Colors.white,
-                      fontSize: 15,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xffe9ebee),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                _buildSocialMediaTextBox(
-                  iconPath: 'lib/assets/images/link.png',
-                  hintText: 'Paste your link here...',
-                  controller: _otherLinkController,
-                  suffixIconPath: 'lib/assets/images/button.png',
-                  size: size,
-                ),
-                const SizedBox(height: 64),
-                _isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : SizedBox(
-                        width: commonWidth,
-                        child: IAgreeButton(
-                          text: 'Continue',
-                          onPressed: onNext,
-                          size: commonWidth,
-                        ),
+                  const SizedBox(height: 36),
+                  _buildSocialMediaTextBox(
+                    iconPath: 'lib/assets/images/instagram.png',
+                    hintText: 'Enter your Instagram username...',
+                    controller: _instagramController,
+                    size: size,
+                    onChanged: _updateSocialMediaLinks,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSocialMediaTextBox(
+                    iconPath: 'lib/assets/images/linkedin.png',
+                    hintText: 'Enter your LinkedIn username...',
+                    controller: _linkedInController,
+                    size: size,
+                    onChanged: _updateSocialMediaLinks,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSocialMediaTextBox(
+                    iconPath: 'lib/assets/images/youtube.png',
+                    hintText: 'Enter your YouTube channel name...',
+                    controller: _youtubeController,
+                    size: size,
+                    onChanged: _updateSocialMediaLinks,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSocialMediaTextBox(
+                    iconPath: 'lib/assets/images/twitter.png',
+                    hintText: 'Enter your Twitter username...',
+                    controller: _twitterController,
+                    size: size,
+                    onChanged: _updateSocialMediaLinks,
+                  ),
+                  const SizedBox(height: 64),
+                  Center(
+                    child: Text(
+                      'Add any other links...',
+                      style: GoogleFonts.figtree(
+                        color: Colors.white,
+                        fontSize: 15,
                       ),
-              ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSocialMediaTextBox(
+                    iconPath: 'lib/assets/images/link.png',
+                    hintText: 'Paste your link here...',
+                    controller: _otherLinkController,
+                    suffixIconPath: 'lib/assets/images/button.png',
+                    size: size,
+                    onChanged: _updateSocialMediaLinks,
+                  ),
+                  const SizedBox(height: 64),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SizedBox(
+                          width: commonWidth,
+                          child: IAgreeButton(
+                            text: 'Continue',
+                            onPressed: onNext,
+                            size: commonWidth,
+                          ),
+                        ),
+                ],
+              ),
             ),
           ),
         ],
@@ -202,9 +194,10 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
     required TextEditingController controller,
     String? suffixIconPath,
     required Size size,
+    required void Function() onChanged,
   }) {
     return SizedBox(
-      width: size.width * 0.9,
+      width: size.width * 0.85,
       child: Customtextbox(
         prefixIcon: Padding(
           padding: const EdgeInsets.all(8.0),

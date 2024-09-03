@@ -28,8 +28,13 @@ class AuthViewModel extends ChangeNotifier {
   String? _role;
   String? _tasks;
   final List<String> image_links = [];
-  // Add a list to store image files
   final List<File?> _images = List.generate(6, (_) => null);
+
+  String get instagram => _instagram;
+  String get twitter => _twitter;
+  String get youtube => _youtube;
+  String get linkedin => _linkedin;
+  String get other => _other;
 
   // Getters for the office info
   String? get company => _company;
@@ -40,12 +45,6 @@ class AuthViewModel extends ChangeNotifier {
   String get name => _name;
   String get phoneNumber => _phoneNumber;
   String? get location => _location;
-
-  String get instagram => _instagram;
-  String get twitter => _twitter;
-  String get youtube => _youtube;
-  String get linkedin => _linkedin;
-  String get other => _other;
 
   // Getters for images
   List<File?> get images => _images;
@@ -93,39 +92,29 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateSocialMedia({
-    String? instagram,
-    String? twitter,
-    String? youtube,
-    String? linkedin,
-    String? other,
-  }) {
-    if (instagram != null) _instagram = instagram;
-    if (twitter != null) _twitter = twitter;
-    if (youtube != null) _youtube = youtube;
-    if (linkedin != null) _linkedin = linkedin;
-    if (other != null) _other = other;
-
+  void updateInstagram(String username) {
+    _instagram = username;
     notifyListeners();
   }
 
-  Future<void> uploadSocialMediaLinks() async {
-    final supabaseClient = supabase.Supabase.instance.client;
+  void updateTwitter(String username) {
+    _twitter = username;
+    notifyListeners();
+  }
 
-    final linksJson = jsonEncode({
-      'instagram': _instagram,
-      'twitter': _twitter,
-      'youtube': _youtube,
-      'linkedin': _linkedin,
-      'other': _other,
-    });
+  void updateYouTube(String username) {
+    _youtube = username;
+    notifyListeners();
+  }
 
-    await supabaseClient.from('users').upsert({
-      'id': FirebaseAuth.instance.currentUser?.uid,
-      'links': linksJson,
-    });
+  void updateLinkedIn(String username) {
+    _linkedin = username;
+    notifyListeners();
+  }
 
-    log('Social media links uploaded: $linksJson');
+  void updateOther(String link) {
+    _other = link;
+    notifyListeners();
   }
 
   Future<void> verifyPhoneNumber(BuildContext context) async {
@@ -284,40 +273,5 @@ class AuthViewModel extends ChangeNotifier {
       'passions': imageLinksJson,
     });
     _updateProgress(10);
-  }
-
-  Future<void> updateCard() async {
-    final imageData1 = jsonEncode({
-      'img': image_links[0],
-      'name': _name,
-      'company': _company,
-      'role': _role,
-      'description': _tasks,
-      'location': _location,
-    });
-    final imageData2 = jsonEncode({
-      'img': image_links[1],
-      'name': _name,
-      'company': _company,
-      'role': _role,
-      'description': _tasks,
-      'location': _location,
-    });
-    final imageData3 = jsonEncode({
-      'img': image_links[2],
-      'name': _name,
-      'company': _company,
-      'role': _role,
-      'description': _tasks,
-      'location': _location,
-    });
-    final imageData5 = jsonEncode({
-      'img': image_links[3],
-      'name': _name,
-      'company': _company,
-      'role': _role,
-      'description': _tasks,
-      'location': _location,
-    });
   }
 }

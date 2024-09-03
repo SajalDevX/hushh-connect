@@ -45,5 +45,29 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>$(PRODUCT_NAME) needs access to your photo library to pick images.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>$(PRODUCT_NAME) needs access to your camera to take photos.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>$(PRODUCT_NAME) needs access to your microphone for video recording.</string>
+
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>io.supabase.flutterquickstart</string>
+                <string>app-1-780302459736-ios-3247817b67676b83e4fb2d</string> <!-- New URL scheme added here -->
+            </array>
+        </dict>
+    </array>
+    
+    
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Your description here</string>
 </dict>
 </plist>

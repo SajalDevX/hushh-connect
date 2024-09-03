@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/auth/authPhotosScreen.dart';
+import 'package:hushhxtinder/ui/auth/authSocialMediaScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:hushhxtinder/ui/components/customTextBox.dart';
@@ -41,7 +41,7 @@ class _AuthOfficeScreenState extends State<AuthOfficeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AuthPhotosScreen(),
+        builder: (context) => AuthSocialMediaScreen(),
       ),
     );
   }

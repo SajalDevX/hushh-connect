@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/components/customCard.dart';
 import 'package:provider/provider.dart';
 import 'homeViewmodel.dart';
@@ -22,7 +23,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _screens = [
       HomeScreen(viewModel: _viewModel),
-      Placeholder(),
+      FriendsScreen(),
       Placeholder(),
       Placeholder(),
       Placeholder(),
@@ -156,11 +157,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _scrollController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -177,70 +178,109 @@ class _HomeScreenState extends State<HomeScreen> {
             final List<dynamic> images = jsonDecode(user["images"] ?? '[]');
             final officeDetails = jsonDecode(user["office_details"] ?? '{}');
             final List<dynamic> passions = jsonDecode(user["passions"] ?? '[]');
-            final List<String> socialMediaLinks = (user["socialMediaLinks"]
-                    is String)
-                ? List<String>.from(jsonDecode(user["socialMediaLinks"] ?? '[]')
-                    .map((item) => item.toString()))
-                : List<String>.from(
-                    (user["socialmedia"] ?? []).map((item) => item.toString()));
+            final Map<String, dynamic> socialMediaLinks =
+                jsonDecode(user['socialmedia'] ?? '{}');
 
-            log("${socialMediaLinks}");
+            // Access the fields using their respective keys
+            String instagram = socialMediaLinks['instagram'] ?? 'Not Available';
+            String twitter = socialMediaLinks['twitter'] ?? 'Not Available';
+            String youtube = socialMediaLinks['youtube'] ?? 'Not Available';
+            String linkedin = socialMediaLinks['linkedin'] ?? 'Not Available';
+            String otherlink = socialMediaLinks['other'] ?? 'Not Available';
+
+            // Log the values to verify they are being fetched correctly
+            log('Instagram: $instagram');
+            log('Twitter: $twitter');
+            log('YouTube: $youtube');
+            log('LinkedIn: $linkedin');
+            log('Other: $otherlink');
+
             return [
               ImageData(
-                  imageRes: images.isNotEmpty ? images[0] : '', // First image
-                  name: user['name'] ?? '',
-                  role: officeDetails['role'] ?? '',
-                  companyName: officeDetails['company'] ?? '',
-                  location: user['current_address'],
-                  description: '',
-                  contactNumber: user['phone'] ?? '',
-                  products: [],
-                  passions: [],
-                  socialMediaLinks: []),
+                userId: user['id'],
+                imageRes: images.isNotEmpty ? images[0] : '', // First image
+                name: user['name'] ?? '',
+                role: officeDetails['role'] ?? '',
+                companyName: officeDetails['company'] ?? '',
+                location: user['current_address'],
+                description: '',
+                contactNumber: user['phone'] ?? '',
+                products: [],
+                passions: [],
+                instagram: '',
+                twitter: '',
+                linkedin: '',
+                youtube: '',
+                otherlink: '',
+              ),
               ImageData(
-                  imageRes: images.length > 1 ? images[1] : '', // Second image
-                  name: user['name'] ?? '',
-                  role: officeDetails['role'] ?? '',
-                  companyName: officeDetails['company'] ?? '',
-                  location: '',
-                  description: officeDetails['tasks'] ?? '',
-                  contactNumber: '',
-                  products: [],
-                  passions: [],
-                  socialMediaLinks: []),
+                userId: user['id'],
+                imageRes: images.length > 1 ? images[1] : '', // Second image
+                name: user['name'] ?? '',
+                role: officeDetails['role'] ?? '',
+                companyName: officeDetails['company'] ?? '',
+                location: '',
+                description: officeDetails['tasks'] ?? '',
+                contactNumber: '',
+                products: [],
+                passions: [],
+                instagram: '',
+                twitter: '',
+                linkedin: '',
+                youtube: '',
+                otherlink: '',
+              ),
               ImageData(
-                  imageRes: images.length > 2 ? images[2] : '', // Third image
-                  name: user['name'] ?? '',
-                  role: officeDetails['role'],
-                  companyName: officeDetails['company'] ?? '',
-                  location: '',
-                  description: '',
-                  contactNumber: '',
-                  products: [],
-                  passions: passions,
-                  socialMediaLinks: []),
+                userId: user['id'],
+                imageRes: images.length > 2 ? images[2] : '', // Third image
+                name: user['name'] ?? '',
+                role: officeDetails['role'],
+                companyName: officeDetails['company'] ?? '',
+                location: '',
+                description: '',
+                contactNumber: '',
+                products: [],
+                passions: passions,
+                instagram: '',
+                twitter: '',
+                linkedin: '',
+                youtube: '',
+                otherlink: '',
+              ),
               ImageData(
-                  imageRes: '', // Fourth card with no image or data
-                  name: user['name'] ?? '',
-                  role: '',
-                  companyName: '',
-                  location: '',
-                  description: '',
-                  contactNumber: '',
-                  products: [],
-                  passions: [],
-                  socialMediaLinks: []),
+                userId: user['id'],
+                imageRes: '', // Fourth card with no image or data
+                name: user['name'] ?? '',
+                role: '',
+                companyName: '',
+                location: '',
+                description: '',
+                contactNumber: '',
+                products: [],
+                passions: [],
+                instagram: '',
+                twitter: '',
+                linkedin: '',
+                youtube: '',
+                otherlink: '',
+              ),
               ImageData(
-                  imageRes: images.length > 2 ? images[2] : '', // Fifth card
-                  name: user['name'] ?? '',
-                  role: '',
-                  companyName: officeDetails['company'] ?? '',
-                  location: '',
-                  description: '',
-                  contactNumber: '',
-                  products: [],
-                  passions: [],
-                  socialMediaLinks: socialMediaLinks),
+                userId: user['id'],
+                imageRes: images.length > 2 ? images[2] : '', // Fifth card
+                name: user['name'] ?? '',
+                role: '',
+                companyName: officeDetails['company'] ?? '',
+                location: '',
+                description: '',
+                contactNumber: '',
+                products: [],
+                passions: [],
+                instagram: instagram,
+                twitter: twitter,
+                linkedin: linkedin,
+                youtube: youtube,
+                otherlink: otherlink,
+              ),
             ];
           }).toList(),
         );
@@ -302,9 +342,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   cardData: cardData,
                   currentCardIndex: ValueNotifier<int>(0),
                   imageIndices: imageIndices,
-                  onCardSwiped: (index) {
-                    // Handle the swipe action
-                  },
+                  viewModel: viewModel,
+                  // onCardSwiped: (index) {
+                  //   try {
+                  //     final currentUserId = cardData.cards[index].first.userId;
+                  //     print(currentUserId);
+                  //     viewModel.addToContact(currentUserId);
+                  //   } catch (e) {
+                  //     print('Error adding contact: $e');
+                  //   } // Add this user to contact table
+                  // },
                 ),
               ),
             ),

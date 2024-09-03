@@ -267,7 +267,7 @@ class _DraggableCardState extends State<DraggableCard>
   Widget _buildProfileCard(ImageData imageData, double likeOpacity,
       double dislikeOpacity, int totalImages, double progress) {
     return Card(
-      color: Colors.grey.withOpacity(0.5),
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -275,6 +275,7 @@ class _DraggableCardState extends State<DraggableCard>
       child: Stack(
         fit: StackFit.expand,
         children: [
+          // Background image
           Positioned.fill(
             child: Opacity(
               opacity: 1,
@@ -290,7 +291,7 @@ class _DraggableCardState extends State<DraggableCard>
                     child: CircularProgressIndicator(
                       value: loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /
-                              (loadingProgress.expectedTotalBytes ?? 1)
+                          (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -301,15 +302,23 @@ class _DraggableCardState extends State<DraggableCard>
               ),
             ),
           ),
+          // Gradient overlay
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [Colors.white.withOpacity(0.1), Colors.black],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter)),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.7)
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.4, 1.0], // Gradient effect covers bottom 60% of the image
+                ),
+              ),
             ),
           ),
+          // "Like" icon
           Positioned(
             top: 40,
             left: 20,
@@ -341,7 +350,7 @@ class _DraggableCardState extends State<DraggableCard>
               ),
             ),
           ),
-          // Progress Bar
+          // Progress bar
           Positioned(
             top: 10,
             left: 10,
@@ -354,7 +363,7 @@ class _DraggableCardState extends State<DraggableCard>
           ),
           // Content
           Positioned(
-            bottom: 64,
+            bottom: 90,
             left: 0,
             right: 0,
             child: Padding(
@@ -363,14 +372,16 @@ class _DraggableCardState extends State<DraggableCard>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Name
                   Row(
                     children: [
                       Text(
                         imageData.name,
-                        style: TextStyle(
-                          fontSize: 32,
+                        style: GoogleFonts.figtree(
+                          fontSize: 32.69231,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          letterSpacing: 0.09615,
                         ),
                       ),
                       SizedBox(width: 5),
@@ -381,32 +392,37 @@ class _DraggableCardState extends State<DraggableCard>
                       ),
                     ],
                   ),
+                  SizedBox(height: 4),
+                  // Role and company name
                   Text(
                     '${imageData.role} @ ${imageData.companyName}',
-                    style: TextStyle(
+                    style: GoogleFonts.figtree(
                       fontSize: 16,
                       color: Colors.white,
+                      letterSpacing: 0.09615,
                     ),
-                    textAlign: TextAlign.justify,
                   ),
                   SizedBox(height: 4),
+                  // Location
                   Text(
                     imageData.location,
-                    textAlign: TextAlign.justify,
-                    style: TextStyle(
-                      fontSize: 16,
+                    style: GoogleFonts.figtree(
+                      fontSize: 14,
                       color: Colors.white,
+                      letterSpacing: 0.09615,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: 8),
+                  // Read more link
                   GestureDetector(
-                    onTap: _nextImage,
+                    onTap: _goToDetailedProfile, // Updated to navigate to detailed profile
                     child: Text(
                       'Read more',
-                      style: TextStyle(
-                        fontSize: 16,
+                      style: GoogleFonts.figtree(
+                        fontSize: 14,
                         color: Colors.blue,
                         decoration: TextDecoration.underline,
+                        letterSpacing: 0.09615,
                       ),
                     ),
                   ),
@@ -419,10 +435,13 @@ class _DraggableCardState extends State<DraggableCard>
     );
   }
 
+
+
+
   Widget _buildDetailedProfileCard(ImageData imageData, double likeOpacity,
       double dislikeOpacity, int totalImages, double progress) {
     return Card(
-      color: Colors.grey.withOpacity(0.5),
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -430,6 +449,7 @@ class _DraggableCardState extends State<DraggableCard>
       child: Stack(
         fit: StackFit.expand,
         children: [
+          // Background image
           Positioned.fill(
             child: Opacity(
               opacity: 1,
@@ -445,7 +465,7 @@ class _DraggableCardState extends State<DraggableCard>
                     child: CircularProgressIndicator(
                       value: loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /
-                              (loadingProgress.expectedTotalBytes ?? 1)
+                          (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -456,15 +476,23 @@ class _DraggableCardState extends State<DraggableCard>
               ),
             ),
           ),
+          // Gradient overlay
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [Colors.white.withOpacity(0.1), Colors.black],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter)),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.7)
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.4, 1.0], // Gradient effect covers bottom 60% of the image
+                ),
+              ),
             ),
           ),
+          // "Like" icon
           Positioned(
             top: 40,
             left: 20,
@@ -509,55 +537,54 @@ class _DraggableCardState extends State<DraggableCard>
           ),
           // Content
           Positioned(
-            bottom: 64,
-            left: 0,
-            right: 0,
+            bottom: 90, // Adjusted to provide more margin from bottom icons
+            left: 20, // Adjusted for consistent margin
+            right: 20, // Adjusted for consistent margin
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          imageData.name,
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        Icon(
-                          Icons.verified,
-                          color: Colors.blue,
-                          size: 19,
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '${imageData.role} @ ${imageData.companyName}',
-                      textAlign: TextAlign.justify,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      imageData.description,
-                      textAlign: TextAlign.justify,
-                      style: TextStyle(
+              padding: const EdgeInsets.symmetric(horizontal: 0.0), // Set to 0 for consistent edge
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        imageData.name,
+                        style: GoogleFonts.figtree(
                           fontSize: 14,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          fontWeight: FontWeight.w400),
+                          letterSpacing: 0.09615,
+                        ),
+                      ),
+                      SizedBox(width: 5),
+                      Icon(
+                        Icons.verified,
+                        color: Colors.blue,
+                        size: 19,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '${imageData.role} @ ${imageData.companyName}',
+                    style: GoogleFonts.figtree(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.09615,
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 12), // Increased spacing for better readability
+                  Text(
+                    imageData.description, // Dynamically load description from imageData
+                    style: GoogleFonts.figtree(
+                      fontSize: 14,
+                      color: Colors.white,
+                      letterSpacing: 0.09615,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -565,6 +592,11 @@ class _DraggableCardState extends State<DraggableCard>
       ),
     );
   }
+
+
+
+
+
 
   Widget _buildProductCard(ImageData imageData, double likeOpacity,
       double dislikeOpacity, int totalImages, double progress) {
@@ -703,7 +735,7 @@ class _DraggableCardState extends State<DraggableCard>
   Widget _buildPassionsCard(ImageData imageData, double likeOpacity,
       double dislikeOpacity, int totalImages, double progress) {
     return Card(
-      color: Colors.grey.withOpacity(0.5),
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -711,6 +743,7 @@ class _DraggableCardState extends State<DraggableCard>
       child: Stack(
         fit: StackFit.expand,
         children: [
+          // Background image
           Positioned.fill(
             child: Opacity(
               opacity: 1,
@@ -726,7 +759,7 @@ class _DraggableCardState extends State<DraggableCard>
                     child: CircularProgressIndicator(
                       value: loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /
-                              (loadingProgress.expectedTotalBytes ?? 1)
+                          (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -737,15 +770,23 @@ class _DraggableCardState extends State<DraggableCard>
               ),
             ),
           ),
+          // Gradient overlay
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [Colors.white.withOpacity(0.1), Colors.black],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter)),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.7)
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.4, 1.0], // Gradient effect covers bottom 60% of the image
+                ),
+              ),
             ),
           ),
+          // "Like" icon
           Positioned(
             top: 40,
             left: 20,
@@ -790,11 +831,11 @@ class _DraggableCardState extends State<DraggableCard>
           ),
           // Content
           Positioned(
-            bottom: 72,
-            left: 0,
-            right: 0,
+            bottom: 90, // Increased to provide more margin from bottom icons
+            left: 20, // Consistent margin
+            right: 20, // Consistent margin
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              padding: const EdgeInsets.symmetric(horizontal: 0.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -803,11 +844,11 @@ class _DraggableCardState extends State<DraggableCard>
                     children: [
                       Text(
                         imageData.name,
-                        textAlign: TextAlign.justify,
-                        style: TextStyle(
-                          fontSize: 32,
+                        style: GoogleFonts.figtree(
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          letterSpacing: 0.09615,
                         ),
                       ),
                       SizedBox(width: 5),
@@ -818,34 +859,33 @@ class _DraggableCardState extends State<DraggableCard>
                       ),
                     ],
                   ),
+                  SizedBox(height: 8),
                   Text(
                     '${imageData.role} @ ${imageData.companyName}',
-                    textAlign: TextAlign.justify,
-                    style: TextStyle(
-                      fontSize: 16,
+                    style: GoogleFonts.figtree(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
+                      letterSpacing: 0.09615,
                     ),
                   ),
-                  SizedBox(height: 10),
-                  // Passions
+                  SizedBox(height: 12), // Increased spacing for better readability
                   Wrap(
                     spacing: 8.0,
                     runSpacing: 4.0,
                     children: imageData.passions.map((passion) {
                       return Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: Colors.white),
-                          color: Colors.grey
-                              .withOpacity(0.5), // Transparent background
+                          color: Colors.transparent, // Transparent background
                         ),
                         child: Text(
                           passion,
-                          style: TextStyle(
-                            color: Colors.white, // White text color
+                          style: GoogleFonts.figtree(
                             fontSize: 14,
+                            color: Colors.white, // White text color
                           ),
                         ),
                       );
@@ -860,6 +900,8 @@ class _DraggableCardState extends State<DraggableCard>
     );
   }
 
+
+
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -870,7 +912,7 @@ class _DraggableCardState extends State<DraggableCard>
   Widget _buildSocialCard(ImageData imageData, double likeOpacity,
       double dislikeOpacity, int totalImages, double progress) {
     return Card(
-      color: Colors.grey.withOpacity(0.5),
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -878,6 +920,7 @@ class _DraggableCardState extends State<DraggableCard>
       child: Stack(
         fit: StackFit.expand,
         children: [
+          // Background image
           Positioned.fill(
             child: Opacity(
               opacity: 1,
@@ -893,7 +936,7 @@ class _DraggableCardState extends State<DraggableCard>
                     child: CircularProgressIndicator(
                       value: loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /
-                              (loadingProgress.expectedTotalBytes ?? 1)
+                          (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -904,17 +947,23 @@ class _DraggableCardState extends State<DraggableCard>
               ),
             ),
           ),
+          // Gradient overlay
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.white.withOpacity(0.1), Colors.black],
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.7)
+                  ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
+                  stops: [0.4, 1.0], // Gradient effect covers bottom 60% of the image
                 ),
               ),
             ),
           ),
+          // "Like" icon
           Positioned(
             top: 40,
             left: 20,
@@ -933,6 +982,7 @@ class _DraggableCardState extends State<DraggableCard>
               ),
             ),
           ),
+          // "Dislike" icon
           Positioned(
             top: 40,
             right: 20,
@@ -951,6 +1001,7 @@ class _DraggableCardState extends State<DraggableCard>
               ),
             ),
           ),
+          // Progress Bar
           Positioned(
             top: 10,
             left: 10,
@@ -963,11 +1014,11 @@ class _DraggableCardState extends State<DraggableCard>
           ),
           // Content
           Positioned(
-            bottom: 64,
-            left: 0,
-            right: 0,
+            bottom: 90, // Adjusted for more margin from bottom icons
+            left: 20,   // Consistent margin
+            right: 20,  // Consistent margin
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              padding: const EdgeInsets.symmetric(horizontal: 0.0), // Set to 0 for consistent edge
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -977,9 +1028,10 @@ class _DraggableCardState extends State<DraggableCard>
                     "Connect with",
                     style: GoogleFonts.pacifico(
                       fontWeight: FontWeight.w400,
-                      fontSize: MediaQuery.of(context).size.width * 0.07,
+                      fontSize: 27, // Fixed font size for consistency with design
                       color: Colors.white,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   ShaderMask(
                     blendMode: BlendMode.srcIn,
@@ -996,18 +1048,19 @@ class _DraggableCardState extends State<DraggableCard>
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        imageData.name + "!",
+                        "${imageData.name}!",
                         style: GoogleFonts.pacifico(
                           fontWeight: FontWeight.w400,
-                          fontSize: MediaQuery.of(context).size.width * 0.12,
+                          fontSize: 44, // Use fixed size for better control
                           color: Colors.white, // Default color
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 16), // Adjusted for better spacing
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -1043,24 +1096,24 @@ class _DraggableCardState extends State<DraggableCard>
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 16), // Adjusted for consistent spacing
                   Text(
-                    "www." + imageData.otherlink + ".com",
+                    "www.${imageData.otherlink}.com",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.blue,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 4),
-                  // Text(
-                  //   "www." + imageData.companyName + ".com",
-                  //   style: TextStyle(
-                  //     fontSize: 14,
-                  //     color: Colors.blue,
-                  //   ),
-                  // ),
-                  SizedBox(height: 10),
-                  // Add more widgets if needed
+                  SizedBox(height: 8),
+                  Text(
+                    "www.${imageData.name}.com",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.blue,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ],
               ),
             ),
@@ -1069,4 +1122,19 @@ class _DraggableCardState extends State<DraggableCard>
       ),
     );
   }
+
+
+  void _goToDetailedProfile() {
+    setState(() {
+      int currentCard = widget.currentCardIndex.value;
+      int currentImage = widget.imageIndices.value[currentCard];
+      if (currentImage == 0) {
+        print('Navigating to detailed profile card');
+        widget.imageIndices.value[currentCard] = 1; // Navigate to Card 2
+      }
+    });
+  }
+
+
+
 }

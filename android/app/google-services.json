@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "780302459736",
+    "project_id": "hushxtinder",
+    "storage_bucket": "hushxtinder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780302459736:android:23b3b15b45972f7ae4fb2d",
+        "android_client_info": {
+          "package_name": "com.example.hushhxtinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7MVIeqKN8fI_cB9DdzWbcKRZ6PdNcfUs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780302459736:android:cd04ec18ffdf2d77e4fb2d",
+        "android_client_info": {
+          "package_name": "com.example.hushxtinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7MVIeqKN8fI_cB9DdzWbcKRZ6PdNcfUs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

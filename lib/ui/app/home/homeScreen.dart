@@ -1,5 +1,6 @@
+// ignore_for_file: file_names
+
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
@@ -23,9 +24,9 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _screens = [
       HomeScreen(viewModel: _viewModel),
+      const Placeholder(),
+      const Placeholder(),
       FriendsScreen(),
-      Placeholder(),
-      Placeholder(),
       Placeholder(),
     ];
   }
@@ -45,76 +46,11 @@ class _MainScreenState extends State<MainScreen> {
           body: _screens[_selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
             items: [
-              BottomNavigationBarItem(
-                icon: GestureDetector(
-                  onTap: () => _onItemTapped(0),
-                  child: Container(
-                    color: Colors.transparent, // Set background transparent
-                    child: Image.asset(
-                      'lib/assets/images/home_nav.png',
-                      width: 54,
-                      height: 54,
-                    ),
-                  ),
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: GestureDetector(
-                  onTap: () => _onItemTapped(1),
-                  child: Container(
-                    color: Colors.transparent, // Set background transparent
-                    child: Image.asset(
-                      'lib/assets/images/explore_nav.png',
-                      width: 54,
-                      height: 54,
-                    ),
-                  ),
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: GestureDetector(
-                  onTap: () => _onItemTapped(2),
-                  child: Container(
-                    color: Colors.transparent, // Set background transparent
-                    child: Image.asset(
-                      'lib/assets/images/create_nav.png',
-                      width: 54,
-                      height: 54,
-                    ),
-                  ),
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: GestureDetector(
-                  onTap: () => _onItemTapped(3),
-                  child: Container(
-                    color: Color(0xff111418), // Set background transparent
-                    child: Image.asset(
-                      'lib/assets/images/chat_nav.png',
-                      width: 54,
-                      height: 54,
-                    ),
-                  ),
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: GestureDetector(
-                  onTap: () => _onItemTapped(4),
-                  child: Container(
-                    color: Colors.transparent, // Set background transparent
-                    child: Image.asset(
-                      'lib/assets/images/profile_nav.png',
-                      width: 54,
-                      height: 54,
-                    ),
-                  ),
-                ),
-                label: '',
-              ),
+              _buildBottomNavigationBarItem(0, 'home_nav.png'),
+              _buildBottomNavigationBarItem(1, 'explore_nav.png'),
+              _buildBottomNavigationBarItem(2, 'create_nav.png'),
+              _buildBottomNavigationBarItem(3, 'chat_nav.png'),
+              _buildBottomNavigationBarItem(4, 'profile_nav.png'),
             ],
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
@@ -127,6 +63,22 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  BottomNavigationBarItem _buildBottomNavigationBarItem(
+      int index, String iconPath) {
+    return BottomNavigationBarItem(
+      icon: GestureDetector(
+        onTap: () => _onItemTapped(index),
+        child: Image.asset(
+          'lib/assets/images/$iconPath',
+          width: 54,
+          height: 54,
+          color: _selectedIndex == index ? Colors.purple : Colors.grey,
+        ),
+      ),
+      label: '',
     );
   }
 }
@@ -157,12 +109,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // @override
-  // void dispose() {
-  //   _scrollController.dispose();
-  //   super.dispose();
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeViewModel>(
@@ -189,11 +135,11 @@ class _HomeScreenState extends State<HomeScreen> {
             String otherlink = socialMediaLinks['other'] ?? 'Not Available';
 
             // Log the values to verify they are being fetched correctly
-            log('Instagram: $instagram');
-            log('Twitter: $twitter');
-            log('YouTube: $youtube');
-            log('LinkedIn: $linkedin');
-            log('Other: $otherlink');
+            // log('Instagram: $instagram');
+            // log('Twitter: $twitter');
+            // log('YouTube: $youtube');
+            // log('LinkedIn: $linkedin');
+            // log('Other: $otherlink');
 
             return [
               ImageData(

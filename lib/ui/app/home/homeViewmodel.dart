@@ -1,4 +1,7 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -101,7 +104,7 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  Future<List<String>> fetchContacts() async {
+  Future<List<Map<String, String>>> fetchContacts() async {
     final supabaseClient = Supabase.instance.client;
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
@@ -111,34 +114,49 @@ class HomeViewModel extends ChangeNotifier {
 
     final response = await supabaseClient
         .from('contact')
-        .select('contact_userId')
+        .select('contact_userId, chat_id')
         .eq('userId', currentUserId);
 
-    // Extract user IDs from the response
-    final List<String> userIds =
-        List<String>.from(response.map((contact) => contact['contact_userId']));
+    final List<Map<String, String>> contacts =
+        response.map<Map<String, String>>((contact) {
+      log("${contact['chat_id']}");
+      return {
+        'contact_userId':
+            contact['contact_userId'] as String? ?? '', // Handle null case
+        'chatId': contact['chat_id'] as String? ?? '', // Handle null case
+      };
+    }).toList();
 
-    return userIds;
+    return contacts;
   }
 
   Future<List<Map<String, dynamic>>> fetchUserDetails() async {
     final supabaseClient = Supabase.instance.client;
     isLoading = true;
-    userDetails = []; // Clear existing user details
-    notifyListeners(); // Notify UI of loading state
+    userDetails = [];
+    notifyListeners();
 
     try {
-      final ids = await fetchContacts();
+      final contacts = await fetchContacts();
 
-      if (ids.isEmpty) {
+      if (contacts.isEmpty) {
         print('No user IDs found in contacts.');
-        return []; // Return an empty list to avoid further processing
+        return [];
       }
+
+      final userIds =
+          contacts.map((contact) => contact['contact_userId']).toList();
+      final chatIdMap = {
+        for (var contact in contacts)
+          contact['contact_userId']: contact['chatId']
+      };
+
+      log("ChatId map: $chatIdMap");
 
       final response = await supabaseClient
           .from('users')
-          .select('id,name, images')
-          .filter('id', 'in', '(${ids.join(",")})');
+          .select('id, name, images')
+          .filter('id', 'in', '(${userIds.join(",")})');
 
       final List<Map<String, dynamic>> userDetails =
           (response as List<dynamic>).map<Map<String, dynamic>>((user) {
@@ -156,20 +174,29 @@ class HomeViewModel extends ChangeNotifier {
           firstImageUrl = imageUrls[0];
         }
 
+        final chatId = chatIdMap[user['id']];
+        log("Fetched chatId for user ${user['id']}: $chatId");
+
+        if (chatId == null) {
+          print("Warning: No chatId found for user ${user['id']}");
+        }
+
         return {
-          'id': user['id'] as String,
+          'contact_userId': user['id'] as String,
           'name': user['name'] as String,
           'image': firstImageUrl,
+          'chatId': chatId ?? '',
         };
       }).toList();
 
+      log("User details fetched: ${userDetails.length}");
       return userDetails;
     } catch (e) {
       print('Error in fetchUserDetails: $e');
-      rethrow; // Rethrow exception for higher-level handling if needed
+      rethrow;
     } finally {
       isLoading = false;
-      notifyListeners(); // Ensure UI is updated after data fetching
+      notifyListeners();
     }
   }
 }

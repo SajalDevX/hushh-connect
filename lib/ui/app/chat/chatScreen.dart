@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
 import 'package:hushhxtinder/ui/app/chat/message.dart';
@@ -7,13 +9,14 @@ class ChatScreen extends StatefulWidget {
   String userTo;
   String profile;
   String name;
+  String chatId;
 
-  ChatScreen({
-    super.key,
-    required this.userTo,
-    required this.name,
-    required this.profile,
-  });
+  ChatScreen(
+      {super.key,
+      required this.userTo,
+      required this.name,
+      required this.profile,
+      required this.chatId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -31,7 +34,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_formKey.currentState != null && _formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      await appService.sendMessage(text, widget.userTo);
+      await appService.sendMessage(text, widget.userTo, widget.chatId);
 
       _msgController.clear(); // Clear the input field
 
@@ -88,7 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: StreamBuilder<List<Message>>(
               stream: appService.getMessagesForChat(
-                  widget.userTo), // Stream of messages from the service
+                  widget.chatId), // Stream of messages from the service
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   final messages = snapshot.data!;

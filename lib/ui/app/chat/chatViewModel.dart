@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, avoid_print, unnecessary_null_comparison
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/supabaseCredentials.dart';
@@ -7,24 +9,24 @@ class ChatViewModel extends ChangeNotifier {
   final _supabase = SupabaseCredentials.supabaseClient;
   final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-  Stream<List<Message>> getMessagesForChat(String userTo) {
+  Stream<List<Message>> getMessagesForChat(String chatId) {
     return _supabase
         .from('message')
         .stream(primaryKey: ['id'])
-        .eq('user_from', currentUserId!)
+        .eq('chat_id', chatId)
         .order('created_at', ascending: true)
         .map((maps) => maps
             .map((item) => Message.fromJson(item, currentUserId!))
             .toList());
   }
 
-  Future<void> sendMessage(String content, String userTo) async {
+  Future<void> sendMessage(String content, String userTo, String chatId) async {
     if (userTo != null && currentUserId != null) {
       final message = Message.create(
-        content: content,
-        userFrom: currentUserId!,
-        userTo: userTo,
-      );
+          content: content,
+          userFrom: currentUserId!,
+          userTo: userTo,
+          chatId: chatId);
       try {
         await _supabase.from('message').insert(message.toMap());
         notifyListeners();

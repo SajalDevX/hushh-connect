@@ -4,6 +4,7 @@ class Message {
   final bool markAsRead;
   final String userTo;
   final String userFrom;
+  final String chatId;
   final DateTime createAt;
   final bool isMine;
 
@@ -14,10 +15,14 @@ class Message {
       required this.userFrom,
       required this.userTo,
       required this.createAt,
+      required this.chatId,
       required this.isMine});
 
   Message.create(
-      {required this.content, required this.userFrom, required this.userTo})
+      {required this.content,
+      required this.userFrom,
+      required this.userTo,
+      required this.chatId})
       : id = '',
         markAsRead = false,
         isMine = true,
@@ -28,6 +33,7 @@ class Message {
         content = json['content'],
         markAsRead = json['mark_as_read'],
         userFrom = json['user_from'],
+        chatId = json['chat_id'],
         userTo = json['user_to'],
         createAt = DateTime.parse(json['created_at']),
         isMine = json['user_from'] == userId;
@@ -37,6 +43,7 @@ class Message {
       'content': content,
       'user_from': userFrom,
       'user_to': userTo,
+      'chat_id': chatId,
       'mark_as_read': markAsRead,
     };
   }

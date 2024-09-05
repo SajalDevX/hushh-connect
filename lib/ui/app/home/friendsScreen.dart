@@ -1,9 +1,10 @@
+// ignore_for_file: file_names, unused_local_variable, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/ui/app/chat/chatScreen.dart';
 import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
-import 'package:hushhxtinder/ui/app/chat/message.dart';
 import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
 import 'package:hushhxtinder/ui/onboarding/components/chatBox.dart';
 import 'package:provider/provider.dart';
@@ -25,12 +26,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Future<void> _fetchContacts() async {
     try {
       final viewModel = Provider.of<HomeViewModel>(context, listen: false);
-      final chatViewModel = Provider.of<ChatViewModel>(context, listen: false);
       await viewModel.fetchContacts();
 
       final userDetails = await viewModel.fetchUserDetails();
+      // log("user is $userDetails");
       setState(() {
         viewModel.userDetails = userDetails;
+        // log("user details are : ${viewModel.userDetails}");
       });
     } catch (e) {
       print('Error fetching contacts: $e');
@@ -41,7 +43,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Widget build(BuildContext context) {
     final viewModel = Provider.of<HomeViewModel>(context);
     final chatViewModel = Provider.of<ChatViewModel>(context);
-
     return Scaffold(
       body: Stack(
         children: [
@@ -70,7 +71,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     const Icon(Icons.notifications, color: Colors.white),
                   ],
                 ),
-                const SizedBox(height: 36),
+                const SizedBox(height: 36), // Reduced space
                 Text(
                   'Messages',
                   style: GoogleFonts.redHatText(
@@ -79,88 +80,40 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 2), // Reduced space
                 viewModel.isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : Expanded(
                         child: ListView.builder(
-                          padding: EdgeInsets.only(top: 8),
+                          padding: EdgeInsets.only(
+                              top: 8), // Reduced padding at the top of the list
                           itemCount: viewModel.userDetails.length,
                           itemBuilder: (context, index) {
                             final contact = viewModel.userDetails[index];
-                            final chatId = contact['chatId'] ?? '';
-
-                            return StreamBuilder<List<Message>>(
-                              stream: chatViewModel.getMessagesForChat(
-                                  chatId), // Assume this method returns a Stream<List<Message>>
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                } else if (snapshot.hasError) {
-                                  return const Center(
-                                      child: Text('Error loading messages'));
-                                } else if (!snapshot.hasData ||
-                                    snapshot.data!.isEmpty) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 4.0),
-                                    child: Chatbox(
-                                      image: contact['image'] ?? '',
-                                      name: contact['name'] ?? 'Unknown',
-                                      lastMessage: 'No messages',
-                                      navigateToChatScreen: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ChatScreen(
-                                              userTo:
-                                                  contact['contact_userId'] ??
-                                                      '',
-                                              profile: contact['image'] ?? '',
-                                              name:
-                                                  contact['name'] ?? 'Unknown',
-                                              chatId: chatId,
-                                            ),
-                                          ),
-                                        );
-                                      },
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4.0),
+                              // Log contact data
+                              child: Chatbox(
+                                image: contact['image'] ?? '',
+                                name: contact['name'] ?? 'Unknown',
+                                lastMessage: "Last Message",
+                                navigateToChatScreen: () {
+                                  // print(
+                                  //     'Navigating to chat with data: ${contact['contact_userId']}, ${contact['chatId']}'); // Log navigation data
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        userTo: contact['contact_userId'] ?? '',
+                                        profile: contact['image'] ?? '',
+                                        name: contact['name'] ?? 'Unknown',
+                                        chatId: contact['chatId'] ?? '',
+                                      ),
                                     ),
                                   );
-                                } else {
-                                  final messages = snapshot.data!;
-                                  final lastMessage = messages.isNotEmpty
-                                      ? messages.last.toString()
-                                      : '';
-
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 4.0),
-                                    child: Chatbox(
-                                      image: contact['image'] ?? '',
-                                      name: contact['name'] ?? 'Unknown',
-                                      lastMessage: lastMessage,
-                                      navigateToChatScreen: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ChatScreen(
-                                              userTo:
-                                                  contact['contact_userId'] ??
-                                                      '',
-                                              profile: contact['image'] ?? '',
-                                              name:
-                                                  contact['name'] ?? 'Unknown',
-                                              chatId: chatId,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                }
-                              },
+                                },
+                              ),
                             );
                           },
                         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
 import 'package:hushhxtinder/ui/components/blockProgressbar.dart';
 import 'dart:math' as math;
@@ -291,7 +292,7 @@ class _DraggableCardState extends State<DraggableCard>
                     child: CircularProgressIndicator(
                       value: loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /
-                          (loadingProgress.expectedTotalBytes ?? 1)
+                              (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -307,13 +308,13 @@ class _DraggableCardState extends State<DraggableCard>
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7)
-                  ],
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: [0.4, 1.0], // Gradient effect covers bottom 60% of the image
+                  stops: [
+                    0.4,
+                    1.0
+                  ], // Gradient effect covers bottom 60% of the image
                 ),
               ),
             ),
@@ -415,7 +416,8 @@ class _DraggableCardState extends State<DraggableCard>
                   SizedBox(height: 8),
                   // Read more link
                   GestureDetector(
-                    onTap: _goToDetailedProfile, // Updated to navigate to detailed profile
+                    onTap:
+                        _goToDetailedProfile, // Updated to navigate to detailed profile
                     child: Text(
                       'Read more',
                       style: GoogleFonts.figtree(
@@ -434,9 +436,6 @@ class _DraggableCardState extends State<DraggableCard>
       ),
     );
   }
-
-
-
 
   Widget _buildDetailedProfileCard(ImageData imageData, double likeOpacity,
       double dislikeOpacity, int totalImages, double progress) {
@@ -465,7 +464,7 @@ class _DraggableCardState extends State<DraggableCard>
                     child: CircularProgressIndicator(
                       value: loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /
-                          (loadingProgress.expectedTotalBytes ?? 1)
+                              (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -481,13 +480,13 @@ class _DraggableCardState extends State<DraggableCard>
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7)
-                  ],
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: [0.4, 1.0], // Gradient effect covers bottom 60% of the image
+                  stops: [
+                    0.4,
+                    1.0
+                  ], // Gradient effect covers bottom 60% of the image
                 ),
               ),
             ),
@@ -541,7 +540,8 @@ class _DraggableCardState extends State<DraggableCard>
             left: 20, // Adjusted for consistent margin
             right: 20, // Adjusted for consistent margin
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0.0), // Set to 0 for consistent edge
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 0.0), // Set to 0 for consistent edge
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -575,9 +575,11 @@ class _DraggableCardState extends State<DraggableCard>
                       letterSpacing: 0.09615,
                     ),
                   ),
-                  SizedBox(height: 12), // Increased spacing for better readability
+                  SizedBox(
+                      height: 12), // Increased spacing for better readability
                   Text(
-                    imageData.description, // Dynamically load description from imageData
+                    imageData
+                        .description, // Dynamically load description from imageData
                     style: GoogleFonts.figtree(
                       fontSize: 14,
                       color: Colors.white,
@@ -592,11 +594,6 @@ class _DraggableCardState extends State<DraggableCard>
       ),
     );
   }
-
-
-
-
-
 
   Widget _buildProductCard(ImageData imageData, double likeOpacity,
       double dislikeOpacity, int totalImages, double progress) {
@@ -759,7 +756,7 @@ class _DraggableCardState extends State<DraggableCard>
                     child: CircularProgressIndicator(
                       value: loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /
-                          (loadingProgress.expectedTotalBytes ?? 1)
+                              (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -775,13 +772,13 @@ class _DraggableCardState extends State<DraggableCard>
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7)
-                  ],
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: [0.4, 1.0], // Gradient effect covers bottom 60% of the image
+                  stops: [
+                    0.4,
+                    1.0
+                  ], // Gradient effect covers bottom 60% of the image
                 ),
               ),
             ),
@@ -869,13 +866,15 @@ class _DraggableCardState extends State<DraggableCard>
                       letterSpacing: 0.09615,
                     ),
                   ),
-                  SizedBox(height: 12), // Increased spacing for better readability
+                  SizedBox(
+                      height: 12), // Increased spacing for better readability
                   Wrap(
                     spacing: 8.0,
                     runSpacing: 4.0,
                     children: imageData.passions.map((passion) {
                       return Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: Colors.white),
@@ -899,8 +898,6 @@ class _DraggableCardState extends State<DraggableCard>
       ),
     );
   }
-
-
 
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
@@ -936,7 +933,7 @@ class _DraggableCardState extends State<DraggableCard>
                     child: CircularProgressIndicator(
                       value: loadingProgress.expectedTotalBytes != null
                           ? loadingProgress.cumulativeBytesLoaded /
-                          (loadingProgress.expectedTotalBytes ?? 1)
+                              (loadingProgress.expectedTotalBytes ?? 1)
                           : null,
                     ),
                   );
@@ -952,13 +949,13 @@ class _DraggableCardState extends State<DraggableCard>
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7)
-                  ],
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: [0.4, 1.0], // Gradient effect covers bottom 60% of the image
+                  stops: [
+                    0.4,
+                    1.0
+                  ], // Gradient effect covers bottom 60% of the image
                 ),
               ),
             ),
@@ -1015,10 +1012,11 @@ class _DraggableCardState extends State<DraggableCard>
           // Content
           Positioned(
             bottom: 90, // Adjusted for more margin from bottom icons
-            left: 20,   // Consistent margin
-            right: 20,  // Consistent margin
+            left: 20, // Consistent margin
+            right: 20, // Consistent margin
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0.0), // Set to 0 for consistent edge
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 0.0), // Set to 0 for consistent edge
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -1028,7 +1026,8 @@ class _DraggableCardState extends State<DraggableCard>
                     "Connect with",
                     style: GoogleFonts.pacifico(
                       fontWeight: FontWeight.w400,
-                      fontSize: 27, // Fixed font size for consistency with design
+                      fontSize:
+                          27, // Fixed font size for consistency with design
                       color: Colors.white,
                     ),
                     textAlign: TextAlign.center,
@@ -1123,7 +1122,6 @@ class _DraggableCardState extends State<DraggableCard>
     );
   }
 
-
   void _goToDetailedProfile() {
     setState(() {
       int currentCard = widget.currentCardIndex.value;
@@ -1134,7 +1132,4 @@ class _DraggableCardState extends State<DraggableCard>
       }
     });
   }
-
-
-
 }

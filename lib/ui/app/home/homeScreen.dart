@@ -3,7 +3,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
+import 'package:hushhxtinder/ui/app/profile/profileScreen.dart';
 import 'package:hushhxtinder/ui/components/customCard.dart';
 import 'package:provider/provider.dart';
 import 'homeViewmodel.dart';
@@ -24,10 +26,10 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _screens = [
       HomeScreen(viewModel: _viewModel),
-      const Placeholder(),
+      const FriendsScreen(),
       const Placeholder(),
       FriendsScreen(),
-      Placeholder(),
+      const ProfileScreen(),
     ];
   }
 

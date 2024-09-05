@@ -15,9 +15,11 @@ class ChatViewModel extends ChangeNotifier {
         .stream(primaryKey: ['id'])
         .eq('chat_id', chatId)
         .order('created_at', ascending: true)
-        .map((maps) => maps
-            .map((item) => Message.fromJson(item, currentUserId!))
-            .toList());
+        .map((maps) {
+          return maps
+              .map((item) => Message.fromJson(item, currentUserId!))
+              .toList();
+        });
   }
 
   Future<void> sendMessage(String content, String userTo, String chatId) async {

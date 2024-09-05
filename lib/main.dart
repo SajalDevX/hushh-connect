@@ -68,68 +68,6 @@ class SplashScreen extends StatelessWidget {
     );
   }
 
-  // Future<void> _checkAuthAndRedirect(BuildContext context) async {
-  //   try {
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     bool isAuthenticated = FirebaseAuth.instance.currentUser != null;
-  //     bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
-  //     log('Loaded onboarding completed: $onboardingCompleted'); // Debug log
-  //     if (!onboardingCompleted) {
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-  //       );
-  //       return;
-  //     }
-
-  //     int profileProgress = prefs.getInt('profile_progress') ?? 0;
-  //     log('Loaded profile progress: $profileProgress'); // Debug log
-
-  //     Widget nextScreen;
-  //     if (!isAuthenticated) {
-  //       nextScreen = const OnboardingScreen();
-  //     } else {
-  //       switch (profileProgress) {
-  //         case 1:
-  //           nextScreen = const AuthNameScreen();
-  //           break;
-  //         case 2:
-  //           nextScreen = const AuthEmailScreen();
-  //           break;
-  //         case 3:
-  //           nextScreen = const AuthPhoneScreen();
-  //           break;
-  //         case 4:
-  //           nextScreen = const AuthOtpScreen();
-  //           break;
-  //         case 5:
-  //           nextScreen = const AuthCurrentLocation();
-  //           break;
-  //         case 6:
-  //           nextScreen = const AuthSocialMediaScreen();
-  //           break;
-  //         case 7:
-  //           nextScreen = const AuthOfficeScreen();
-  //           break;
-  //         case 8:
-  //           nextScreen = const AuthPhotosScreen();
-  //           break;
-  //         case 9:
-  //           nextScreen = const AuthPassionsScreen();
-  //           break;
-  //         default:
-  //           nextScreen = MainScreen();
-  //       }
-  //     }
-
-  //     Navigator.pushReplacement(
-  //       context,
-  //       MaterialPageRoute(builder: (context) => nextScreen),
-  //     );
-  //   } catch (e) {
-  //     log('Error during auth and redirect check: $e');
-  //   }
-  // }
   Future<void> _checkAuthAndRedirect(BuildContext context) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
 import 'package:hushhxtinder/ui/app/chat/message.dart';
@@ -25,6 +27,26 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _formKey = GlobalKey<FormState>();
   final _msgController = TextEditingController();
+  Timer? _refreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startPeriodicRefresh();
+  }
+
+  @override
+  void dispose() {
+    _msgController.dispose();
+    _refreshTimer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  void _startPeriodicRefresh() {
+    _refreshTimer = Timer.periodic(Duration(seconds: 2), (Timer timer) {
+      setState(() {}); // Trigger a rebuild to refresh the UI
+    });
+  }
 
   Future<void> _submit(ChatViewModel appService) async {
     final text = _msgController.text;
@@ -37,15 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
       await appService.sendMessage(text, widget.userTo, widget.chatId);
 
       _msgController.clear(); // Clear the input field
-
-      setState(() {}); // Trigger UI rebuild to show the new message
     }
-  }
-
-  @override
-  void dispose() {
-    _msgController.dispose();
-    super.dispose();
   }
 
   @override

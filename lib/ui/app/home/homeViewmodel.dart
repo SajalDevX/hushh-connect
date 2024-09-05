@@ -6,6 +6,7 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 class HomeViewModel extends ChangeNotifier {
   bool isLoading = false;
@@ -83,18 +84,21 @@ class HomeViewModel extends ChangeNotifier {
         return;
       }
 
-      // Insert new contact
+      final uuid = Uuid().v4();
+
       final response = await supabaseClient.from('contact').insert({
+        'chat_id': uuid,
         'userId': currentUserId,
         'contact_userId': contactUserId,
       });
       final response2 = await supabaseClient.from('contact').insert({
+        'chat_id': uuid,
         'userId': contactUserId,
         'contact_userId': currentUserId,
       });
 
-      print('UserId added: $contactUserId');
-      print('Insert response: $response');
+      // print('UserId added: $contactUserId');
+      // print('Insert response: $response');
     } catch (e) {
       print('Exception occurred: $e');
     } finally {
@@ -199,45 +203,4 @@ class HomeViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-}
-
-class ImageData {
-  final String imageRes;
-  final String name;
-  final String role;
-  final String companyName;
-  final String location;
-  final String description;
-  final String contactNumber;
-  final List<dynamic> products;
-  final List<dynamic> passions;
-  final String instagram;
-  final String linkedin;
-  final String twitter;
-  final String youtube;
-  final String otherlink;
-  final String userId;
-
-  ImageData(
-      {required this.imageRes,
-      required this.name,
-      required this.role,
-      required this.companyName,
-      required this.location,
-      required this.description,
-      required this.contactNumber,
-      required this.products,
-      required this.passions,
-      required this.instagram,
-      required this.linkedin,
-      required this.twitter,
-      required this.youtube,
-      required this.otherlink,
-      required this.userId});
-}
-
-class CardData {
-  final List<List<ImageData>> cards;
-
-  CardData(this.cards);
 }

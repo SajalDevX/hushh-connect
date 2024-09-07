@@ -38,7 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     _msgController.dispose();
-    _refreshTimer?.cancel(); // Cancel the timer when the widget is disposed
+    _refreshTimer?.cancel();
     super.dispose();
   }
 

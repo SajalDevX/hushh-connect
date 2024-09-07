@@ -123,7 +123,7 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
 
     await _uploadImages(); // Upload images before navigating
     if (!_isLoading) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => const AuthPassionsScreen(),

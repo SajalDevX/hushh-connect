@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,21 +13,21 @@ class DraggableCard extends StatefulWidget {
   final CardData cardData;
   final ValueNotifier<int> currentCardIndex;
   final ValueNotifier<List<int>> imageIndices;
-  // final Function(int) onCardSwiped;
   final HomeViewModel viewModel;
+
   DraggableCard({
+    Key? key,
     required this.cardData,
     required this.currentCardIndex,
     required this.imageIndices,
-    // required this.onCardSwiped,
     required this.viewModel,
-  });
+  }) : super(key: key);
 
   @override
-  _DraggableCardState createState() => _DraggableCardState();
+  DraggableCardState createState() => DraggableCardState();
 }
 
-class _DraggableCardState extends State<DraggableCard>
+class DraggableCardState extends State<DraggableCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _offsetXAnimation;
@@ -67,7 +69,9 @@ class _DraggableCardState extends State<DraggableCard>
     super.dispose();
   }
 
-  void _onDragEnd(DragEndDetails details) {
+  void _onDragEnd(
+    DragEndDetails details,
+  ) {
     final bool isSwipeRight = offsetX > screenWidth * 0.3;
     final bool isSwipeLeft = offsetX < screenWidth * 0.3;
 
@@ -114,6 +118,46 @@ class _DraggableCardState extends State<DraggableCard>
         });
       });
     }
+  }
+
+  void handleLike() {
+    final index = widget.currentCardIndex.value;
+    final currentUserId = widget.cardData.cards[index].first.userId;
+
+    widget.viewModel.addToContact(currentUserId);
+  }
+
+  void handleDislike() {
+    _controller.forward(from: 0).whenComplete(() {
+      _moveToNextCard();
+    });
+  }
+
+  void _moveToNextCard() {
+    setState(() {
+      final isLastCard =
+          widget.currentCardIndex.value == widget.cardData.cards.length - 1;
+
+      if (!isLastCard) {
+        widget.currentCardIndex.value++;
+        widget.imageIndices.value[widget.currentCardIndex.value] = 0;
+      } else {
+        widget.currentCardIndex.value = -1; // No more cards
+        widget.imageIndices.value = [];
+      }
+
+      // Reset animations
+      _resetAnimations();
+    });
+  }
+
+  void _resetAnimations() {
+    // Reset the animations for next card
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
+    _offsetXAnimation = Tween<double>(begin: 0, end: 0).animate(_controller);
+    _rotationAnimation = Tween<double>(begin: 0, end: 0).animate(_controller);
+    _alphaAnimation = Tween<double>(begin: 1, end: 1).animate(_controller);
   }
 
   void _onDragUpdate(DragUpdateDetails details) {

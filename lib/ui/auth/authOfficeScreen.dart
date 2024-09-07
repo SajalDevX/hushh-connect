@@ -38,7 +38,7 @@ class _AuthOfficeScreenState extends State<AuthOfficeScreen> {
     // Upload office info to Supabase
     await authViewModel.uploadOfficeInfoToSupabase();
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => AuthSocialMediaScreen(),

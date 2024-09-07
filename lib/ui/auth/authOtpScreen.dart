@@ -43,7 +43,7 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
         const SnackBar(content: Text('OTP verified successfully!')),
       );
 
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => AuthCurrentLocation(),

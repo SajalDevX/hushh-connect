@@ -66,7 +66,7 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
       _isLoading = false;
     });
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => AuthPhotosScreen(),

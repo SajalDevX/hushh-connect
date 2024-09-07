@@ -39,7 +39,7 @@ dependencies:
   image_picker:
   google_fonts: 6.1.0
   provider:
-  supabase_flutter:
+  supabase_flutter: ^2.0.0
   shared_preferences:
   geolocator:
   geocoding:

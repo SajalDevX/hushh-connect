@@ -73,7 +73,7 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
         // Update passions and handle navigation
         await authViewModel.updatePassions(selectedPassions.toList());
         if (!authViewModel.isLoading) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => MainScreen(),

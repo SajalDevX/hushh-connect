@@ -48,10 +48,10 @@
 //     }
 //   }
 // }
-
+import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/supabaseCredentials.dart';
@@ -141,7 +141,6 @@ class ChatViewModel extends ChangeNotifier {
 
   Future<Message?> getLastMessageForChat(String chatId) async {
     try {
-      // Query the last message by sorting by 'created_at' in descending order
       final response = await _supabase
           .from('message')
           .select()
@@ -211,5 +210,36 @@ class ChatViewModel extends ChangeNotifier {
   void dispose() {
     chatSubscription.cancel(); // Cancel the subscription when no longer needed
     super.dispose();
+  }
+
+  // Example of sending push notification via FCM API
+  Future<void> sendPushNotification(String fcmToken, String message) async {
+    const String serverKey = 'AIzaSyC7MVIeqKN8fI_cB9DdzWbcKRZ6PdNcfUs';
+
+    try {
+      var url = Uri.parse('https://fcm.googleapis.com/fcm/send');
+      var response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'key=$serverKey',
+        },
+        body: jsonEncode({
+          'to': fcmToken,
+          'notification': {
+            'title': 'New Message',
+            'body': message,
+          },
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Notification sent successfully');
+      } else {
+        print('Error sending notification: ${response.body}');
+      }
+    } catch (e) {
+      print('Exception: $e');
+    }
   }
 }

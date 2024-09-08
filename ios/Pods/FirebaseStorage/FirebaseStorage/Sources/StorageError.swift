@@ -46,7 +46,7 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     if let data = (errorDictionary["data"] as? Data) {
       errorDictionary["ResponseBody"] = String(data: data, encoding: .utf8)
     }
-    
+
     let storageError: StorageError
     switch serverError.code {
     case 400:
@@ -69,11 +69,13 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
       )
     case 404:
       storageError = .objectNotFound(
-        object: ref.path.object ?? "<object-entity-internal-error>", serverError: errorDictionary
+        object: ref.path.object ?? "<object-entity-internal-error>",
+        serverError: errorDictionary
       )
     default:
       storageError = .unknown(
-        message: "Unexpected \(serverError.code) code from backend", serverError: errorDictionary
+        message: "Unexpected \(serverError.code) code from backend",
+        serverError: errorDictionary
       )
     }
     return storageError as NSError

@@ -2,17 +2,24 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class AuthViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? verificationId;
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
-
+  AuthViewModel() {
+    _initializeFirebaseMessaging();
+  }
   String _name = '';
   String _email = '';
   String _phoneNumber = '';
@@ -115,6 +122,70 @@ class AuthViewModel extends ChangeNotifier {
   void updateOther(String link) {
     _other = link;
     notifyListeners();
+  }
+
+  Future<void> _initializeFirebaseMessaging() async {
+    // Request permission for iOS devices
+    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      log('User granted permission');
+      _setupFlutterLocalNotifications();
+      _firebaseMessaging.onTokenRefresh.listen(_saveTokenToDatabase);
+      _firebaseMessaging.getToken().then(_saveTokenToDatabase);
+    } else {
+      log('User declined or has not accepted permission');
+    }
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      log("Received message: ${message.notification?.title}");
+      _showNotification(message);
+    });
+  }
+
+  Future<void> _saveTokenToDatabase(String? token) async {
+    if (token != null) {
+      final supabaseClient = supabase.Supabase.instance.client;
+      await supabaseClient.from('users').upsert({
+        'id': FirebaseAuth.instance.currentUser?.uid,
+        'fcm_token': token,
+      });
+    }
+  }
+
+  // Setup Flutter Local Notifications
+  void _setupFlutterLocalNotifications() {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
+    _flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  // Show notification when app is in foreground
+  Future<void> _showNotification(RemoteMessage message) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'your_channel_id', // Replace with your channel ID
+      'your_channel_name', // Replace with your channel name
+      channelDescription: 'your_channel_description', // Optional
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await _flutterLocalNotificationsPlugin.show(
+      message.notification.hashCode,
+      message.notification?.title,
+      message.notification?.body,
+      platformChannelSpecifics,
+    );
   }
 
   Future<void> verifyPhoneNumber(BuildContext context) async {

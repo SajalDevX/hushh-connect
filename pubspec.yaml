@@ -43,7 +43,7 @@ dependencies:
   shared_preferences:
   geolocator:
   geocoding:
-  firebase_core:
+  firebase_core: ^3.4.0
   firebase_auth:
   firebase_storage:
   swipable_stack:

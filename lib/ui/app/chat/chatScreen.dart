@@ -179,7 +179,6 @@
 //     );
 //   }
 // }
-
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
 import 'package:hushhxtinder/ui/app/chat/message.dart';
@@ -281,6 +280,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final message = messages[messages.length - 1 - index];
+
+                      // Mark the message as read if it's not already marked
+                      if (!message.isMine && !message.markAsRead) {
+                        appService.markMessageAsRead(message.id);
+                      }
 
                       return ChatBubble(
                         text: message.content,

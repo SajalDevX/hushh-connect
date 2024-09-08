@@ -32,7 +32,6 @@ void main() async {
     url: SupabaseCredentials.APIURL,
     anonKey: SupabaseCredentials.APIKEY,
   );
-
   runApp(
     MultiProvider(
       providers: [

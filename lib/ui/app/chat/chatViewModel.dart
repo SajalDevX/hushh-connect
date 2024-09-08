@@ -139,6 +139,29 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
+  Future<Message?> getLastMessageForChat(String chatId) async {
+    try {
+      // Query the last message by sorting by 'created_at' in descending order
+      final response = await _supabase
+          .from('message')
+          .select()
+          .eq('chat_id', chatId)
+          .order('created_at', ascending: false)
+          .limit(1);
+
+      final data = response as List<dynamic>;
+      if (data.isNotEmpty) {
+        // Parse the last message and return it
+        return Message.fromJson(data.first, currentUserId!);
+      } else {
+        return null; // No message found for this chat
+      }
+    } catch (e) {
+      print("Error fetching last message for chat $chatId: $e");
+      return null;
+    }
+  }
+
   /// Method to update chats in real-time
   Future<void> updateChatsInRealtime({Function()? setState}) async {
     chatSubscription = _supabase

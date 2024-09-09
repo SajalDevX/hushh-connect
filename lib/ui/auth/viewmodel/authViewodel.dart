@@ -124,6 +124,12 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
   Future<void> _initializeFirebaseMessaging() async {
     // Request permission for iOS devices
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
@@ -147,6 +153,11 @@ class AuthViewModel extends ChangeNotifier {
     });
   }
 
+  ///
+  ///
+  ///
+  ///
+  ///
   Future<void> _saveTokenToDatabase(String? token) async {
     if (token != null) {
       final supabaseClient = supabase.Supabase.instance.client;
@@ -157,6 +168,11 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
+  ///
+  ///
+  ///
+  ///
+  ///
   // Setup Flutter Local Notifications
   void _setupFlutterLocalNotifications() {
     const AndroidInitializationSettings initializationSettingsAndroid =
@@ -168,6 +184,12 @@ class AuthViewModel extends ChangeNotifier {
     _flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
   // Show notification when app is in foreground
   Future<void> _showNotification(RemoteMessage message) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =

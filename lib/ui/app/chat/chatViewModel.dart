@@ -212,6 +212,13 @@ class ChatViewModel extends ChangeNotifier {
     super.dispose();
   }
 
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
   // Example of sending push notification via FCM API
   Future<void> sendPushNotification(String fcmToken, String message) async {
     const String serverKey = 'AIzaSyC7MVIeqKN8fI_cB9DdzWbcKRZ6PdNcfUs';

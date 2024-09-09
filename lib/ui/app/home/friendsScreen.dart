@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, unused_local_variable, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,8 +18,6 @@ class FriendsScreen extends StatefulWidget {
 }
 
 class _FriendsScreenState extends State<FriendsScreen> {
-  bool _isLoading = true; // Combined loading state
-
   @override
   void initState() {
     super.initState();
@@ -27,23 +27,19 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Future<void> _fetchContacts() async {
     try {
       final viewModel = Provider.of<HomeViewModel>(context, listen: false);
-      await viewModel.fetchContacts();
 
-      // Simulate loading time with a delay
-      await Future.delayed(const Duration(seconds: 1));
+      await viewModel.fetchContacts();
 
       final userDetails = await viewModel.fetchUserDetails();
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          viewModel.userDetails = userDetails;
-          _isLoading = false; // Data fetching is complete
-        });
+        if (mounted) {
+          setState(() {
+            viewModel.userDetails = userDetails;
+          });
+        }
       });
     } catch (e) {
       print('Error fetching contacts: $e');
-      setState(() {
-        _isLoading = false; // Set to false even if there's an error
-      });
     }
   }
 
@@ -80,7 +76,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     const Icon(Icons.notifications, color: Colors.white),
                   ],
                 ),
-                const SizedBox(height: 36),
+                const SizedBox(height: 36), // Reduced space
                 Text(
                   'Messages',
                   style: GoogleFonts.redHatText(
@@ -89,54 +85,45 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 2),
-                // Show a single main circular progress indicator while loading
-                if (_isLoading)
-                  const Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.only(top: 8),
-                      itemCount: viewModel.userDetails.length,
-                      itemBuilder: (context, index) {
-                        final contact = viewModel.userDetails[index];
-                        final int unreadCount = contact['unreadCount'] ?? 0;
+                const SizedBox(height: 2), // Reduced space
+                viewModel.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.only(
+                              top: 8), // Reduced padding at the top of the list
+                          itemCount: viewModel.userDetails.length,
+                          itemBuilder: (context, index) {
+                            final contact = viewModel.userDetails[index];
 
-                        return FutureBuilder<Message?>(
-                          future: chatViewModel
-                              .getLastMessageForChat(contact['chatId']),
-                          builder: (context, snapshot) {
-                            // if (snapshot.connectionState ==
-                            //     ConnectionState.waiting) {
-                            //   return const SizedBox(
-                            //     height: 80, // Maintain the item height
-                            //     child: Center(
-                            //       child: CircularProgressIndicator(),
-                            //     ),
-                            //   );
-                            // } else
-                            if (snapshot.hasError) {
-                              return const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Error loading last message',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              );
-                            } else if (snapshot.hasData) {
-                              final Message? message = snapshot.data;
-                              final String lastMessage =
-                                  message?.content ?? 'No messages yet';
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 4.0),
-                                child: Stack(
-                                  children: [
-                                    Chatbox(
+                            // Fetch last message using FutureBuilder
+                            return FutureBuilder<Message?>(
+                              future: chatViewModel
+                                  .getLastMessageForChat(contact['chatId']),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text('Loading last message...'),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Error loading last message',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  );
+                                } else {
+                                  final lastMessage = snapshot.data?.content ??
+                                      'No messages yet';
+
+                                  // Display Chatbox with the last message
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4.0),
+                                    child: Chatbox(
                                       image: contact['image'] ?? '',
                                       name: contact['name'] ?? 'Unknown',
                                       lastMessage: lastMessage,
@@ -157,37 +144,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                         );
                                       },
                                     ),
-                                    if (unreadCount > 0)
-                                      Positioned(
-                                        right: 8,
-                                        top: 16,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(6),
-                                          decoration: BoxDecoration(
-                                            color: Colors.green,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Text(
-                                            unreadCount.toString(),
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
+                                  );
+                                }
+                              },
+                            );
                           },
-                        );
-                      },
-                    ),
-                  ),
+                        ),
+                      ),
               ],
             ),
           ),

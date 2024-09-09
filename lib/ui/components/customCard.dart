@@ -69,11 +69,11 @@ class DraggableCardState extends State<DraggableCard>
     super.dispose();
   }
 
-  void _onDragEnd(
-    DragEndDetails details,
-  ) {
-    final bool isSwipeRight = offsetX > screenWidth * 0.3;
-    final bool isSwipeLeft = offsetX < screenWidth * 0.3;
+  void _onDragEnd(DragEndDetails details) {
+    final bool isSwipeRight =
+        offsetX > screenWidth * 0.4; // Changed from 0.3 to 0.5
+    final bool isSwipeLeft =
+        offsetX < -screenWidth * 0.4; // Negative value for left swipe
 
     if (isSwipeRight || _controller.isAnimating || isSwipeLeft) {
       // Ensure the last card is processed
@@ -250,12 +250,21 @@ class DraggableCardState extends State<DraggableCard>
         cardContent = _buildSocialCard(
             imageData, likeOpacity, dislikeOpacity, totalImages, progress);
     }
-
     return Stack(
       children: [
         GestureDetector(
           onPanUpdate: _onDragUpdate,
           onPanEnd: _onDragEnd,
+          onTapUp: (details) {
+            final tapPosition = details.localPosition.dx;
+            if (tapPosition < screenWidth / 2) {
+              // Tap on the left half of the screen
+              _previousImage();
+            } else {
+              // Tap on the right half of the screen
+              _nextImage();
+            }
+          },
           child: Stack(
             children: [
               Positioned.fill(
@@ -279,26 +288,6 @@ class DraggableCardState extends State<DraggableCard>
                         child: cardContent,
                       ),
                     ),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                left: 0,
-                right: screenWidth * 0.67,
-                child: GestureDetector(
-                  onTap: _previousImage,
-                  child: Container(
-                    color: Colors.transparent,
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                left: screenWidth * 0.67,
-                right: 0,
-                child: GestureDetector(
-                  onTap: _nextImage,
-                  child: Container(
-                    color: Colors.transparent,
                   ),
                 ),
               ),

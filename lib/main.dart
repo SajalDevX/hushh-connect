@@ -47,6 +47,11 @@ void main() async {
   );
 }
 
+///
+///
+///
+///
+///
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   log('Handling a background message: ${message.messageId}');

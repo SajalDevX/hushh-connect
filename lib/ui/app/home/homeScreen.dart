@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
       const FriendsScreen(),
       const Placeholder(),
       FriendsScreen(),
-      const ProfileScreen(),
+      ProfileScreen(),
     ];
   }
 

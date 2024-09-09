@@ -8,6 +8,7 @@ import 'package:hushhxtinder/firebase_options.dart';
 import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
 import 'package:hushhxtinder/ui/app/home/homeScreen.dart';
 import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
+import 'package:hushhxtinder/ui/app/profile/profileViewModel.dart';
 import 'package:hushhxtinder/ui/auth/authEmailScreen.dart';
 import 'package:hushhxtinder/ui/auth/authHomeLocationScreen.dart';
 import 'package:hushhxtinder/ui/auth/authNameScreen.dart';
@@ -41,6 +42,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AuthViewModel()),
         ChangeNotifierProvider(create: (context) => ChatViewModel()),
         ChangeNotifierProvider(create: (context) => HomeViewModel()),
+        ChangeNotifierProvider(create: (context) => ProfileViewModel()),
       ],
       child: const MyApp(),
     ),

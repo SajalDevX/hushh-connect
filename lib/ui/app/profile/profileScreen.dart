@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/models/profile_model.dart';
+import 'package:hushhxtinder/ui/app/product/productScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileViewModel.dart';
 import 'package:provider/provider.dart';
 
@@ -78,12 +79,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontSize: 14,
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                Column(
+                                const Column(
                                   children: [
                                     Icon(Icons.settings, color: Colors.white),
                                     SizedBox(height: 5),
@@ -95,15 +96,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 Column(
                                   children: [
-                                    Icon(Icons.edit, color: Colors.white),
+                                    IconButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProductListScreen()),
+                                          );
+                                        },
+                                        icon: Icon(Icons.edit),
+                                        color: Colors.white),
                                     SizedBox(height: 5),
-                                    Text(
+                                    const Text(
                                       'Add Products',
                                       style: TextStyle(color: Colors.white),
                                     ),
                                   ],
                                 ),
-                                Column(
+                                const Column(
                                   children: [
                                     Icon(Icons.add_a_photo,
                                         color: Colors.white),

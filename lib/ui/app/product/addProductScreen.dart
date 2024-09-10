@@ -1,0 +1,167 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:hushhxtinder/ui/components/customButton.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:hushhxtinder/ui/app/product/productViewmodel.dart';
+
+class AddProductScreen extends StatefulWidget {
+  const AddProductScreen({super.key});
+
+  @override
+  _AddProductScreenState createState() => _AddProductScreenState();
+}
+
+class _AddProductScreenState extends State<AddProductScreen> {
+  final _productNameController = TextEditingController();
+  final _productLinkController = TextEditingController();
+  final _productPriceController = TextEditingController();
+  final _productContentController = TextEditingController();
+
+  File? _productImage;
+  final _picker = ImagePicker();
+  bool _isLoading = false; // New variable to manage loading state
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _productImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _saveProduct() async {
+    if (_productImage == null ||
+        _productNameController.text.isEmpty ||
+        _productContentController.text.isEmpty ||
+        _productPriceController.text.isEmpty) {
+      // Show error message if any required field is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Please fill all fields and select an image')),
+      );
+      return;
+    }
+
+    final viewModel = Provider.of<Productviewmodel>(context, listen: false);
+    final double? price = double.tryParse(_productPriceController.text);
+
+    if (price == null) {
+      // Show error message if price is invalid
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid price')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true; // Set loading state to true
+    });
+
+    await viewModel.uploadProduct(
+      imageFile: _productImage!,
+      productName: _productNameController.text,
+      productContent: _productContentController.text,
+      productPrice: price,
+      productLink: _productLinkController.text,
+    );
+
+    setState(() {
+      _isLoading = false; // Set loading state to false
+    });
+
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.red),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          "Add Product",
+          style: TextStyle(color: Colors.black),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _saveProduct,
+            child: const Text(
+              "Save",
+              style: TextStyle(color: Colors.blue),
+            ),
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: _productImage == null
+                        ? Container(
+                            height: 278,
+                            color: Colors.grey[200],
+                            child: const Center(
+                                child: Text('Tap to select image')),
+                          )
+                        : Image.file(_productImage!, height: 200),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "PRODUCT INFORMATION",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildTextField("Product Name", _productNameController, 1),
+                  _buildTextField("Product Link", _productLinkController, 1),
+                  _buildTextField("Price", _productPriceController, 1),
+                  _buildTextField("Content", _productContentController, 5),
+                  SizedBox(
+                    width: double.infinity,
+                    child: IAgreeButton(
+                      onPressed: _saveProduct,
+                      text: "Add Product",
+                      size: 42,
+                    ),
+                  ),
+                  const Spacer(),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildTextField(
+      String label, TextEditingController controller, int maxLines) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: const BorderSide(
+                color: Color.fromARGB(255, 105, 30, 233), width: 2.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: const BorderSide(
+                color: Color.fromARGB(255, 138, 30, 233), width: 2.0),
+          ),
+        ),
+      ),
+    );
+  }
+}

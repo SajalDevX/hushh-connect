@@ -26,7 +26,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _screens = [
       HomeScreen(viewModel: _viewModel),
-      const FriendsScreen(),
+      const Placeholder(),
       const Placeholder(),
       FriendsScreen(),
       ProfileScreen(),
@@ -115,7 +115,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleLikeOrDislike(bool isLike) {
-    // Define the icon to display based on the action
     final icon = isLike
         ? Image.asset(
             'lib/assets/images/likehushhconnect.png',

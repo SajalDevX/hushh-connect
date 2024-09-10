@@ -78,11 +78,7 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
         try {
           final uploadTask = ref.putFile(compressedFile);
 
-          uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-            print('Task state: ${snapshot.state}');
-            print(
-                'Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100} %');
-          });
+          uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {});
 
           await uploadTask;
           final url = await ref.getDownloadURL();

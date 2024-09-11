@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:hushhxtinder/ui/app/product/productViewmodel.dart';
 
 class AddProductScreen extends StatefulWidget {
-  const AddProductScreen({super.key});
+  final VoidCallback onProductAdded;
+
+  const AddProductScreen({super.key, required this.onProductAdded});
 
   @override
   _AddProductScreenState createState() => _AddProductScreenState();
@@ -58,20 +60,27 @@ class _AddProductScreenState extends State<AddProductScreen> {
       _isLoading = true; // Set loading state to true
     });
 
-    await viewModel.uploadProduct(
-      imageFile: _productImage!,
-      productName: _productNameController.text,
-      productContent: _productContentController.text,
-      productPrice: price,
-      productLink: _productLinkController.text,
-    );
-
-    setState(() {
-      _isLoading = false; // Set loading state to false
-    });
-
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => AddProductScreen()));
+    try {
+      await viewModel.uploadProduct(
+        imageFile: _productImage!,
+        productName: _productNameController.text,
+        productContent: _productContentController.text,
+        productPrice: price,
+        productLink: _productLinkController.text,
+      );
+      // Notify the previous screen about the new product
+      widget.onProductAdded();
+    } catch (e) {
+      // Handle upload errors here
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add product: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false; // Set loading state to false
+      });
+      Navigator.pop(context); // Pop the screen after saving
+    }
   }
 
   @override

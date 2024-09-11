@@ -109,7 +109,14 @@ flutter:
     - lib/assets/images/linkedin_svg.svg
     - lib/assets/images/twitter_svg.svg
     - lib/assets/images/youtube_svg.svg
-
+    - lib/assets/images/lookingforjob.jpeg
+    - lib/assets/images/love.jpeg
+    - lib/assets/images/movietime.jpeg
+    - lib/assets/images/gym.jpeg
+    - lib/assets/images/friends.jpeg
+    - lib/assets/images/developers.jpeg
+    - lib/assets/images/coffeedate.jpeg
+    
 
   # To add assets to your application, add an assets section, like this:
   # assets:

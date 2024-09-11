@@ -89,6 +89,9 @@ class DraggableCardState extends State<DraggableCard>
 
         if (isSwipeRight) {
           widget.viewModel.addToContact(currentUserId);
+
+          widget.currentCardIndex.value++;
+          widget.imageIndices.value[widget.currentCardIndex.value] = 0;
         }
 
         // Move to the next card if it's not the last card

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/data/models/productModel.dart';
+import 'package:hushhxtinder/ui/app/connect/connectScreen.dart';
 import 'package:hushhxtinder/ui/app/explore/exploreScreen.dart';
 import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileScreen.dart';
@@ -30,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
     _screens = [
       HomeScreen(viewModel: _viewModel),
       const ExploreScreen(),
-      const Placeholder(),
+      const ConnectScreen(),
       FriendsScreen(),
       ProfileScreen(),
     ];
@@ -107,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeViewModel>().fetchUsersNearby();
+      context.read<HomeViewModel>().fetchUsersAndProducts();
     });
     _scrollController.addListener(_scrollListener);
   }
@@ -115,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _scrollListener() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      widget.viewModel.fetchUsersNearby();
+      widget.viewModel.fetchUsersAndProducts();
     }
   }
 

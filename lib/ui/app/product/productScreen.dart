@@ -16,11 +16,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final productViewModel =
-          Provider.of<Productviewmodel>(context, listen: false);
-      productViewModel.fetchProducts();
-    });
+    _fetchProducts();
+  }
+
+  Future<void> _fetchProducts() async {
+    final productViewModel =
+        Provider.of<Productviewmodel>(context, listen: false);
+    await productViewModel.fetchProducts();
+  }
+
+  void _onProductAdded() async {
+    // Refresh the product list when a product is added
+    await _fetchProducts();
   }
 
   @override
@@ -106,10 +113,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddProductScreen(),
-                                ));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddProductScreen(
+                                  onProductAdded: _onProductAdded,
+                                ),
+                              ),
+                            );
                           },
                           child: ShaderMask(
                             shaderCallback: (bounds) => const LinearGradient(

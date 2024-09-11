@@ -5,6 +5,7 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hushhxtinder/data/models/productModel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -45,6 +46,7 @@ class HomeViewModel extends ChangeNotifier {
         print('No users found.');
       } else {
         users.addAll(fetchedUsers);
+        users.shuffle();
         currentPage++;
       }
     } catch (e) {
@@ -201,6 +203,86 @@ class HomeViewModel extends ChangeNotifier {
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> fetchUsersAndProducts() async {
+    if (isLoading) return;
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final supabaseClient = Supabase.instance.client;
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (currentUserId == null) {
+        throw Exception('User is not logged in.');
+      }
+
+      final from = currentPage * pageSize;
+      final to = from + pageSize - 1;
+
+      // Fetch users excluding the current user
+      final response = await supabaseClient
+          .from('users')
+          .select('*')
+          // .neq('id', currentUserId)
+          .range(from, to);
+
+      final fetchedUsers =
+          List<Map<String, dynamic>>.from(response as List<dynamic>);
+
+      if (fetchedUsers.isEmpty) {
+        print('No users found.');
+      } else {
+        // Fetch products for each user
+        for (var user in fetchedUsers) {
+          user['products'] = await fetchProductsForUser(user['id']);
+        }
+
+        users.addAll(fetchedUsers);
+        users.shuffle();
+        currentPage++;
+      }
+    } catch (e) {
+      print('Exception: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<List<Product>> fetchProductsForUser(String userId) async {
+    final _supabase = Supabase.instance.client;
+    try {
+      final response = await _supabase
+          .from("product_table")
+          .select()
+          .eq('userId', userId)
+          .order('created_at', ascending: true);
+
+      log("Response for user $userId: $response"); // Add logging here
+
+      if (response != null && response is List<dynamic>) {
+        final data = response
+            .map((item) => Product(
+                  productImageUrl: item['image'],
+                  productname: item['name'],
+                  productContent: item['description'],
+                  productPrice: item['price'],
+                ))
+            .toList();
+
+        log("Mapped products for user $userId: $data"); // Add logging here
+
+        return data;
+      } else {
+        log("No products found for user $userId.");
+        return [];
+      }
+    } catch (error) {
+      log('Error fetching products for user $userId: $error');
+      return [];
     }
   }
 }

@@ -22,13 +22,13 @@ class ProductCard extends StatelessWidget {
               product.productImageUrl,
               fit: BoxFit.cover,
               width: double.infinity,
-              height: 168,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   product.productname,
@@ -40,6 +40,7 @@ class ProductCard extends StatelessWidget {
                 SizedBox(height: 4.0),
                 Text(
                   product.productContent,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.figtree(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

@@ -1,9 +1,11 @@
 // ignore_for_file: file_names
 
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
+import 'package:hushhxtinder/data/models/productModel.dart';
 import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileScreen.dart';
 import 'package:hushhxtinder/ui/components/customCard.dart';
@@ -103,14 +105,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    widget.viewModel.fetchUsers();
+    widget.viewModel.fetchUsersAndProducts();
     _scrollController.addListener(_scrollListener);
   }
 
   void _scrollListener() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      widget.viewModel.fetchUsers();
+      widget.viewModel.fetchUsersAndProducts();
     }
   }
 
@@ -182,7 +184,8 @@ class _HomeScreenState extends State<HomeScreen> {
             String youtube = socialMediaLinks['youtube'] ?? 'Not Available';
             String linkedin = socialMediaLinks['linkedin'] ?? 'Not Available';
             String otherlink = socialMediaLinks['other'] ?? 'Not Available';
-
+            final userProducts = user['products'] as List<Product>;
+            log("Products are $userProducts");
             return [
               ImageData(
                 userId: user['id'],
@@ -244,7 +247,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 location: '',
                 description: '',
                 contactNumber: '',
-                products: [],
+                products: user['products'] != null
+                    ? List<Product>.from(user['products'])
+                    : [],
                 passions: [],
                 instagram: '',
                 twitter: '',

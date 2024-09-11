@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
 import 'package:hushhxtinder/ui/components/blockProgressbar.dart';
+import 'package:hushhxtinder/ui/components/productCard.dart';
 import 'dart:math' as math;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -628,8 +629,156 @@ class DraggableCardState extends State<DraggableCard>
     );
   }
 
+  // Widget _buildProductCard(ImageData imageData, double likeOpacity,
+  //     double dislikeOpacity, int totalImages, double progress) {
+  //   return Card(
+  //     color: Colors.grey.withOpacity(0.5),
+  //     shape: RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.circular(20),
+  //     ),
+  //     clipBehavior: Clip.antiAlias,
+  //     child: Stack(
+  //       fit: StackFit.expand,
+  //       children: [
+  //         Positioned.fill(
+  //           child: Opacity(
+  //             opacity: 1,
+  //             child: Image.network(
+  //               imageData.imageRes,
+  //               fit: BoxFit.cover,
+  //               loadingBuilder: (BuildContext context, Widget child,
+  //                   ImageChunkEvent? loadingProgress) {
+  //                 if (loadingProgress == null) {
+  //                   return child;
+  //                 }
+  //                 return Center(
+  //                   child: CircularProgressIndicator(
+  //                     value: loadingProgress.expectedTotalBytes != null
+  //                         ? loadingProgress.cumulativeBytesLoaded /
+  //                             (loadingProgress.expectedTotalBytes ?? 1)
+  //                         : null,
+  //                   ),
+  //                 );
+  //               },
+  //               errorBuilder: (context, error, stackTrace) {
+  //                 return Positioned.fill(
+  //                   child: Container(
+  //                     color:
+  //                         Colors.transparent, // Make the container transparent
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //         Positioned.fill(
+  //           child: Container(
+  //             decoration: BoxDecoration(
+  //                 gradient: LinearGradient(
+  //                     colors: [Colors.white.withOpacity(0.1), Colors.black],
+  //                     begin: Alignment.topCenter,
+  //                     end: Alignment.bottomCenter)),
+  //           ),
+  //         ),
+  //         Positioned(
+  //           top: 40,
+  //           left: 20,
+  //           child: Opacity(
+  //             opacity: likeOpacity,
+  //             child: Transform.rotate(
+  //               angle: -math.pi / 12, // Tilt the "Like" icon
+  //               child: Image.asset(
+  //                 "lib/assets/images/likehushhconnect.png",
+  //                 height: 148,
+  //                 width: 148,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         // "Dislike" icon
+  //         Positioned(
+  //           top: 40,
+  //           right: 20,
+  //           child: Opacity(
+  //             opacity: dislikeOpacity,
+  //             child: Transform.rotate(
+  //               angle: math.pi / 12, // Tilt the "Dislike" icon
+  //               child: Image.asset(
+  //                 "lib/assets/images/nopehushhconnect.png",
+  //                 height: 148,
+  //                 width: 148,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         // Progress Bar
+  //         Positioned(
+  //           top: 10,
+  //           left: 10,
+  //           right: 10,
+  //           child: BlockProgressBar(
+  //             totalBlocks: totalImages,
+  //             progress: progress,
+  //             height: 6.0,
+  //           ),
+  //         ),
+  //         // Content
+  //         Positioned(
+  //           bottom: 64,
+  //           left: 0,
+  //           right: 0,
+  //           child: Padding(
+  //             padding: const EdgeInsets.symmetric(horizontal: 25.0),
+  //             child: Container(
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   Row(
+  //                     children: [
+  //                       Text(
+  //                         imageData.name,
+  //                         textAlign: TextAlign.justify,
+  //                         style: TextStyle(
+  //                           fontSize: 32,
+  //                           fontWeight: FontWeight.bold,
+  //                           color: Colors.white,
+  //                         ),
+  //                       ),
+  //                       SizedBox(width: 5),
+  //                       Icon(
+  //                         Icons.verified,
+  //                         color: Colors.blue,
+  //                         size: 19,
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   Widget _buildProductCard(ImageData imageData, double likeOpacity,
       double dislikeOpacity, int totalImages, double progress) {
+    // Calculate the number of products to display (maximum 4)
+    int productsToShow =
+        imageData.products.length > 4 ? 4 : imageData.products.length;
+
+    // Create a list of ProductCard widgets
+    List<Widget> productCards = List.generate(productsToShow, (index) {
+      final product =
+          imageData.products[index]; // Assuming imageData has a 'products' list
+
+      return ProductCard(
+          product:
+              product); // Use the ProductCard widget to display each product
+    });
+
     return Card(
       color: Colors.grey.withOpacity(0.5),
       shape: RoundedRectangleBorder(
@@ -642,28 +791,13 @@ class DraggableCardState extends State<DraggableCard>
           Positioned.fill(
             child: Opacity(
               opacity: 1,
-              child: Image.network(
-                imageData.imageRes,
+              child: Image.asset(
+                'lib/assets/images/app_bg.jpeg',
                 fit: BoxFit.cover,
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              (loadingProgress.expectedTotalBytes ?? 1)
-                          : null,
-                    ),
-                  );
-                },
                 errorBuilder: (context, error, stackTrace) {
                   return Positioned.fill(
                     child: Container(
-                      color:
-                          Colors.transparent, // Make the container transparent
+                      color: Colors.transparent,
                     ),
                   );
                 },
@@ -673,10 +807,12 @@ class DraggableCardState extends State<DraggableCard>
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [Colors.white.withOpacity(0.1), Colors.black],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter)),
+                gradient: LinearGradient(
+                  colors: [Colors.white.withOpacity(0.1), Colors.black],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -685,7 +821,7 @@ class DraggableCardState extends State<DraggableCard>
             child: Opacity(
               opacity: likeOpacity,
               child: Transform.rotate(
-                angle: -math.pi / 12, // Tilt the "Like" icon
+                angle: -math.pi / 12,
                 child: Image.asset(
                   "lib/assets/images/likehushhconnect.png",
                   height: 148,
@@ -694,14 +830,13 @@ class DraggableCardState extends State<DraggableCard>
               ),
             ),
           ),
-          // "Dislike" icon
           Positioned(
             top: 40,
             right: 20,
             child: Opacity(
               opacity: dislikeOpacity,
               child: Transform.rotate(
-                angle: math.pi / 12, // Tilt the "Dislike" icon
+                angle: math.pi / 12,
                 child: Image.asset(
                   "lib/assets/images/nopehushhconnect.png",
                   height: 148,
@@ -710,7 +845,6 @@ class DraggableCardState extends State<DraggableCard>
               ),
             ),
           ),
-          // Progress Bar
           Positioned(
             top: 10,
             left: 10,
@@ -721,39 +855,60 @@ class DraggableCardState extends State<DraggableCard>
               height: 6.0,
             ),
           ),
-          // Content
           Positioned(
-            bottom: 64,
+            top: 32,
             left: 0,
             right: 0,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          imageData.name,
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        imageData.name,
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                        SizedBox(width: 5),
-                        Icon(
-                          Icons.verified,
-                          color: Colors.blue,
-                          size: 19,
-                        ),
-                      ],
+                      ),
+                      SizedBox(width: 5),
+                      Icon(
+                        Icons.verified,
+                        color: Colors.blue,
+                        size: 19,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "Products",
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 10),
+                  // Constrain the height of the GridView to prevent overflow
+                  SizedBox(
+                    height: 800, // Adjust the height as needed
+                    child: GridView.count(
+                      crossAxisCount: 2, // Two products per row
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      shrinkWrap: true,
+                      physics:
+                          NeverScrollableScrollPhysics(), // Disable scrolling inside the grid
+                      children: productCards,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

@@ -16,7 +16,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   void initState() {
     super.initState();
-    // Use a post-frame callback to delay the call to fetchProducts
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final productViewModel =
           Provider.of<Productviewmodel>(context, listen: false);
@@ -29,14 +28,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
           Positioned.fill(
             child: Image.asset(
               'lib/assets/images/app_bg.jpeg',
               fit: BoxFit.cover,
             ),
           ),
-          // Top Bar with Logo and Icons
           Positioned(
             top: 0,
             left: 0,

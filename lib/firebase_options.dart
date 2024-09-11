@@ -41,46 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCdbQDnHPU6YStWu499_fqIXIO_6g90VNg',
-    appId: '1:780302459736:web:263d68089c0a34d6e4fb2d',
-    messagingSenderId: '780302459736',
-    projectId: 'hushxtinder',
-    authDomain: 'hushxtinder.firebaseapp.com',
-    storageBucket: 'hushxtinder.appspot.com',
+    apiKey: 'AIzaSyA-TTZmX3vK0HzPnPJQmFTwug-r6wlHGjs',
+    appId: '1:884832724786:web:4d2211fbdc97f74636592b',
+    messagingSenderId: '884832724786',
+    projectId: 'hushhconnect-f3aac',
+    authDomain: 'hushhconnect-f3aac.firebaseapp.com',
+    storageBucket: 'hushhconnect-f3aac.appspot.com',
+    measurementId: 'G-3EVCT73YTZ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC7MVIeqKN8fI_cB9DdzWbcKRZ6PdNcfUs',
-    appId: '1:780302459736:android:23b3b15b45972f7ae4fb2d',
-    messagingSenderId: '780302459736',
-    projectId: 'hushxtinder',
-    storageBucket: 'hushxtinder.appspot.com',
+    apiKey: 'AIzaSyCcPTB6AlhSsejtRtj7oMP4Aj_XuzQCblM',
+    appId: '1:884832724786:android:5f520e4884801b2d36592b',
+    messagingSenderId: '884832724786',
+    projectId: 'hushhconnect-f3aac',
+    storageBucket: 'hushhconnect-f3aac.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCgF3KT0ojDzgC24VZYiutWrRCUg_EUJlQ',
-    appId: '1:780302459736:ios:3247817b67676b83e4fb2d',
-    messagingSenderId: '780302459736',
-    projectId: 'hushxtinder',
-    storageBucket: 'hushxtinder.appspot.com',
+    apiKey: 'AIzaSyC9BDnUjXBDec8aIAbAmDB6zMYGr4aCgyE',
+    appId: '1:884832724786:ios:44895f9c3d08a83d36592b',
+    messagingSenderId: '884832724786',
+    projectId: 'hushhconnect-f3aac',
+    storageBucket: 'hushhconnect-f3aac.appspot.com',
     iosBundleId: 'com.example.hushhxtinder',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCgF3KT0ojDzgC24VZYiutWrRCUg_EUJlQ',
-    appId: '1:780302459736:ios:3247817b67676b83e4fb2d',
-    messagingSenderId: '780302459736',
-    projectId: 'hushxtinder',
-    storageBucket: 'hushxtinder.appspot.com',
+    apiKey: 'AIzaSyC9BDnUjXBDec8aIAbAmDB6zMYGr4aCgyE',
+    appId: '1:884832724786:ios:44895f9c3d08a83d36592b',
+    messagingSenderId: '884832724786',
+    projectId: 'hushhconnect-f3aac',
+    storageBucket: 'hushhconnect-f3aac.appspot.com',
     iosBundleId: 'com.example.hushhxtinder',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCdbQDnHPU6YStWu499_fqIXIO_6g90VNg',
-    appId: '1:780302459736:web:2c99ad036757bd8de4fb2d',
-    messagingSenderId: '780302459736',
-    projectId: 'hushxtinder',
-    authDomain: 'hushxtinder.firebaseapp.com',
-    storageBucket: 'hushxtinder.appspot.com',
+    apiKey: 'AIzaSyA-TTZmX3vK0HzPnPJQmFTwug-r6wlHGjs',
+    appId: '1:884832724786:web:65b82fdcb02ebe7536592b',
+    messagingSenderId: '884832724786',
+    projectId: 'hushhconnect-f3aac',
+    authDomain: 'hushhconnect-f3aac.firebaseapp.com',
+    storageBucket: 'hushhconnect-f3aac.appspot.com',
+    measurementId: 'G-5MW9S5W34R',
   );
+
 }

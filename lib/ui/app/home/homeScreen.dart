@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/data/models/productModel.dart';
+import 'package:hushhxtinder/ui/app/explore/exploreScreen.dart';
 import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileScreen.dart';
 import 'package:hushhxtinder/ui/components/customCard.dart';
@@ -28,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _screens = [
       HomeScreen(viewModel: _viewModel),
-      const Placeholder(),
+      const ExploreScreen(),
       const Placeholder(),
       FriendsScreen(),
       ProfileScreen(),
@@ -105,7 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    widget.viewModel.fetchUsersAndProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeViewModel>().fetchUsersAndProducts();
+    });
     _scrollController.addListener(_scrollListener);
   }
 
@@ -174,17 +177,27 @@ class _HomeScreenState extends State<HomeScreen> {
         final cardData = CardData(
           viewModel.users.map<List<ImageData>>((user) {
             final List<dynamic> images = jsonDecode(user["images"] ?? '[]');
-            final officeDetails = jsonDecode(user["office_details"] ?? '{}');
+            final Map<String, dynamic> officeDetails =
+                jsonDecode(user["office_details"] ?? '{}');
             final List<dynamic> passions = jsonDecode(user["passions"] ?? '[]');
             final Map<String, dynamic> socialMediaLinks =
                 jsonDecode(user['socialmedia'] ?? '{}');
 
-            String instagram = socialMediaLinks['instagram'] ?? 'Not Available';
-            String twitter = socialMediaLinks['twitter'] ?? 'Not Available';
-            String youtube = socialMediaLinks['youtube'] ?? 'Not Available';
-            String linkedin = socialMediaLinks['linkedin'] ?? 'Not Available';
-            String otherlink = socialMediaLinks['other'] ?? 'Not Available';
-            final userProducts = user['products'] as List<Product>;
+            // Provide default values if any field is null
+            final String instagram =
+                socialMediaLinks['instagram'] ?? 'Not Available';
+            final String twitter =
+                socialMediaLinks['twitter'] ?? 'Not Available';
+            final String youtube =
+                socialMediaLinks['youtube'] ?? 'Not Available';
+            final String linkedin =
+                socialMediaLinks['linkedin'] ?? 'Not Available';
+            final String otherlink =
+                socialMediaLinks['other'] ?? 'Not Available';
+
+            final List<Product> userProducts = user['products'] != null
+                ? List<Product>.from(user['products'])
+                : [];
             log("Products are $userProducts");
             return [
               ImageData(
@@ -193,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 name: user['name'] ?? '',
                 role: officeDetails['role'] ?? '',
                 companyName: officeDetails['company'] ?? '',
-                location: user['current_address'],
+                location: user['current_address'] ?? '',
                 description: '',
                 contactNumber: user['phone'] ?? '',
                 products: [],
@@ -225,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 userId: user['id'],
                 imageRes: images.length > 2 ? images[2] : '',
                 name: user['name'] ?? '',
-                role: officeDetails['role'],
+                role: officeDetails['role'] ?? '',
                 companyName: officeDetails['company'] ?? '',
                 location: '',
                 description: '',

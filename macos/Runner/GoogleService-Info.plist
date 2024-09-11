@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyCgF3KT0ojDzgC24VZYiutWrRCUg_EUJlQ</string>
+	<string>AIzaSyC9BDnUjXBDec8aIAbAmDB6zMYGr4aCgyE</string>
 	<key>GCM_SENDER_ID</key>
-	<string>780302459736</string>
+	<string>884832724786</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.hushhxtinder</string>
 	<key>PROJECT_ID</key>
-	<string>hushxtinder</string>
+	<string>hushhconnect-f3aac</string>
 	<key>STORAGE_BUCKET</key>
-	<string>hushxtinder.appspot.com</string>
+	<string>hushhconnect-f3aac.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:780302459736:ios:3247817b67676b83e4fb2d</string>
+	<string>1:884832724786:ios:44895f9c3d08a83d36592b</string>
 </dict>
 </plist>

@@ -61,7 +61,7 @@
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>io.supabase.flutterquickstart</string>
-                <string>app-1-780302459736-ios-3247817b67676b83e4fb2d</string> <!-- New URL scheme added here -->
+                <string>app-1-884832724786-ios-44895f9c3d08a83d36592b</string> <!-- New URL scheme added here -->
             </array>
         </dict>
     </array>

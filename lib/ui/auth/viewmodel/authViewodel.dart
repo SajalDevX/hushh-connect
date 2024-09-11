@@ -11,15 +11,15 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 class AuthViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? verificationId;
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  // FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
-  AuthViewModel() {
-    _initializeFirebaseMessaging();
-  }
+  // AuthViewModel() {
+  //   _initializeFirebaseMessaging();
+  // }
   String _name = '';
   String _email = '';
   String _phoneNumber = '';
@@ -130,28 +130,28 @@ class AuthViewModel extends ChangeNotifier {
   ///
   ///
   ///
-  Future<void> _initializeFirebaseMessaging() async {
-    // Request permission for iOS devices
-    NotificationSettings settings = await _firebaseMessaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+  // Future<void> _initializeFirebaseMessaging() async {
+  //   // Request permission for iOS devices
+  //   NotificationSettings settings = await _firebaseMessaging.requestPermission(
+  //     alert: true,
+  //     badge: true,
+  //     sound: true,
+  //   );
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      log('User granted permission');
-      _setupFlutterLocalNotifications();
-      _firebaseMessaging.onTokenRefresh.listen(_saveTokenToDatabase);
-      _firebaseMessaging.getToken().then(_saveTokenToDatabase);
-    } else {
-      log('User declined or has not accepted permission');
-    }
+  //   if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+  //     log('User granted permission');
+  //     _setupFlutterLocalNotifications();
+  //     _firebaseMessaging.onTokenRefresh.listen(_saveTokenToDatabase);
+  //     _firebaseMessaging.getToken().then(_saveTokenToDatabase);
+  //   } else {
+  //     log('User declined or has not accepted permission');
+  //   }
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      log("Received message: ${message.notification?.title}");
-      _showNotification(message);
-    });
-  }
+  //   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //     log("Received message: ${message.notification?.title}");
+  //     _showNotification(message);
+  //   });
+  // }
 
   ///
   ///
@@ -213,42 +213,64 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> verifyPhoneNumber(BuildContext context) async {
     isLoading = true;
     notifyListeners();
+    log('Starting phone number verification for: $_phoneNumber');
 
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: _phoneNumber,
-      verificationCompleted: (PhoneAuthCredential phoneAuthCredential) async {
-        await FirebaseAuth.instance.signInWithCredential(phoneAuthCredential);
-        isLoading = false;
-        notifyListeners();
-        await saveUserToSupabase(FirebaseAuth.instance.currentUser);
-        await _updateProgress(4); // Update to correct progress value
-      },
-      verificationFailed: (FirebaseAuthException error) {
-        log(error.toString());
-        isLoading = false;
-        notifyListeners();
-      },
-      codeSent: (String verificationId, int? forceResendingToken) {
-        this.verificationId = verificationId;
-        isLoading = false;
-        notifyListeners();
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        log("Auto Retrieval timeout");
-        isLoading = false;
-        notifyListeners();
-      },
-    );
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: _phoneNumber,
+        verificationCompleted: (PhoneAuthCredential phoneAuthCredential) async {
+          log('Verification completed automatically by system.');
+
+          await FirebaseAuth.instance.signInWithCredential(phoneAuthCredential);
+          log('User signed in automatically.');
+
+          isLoading = false;
+          notifyListeners();
+
+          if (FirebaseAuth.instance.currentUser != null) {
+            await saveUserToSupabase(FirebaseAuth.instance.currentUser);
+            log('User saved to Supabase.');
+          } else {
+            log('Error: FirebaseAuth.instance.currentUser is null after sign-in.');
+          }
+
+          await _updateProgress(4);
+          log('Progress updated to 4.');
+        },
+        verificationFailed: (FirebaseAuthException error) {
+          log('Verification failed: ${error.message}, Code: ${error.code}');
+          log('Stack Trace: ${error.stackTrace}');
+          isLoading = false;
+          notifyListeners();
+        },
+        codeSent: (String verificationId, int? forceResendingToken) {
+          this.verificationId = verificationId;
+          log('Verification code sent. Verification ID: $verificationId');
+          isLoading = false;
+          notifyListeners();
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          log('Auto-retrieval timeout. Verification ID: $verificationId');
+          isLoading = false;
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      log('Exception in verifyPhoneNumber: $e');
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> verifyOtp(BuildContext context) async {
     if (verificationId == null) {
-      log("Verification ID is null");
+      log('Error: Verification ID is null.');
       return;
     }
 
     isLoading = true;
     notifyListeners();
+    log('Verifying OTP: ${otpController.text} with Verification ID: $verificationId');
 
     try {
       final credential = PhoneAuthProvider.credential(
@@ -256,12 +278,24 @@ class AuthViewModel extends ChangeNotifier {
         smsCode: otpController.text,
       );
 
+      // Attempt to sign in with the credential
       await FirebaseAuth.instance.signInWithCredential(credential);
-      await saveUserToSupabase(FirebaseAuth.instance.currentUser);
+      log('User signed in with OTP.');
+
+      // Attempt to save the user to Supabase
+      if (FirebaseAuth.instance.currentUser != null) {
+        await saveUserToSupabase(FirebaseAuth.instance.currentUser);
+        log('User saved to Supabase.');
+      } else {
+        log('Error: FirebaseAuth.instance.currentUser is null after OTP sign-in.');
+      }
+
       await completeOnboarding();
+      log('Onboarding completed.');
       await _updateProgress(5);
+      log('Progress updated to 5.');
     } catch (e) {
-      log(e.toString());
+      log('Exception in verifyOtp: $e');
     } finally {
       isLoading = false;
       notifyListeners();

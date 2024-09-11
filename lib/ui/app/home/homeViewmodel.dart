@@ -105,7 +105,7 @@ class HomeViewModel extends ChangeNotifier {
       print('Exception occurred: $e');
     } finally {
       isLoading = false;
-      // notifyListeners();
+      notifyListeners();
       print('Loading state reset and listeners notified.');
     }
   }

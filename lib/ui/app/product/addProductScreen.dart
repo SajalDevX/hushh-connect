@@ -36,7 +36,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _productNameController.text.isEmpty ||
         _productContentController.text.isEmpty ||
         _productPriceController.text.isEmpty) {
-      // Show error message if any required field is empty
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Please fill all fields and select an image')),
@@ -71,7 +70,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       _isLoading = false; // Set loading state to false
     });
 
-    Navigator.pop(context);
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => AddProductScreen()));
   }
 
   @override

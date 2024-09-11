@@ -76,6 +76,7 @@ class _ChatboxState extends State<Chatbox> {
                   ),
                   Text(
                     widget.lastMessage,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.redHatText(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,

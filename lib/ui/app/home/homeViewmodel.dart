@@ -5,6 +5,8 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hushhxtinder/data/models/productModel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -54,6 +56,69 @@ class HomeViewModel extends ChangeNotifier {
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> fetchUsersNearby() async {
+    if (isLoading) return;
+    isLoading = true;
+    const double radiusInMiles = 10.0;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+
+    try {
+      final supabaseClient = Supabase.instance.client;
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (currentUserId == null) {
+        throw Exception('User is not logged in.');
+      }
+
+      // Get the current user's location
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      double currentLat = position.latitude;
+      double currentLon = position.longitude;
+
+      // Convert the radius from miles to meters (1 mile = 1609.34 meters)
+      const radiusInMeters = radiusInMiles * 1609.34;
+
+      print(
+          "Fetching users within $radiusInMiles miles radius ($radiusInMeters meters)");
+
+      // Supabase query using the updated fetch_users_nearby function
+      final response = await supabaseClient.rpc('fetch_users_nearby', params: {
+        'longitude': currentLon,
+        'latitude': currentLat,
+        'radius': radiusInMeters,
+        'current_user_id': currentUserId
+      });
+
+      print("Query response: ${response}");
+
+      final fetchedUsers = List<Map<String, dynamic>>.from(response ?? []);
+
+      if (fetchedUsers.isEmpty) {
+        print('No users found within the radius.');
+      } else {
+        print("Users found: ${fetchedUsers.length}");
+
+        // Shuffle the nearby users
+        fetchedUsers.shuffle();
+
+        // Add the shuffled nearby users to the existing list
+        users.addAll(fetchedUsers);
+        currentPage++;
+      }
+    } catch (e) {
+      print('Exception: $e');
+    } finally {
+      isLoading = false;
+      print("Loading completed, updating UI...");
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 

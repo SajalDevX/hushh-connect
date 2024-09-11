@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeViewModel>().fetchUsersAndProducts();
+      context.read<HomeViewModel>().fetchUsersNearby();
     });
     _scrollController.addListener(_scrollListener);
   }
@@ -115,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _scrollListener() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      widget.viewModel.fetchUsersAndProducts();
+      widget.viewModel.fetchUsersNearby();
     }
   }
 

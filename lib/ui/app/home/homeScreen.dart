@@ -99,9 +99,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final ScrollController _scrollController = ScrollController();
   final GlobalKey<DraggableCardState> draggableCardKey =
       GlobalKey<DraggableCardState>();
+  final ValueNotifier<int> currentCardIndexNotifier = ValueNotifier<int>(0);
   bool _showOverlay = false;
 
   @override
@@ -110,54 +110,54 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeViewModel>().fetchUsersAndProducts();
     });
-    _scrollController.addListener(_scrollListener);
+
+    // Listen for card index changes
+    currentCardIndexNotifier.addListener(() {
+      if (currentCardIndexNotifier.value >= widget.viewModel.users.length - 1) {
+        // Fetch the next batch of users when the last card is swiped
+        widget.viewModel.fetchUsersAndProducts();
+      }
+    });
   }
 
-  void _scrollListener() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      widget.viewModel.fetchUsersAndProducts();
-    }
+  @override
+  void dispose() {
+    currentCardIndexNotifier.dispose();
+    super.dispose();
   }
 
   void _handleLikeOrDislike(bool isLike) {
     final icon = isLike
         ? Image.asset(
             'lib/assets/images/likehushhconnect.png',
-            // color: Colors.white,
-            width: 150, // Increase the size for better visibility
-            height: 150, // Increase the size for better visibility
+            width: 150,
+            height: 150,
           )
         : Image.asset(
             'lib/assets/images/nopehushhconnect.png',
-            // color: Colors.white,
-            width: 150, // Increase the size for better visibility
-            height: 150, // Increase the size for better visibility
+            width: 150,
+            height: 150,
           );
 
-    // Create an overlay entry
     OverlayEntry overlayEntry = OverlayEntry(
       builder: (context) => Positioned.fill(
         child: Container(
-          color: Colors.black, // Adjust opacity to make sure overlay is visible
+          color: Colors.black,
           child: Center(
-            child: icon, // Display the icon
+            child: icon,
           ),
         ),
       ),
     );
 
-    // Insert the overlay
     Overlay.of(context)?.insert(overlayEntry);
 
-    // After 2 seconds, remove the overlay
     Future.delayed(Duration(milliseconds: 1500), () {
       if (overlayEntry.mounted) {
         overlayEntry.remove();
       }
     });
 
-    // Handle like or dislike
     if (isLike) {
       draggableCardKey.currentState?.handleLike();
     } else {
@@ -184,7 +184,6 @@ class _HomeScreenState extends State<HomeScreen> {
             final Map<String, dynamic> socialMediaLinks =
                 jsonDecode(user['socialmedia'] ?? '{}');
 
-            // Provide default values if any field is null
             final String instagram =
                 socialMediaLinks['instagram'] ?? 'Not Available';
             final String twitter =
@@ -199,7 +198,6 @@ class _HomeScreenState extends State<HomeScreen> {
             final List<Product> userProducts = user['products'] != null
                 ? List<Product>.from(user['products'])
                 : [];
-            log("Products are $userProducts");
             return [
               ImageData(
                 userId: user['id'],
@@ -261,9 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 location: '',
                 description: '',
                 contactNumber: '',
-                products: user['products'] != null
-                    ? List<Product>.from(user['products'])
-                    : [],
+                products: userProducts,
                 passions: [],
                 instagram: '',
                 twitter: '',
@@ -344,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: DraggableCard(
                   key: draggableCardKey,
                   cardData: cardData,
-                  currentCardIndex: ValueNotifier<int>(0),
+                  currentCardIndex: currentCardIndexNotifier,
                   imageIndices: imageIndices,
                   viewModel: viewModel,
                 ),
@@ -362,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Flexible(
                           child: GestureDetector(
                             onTap: () {
-                              // _handleLikeOrDislike(false);
+                              // Handle reload action
                             },
                             child: Container(
                               height: 47,
@@ -433,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ],

@@ -93,8 +93,8 @@ class SplashScreen extends StatelessWidget {
       bool isAuthenticated = FirebaseAuth.instance.currentUser != null;
       bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
 
-      log('Loaded onboarding completed: $onboardingCompleted');
-      log('Firebase isAuthenticated: $isAuthenticated');
+      // log('Loaded onboarding completed: $onboardingCompleted');
+      // log('Firebase isAuthenticated: $isAuthenticated');
 
       // If the user is not authenticated, redirect to the onboarding screen
       if (!isAuthenticated) {
@@ -107,7 +107,7 @@ class SplashScreen extends StatelessWidget {
 
       // Check the user's profile progress
       int profileProgress = prefs.getInt('profile_progress') ?? 0;
-      log('Loaded profile progress: $profileProgress');
+      // log('Loaded profile progress: $profileProgress');
 
       // Determine the next screen based on the profile progress
       Widget nextScreen;

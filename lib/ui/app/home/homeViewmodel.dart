@@ -61,11 +61,10 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> fetchUsersNearby() async {
     if (isLoading) return;
-    isLoading = true;
+    isLoading = true; // Set loading without notifying
+    notifyListeners(); // Notify that the loading state has changed
+
     const double radiusInMiles = 10.0;
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
-    });
 
     try {
       final supabaseClient = Supabase.instance.client;
@@ -75,19 +74,13 @@ class HomeViewModel extends ChangeNotifier {
         throw Exception('User is not logged in.');
       }
 
-      // Get the current user's location
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
       double currentLat = position.latitude;
       double currentLon = position.longitude;
 
-      // Convert the radius from miles to meters (1 mile = 1609.34 meters)
       const radiusInMeters = radiusInMiles * 1609.34;
 
-      print(
-          "Fetching users within $radiusInMiles miles radius ($radiusInMeters meters)");
-
-      // Supabase query using the updated fetch_users_nearby function
       final response = await supabaseClient.rpc('fetch_users_nearby', params: {
         'longitude': currentLon,
         'latitude': currentLat,
@@ -95,30 +88,18 @@ class HomeViewModel extends ChangeNotifier {
         'current_user_id': currentUserId
       });
 
-      print("Query response: ${response}");
-
       final fetchedUsers = List<Map<String, dynamic>>.from(response ?? []);
 
-      if (fetchedUsers.isEmpty) {
-        print('No users found within the radius.');
-      } else {
-        print("Users found: ${fetchedUsers.length}");
-
-        // Shuffle the nearby users
+      if (fetchedUsers.isNotEmpty) {
         fetchedUsers.shuffle();
-
-        // Add the shuffled nearby users to the existing list
         users.addAll(fetchedUsers);
         currentPage++;
       }
     } catch (e) {
       print('Exception: $e');
     } finally {
-      isLoading = false;
-      print("Loading completed, updating UI...");
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      isLoading = false; // Reset the loading state
+      notifyListeners(); // Notify listeners only once at the end
     }
   }
 
@@ -287,28 +268,33 @@ class HomeViewModel extends ChangeNotifier {
       final from = currentPage * pageSize;
       final to = from + pageSize - 1;
 
-      // Fetch users excluding the current user
+      // Fetch users with their associated products in a single query
       final response = await supabaseClient
           .from('users')
-          .select('*')
-          // .neq('id', currentUserId)
+          .select('*, product_table(*)') // Join users with their products
+          // .neq('id', currentUserId) // Exclude the current user
           .range(from, to);
 
-      final fetchedUsers =
-          List<Map<String, dynamic>>.from(response as List<dynamic>);
-
-      if (fetchedUsers.isEmpty) {
+      // Check if response is empty
+      if (response == null || response.isEmpty) {
         print('No users found.');
-      } else {
-        // Fetch products for each user
-        for (var user in fetchedUsers) {
-          user['products'] = await fetchProductsForUser(user['id']);
-        }
-
-        users.addAll(fetchedUsers);
-        users.shuffle();
-        currentPage++;
+        return;
       }
+
+      // Process the fetched data
+      final fetchedUsers = List<Map<String, dynamic>>.from(response);
+
+      // Convert product data using fromJson
+      fetchedUsers.forEach((user) {
+        user['products'] = (user['product_table'] as List<dynamic>?)
+            ?.map((item) => Product.fromJson(item as Map<String, dynamic>))
+            .toList();
+      });
+
+      // Update the state with the new users
+      users.addAll(fetchedUsers);
+      users.shuffle();
+      currentPage++;
     } catch (e) {
       print('Exception: $e');
     } finally {
@@ -317,37 +303,83 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  Future<List<Product>> fetchProductsForUser(String userId) async {
-    final _supabase = Supabase.instance.client;
-    try {
-      final response = await _supabase
-          .from("product_table")
-          .select()
-          .eq('userId', userId)
-          .order('created_at', ascending: true);
+  // Future<void> fetchUsersAndProducts() async {
+  //   if (isLoading) return;
+  //   isLoading = true;
+  //   notifyListeners();
 
-      log("Response for user $userId: $response"); // Add logging here
+  //   try {
+  //     final supabaseClient = Supabase.instance.client;
+  //     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-      if (response != null && response is List<dynamic>) {
-        final data = response
-            .map((item) => Product(
-                  productImageUrl: item['image'],
-                  productname: item['name'],
-                  productContent: item['description'],
-                  productPrice: item['price'],
-                ))
-            .toList();
+  //     if (currentUserId == null) {
+  //       throw Exception('User is not logged in.');
+  //     }
 
-        log("Mapped products for user $userId: $data"); // Add logging here
+  //     final from = currentPage * pageSize;
+  //     final to = from + pageSize - 1;
 
-        return data;
-      } else {
-        log("No products found for user $userId.");
-        return [];
-      }
-    } catch (error) {
-      log('Error fetching products for user $userId: $error');
-      return [];
-    }
-  }
+  //     // Fetch users excluding the current user
+  //     final response = await supabaseClient
+  //         .from('users')
+  //         .select('*')
+  //         // .neq('id', currentUserId)
+  //         .range(from, to);
+
+  //     final fetchedUsers =
+  //         List<Map<String, dynamic>>.from(response as List<dynamic>);
+
+  //     if (fetchedUsers.isEmpty) {
+  //       print('No users found.');
+  //     } else {
+  //       // Fetch products for each user
+  //       for (var user in fetchedUsers) {
+  //         user['products'] = await fetchProductsForUser(user['id']);
+  //       }
+
+  //       users.addAll(fetchedUsers);
+  //       users.shuffle();
+  //       currentPage++;
+  //     }
+  //   } catch (e) {
+  //     print('Exception: $e');
+  //   } finally {
+  //     isLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
+
+  // Future<List<Product>> fetchProductsForUser(String userId) async {
+  //   final _supabase = Supabase.instance.client;
+  //   try {
+  //     final response = await _supabase
+  //         .from("product_table")
+  //         .select()
+  //         .eq('userId', userId)
+  //         .order('created_at', ascending: true);
+
+  //     log("Response for user $userId: $response"); // Add logging here
+
+  //     if (response != null && response is List<dynamic>) {
+  //       final data = response
+  //           .map((item) => Product(
+  //                 productImageUrl: item['image'],
+  //                 productname: item['name'],
+  //                 productContent: item['description'],
+  //                 productPrice: item['price'],
+  //               ))
+  //           .toList();
+
+  //       log("Mapped products for user $userId: $data"); // Add logging here
+
+  //       return data;
+  //     } else {
+  //       log("No products found for user $userId.");
+  //       return [];
+  //     }
+  //   } catch (error) {
+  //     log('Error fetching products for user $userId: $error');
+  //     return [];
+  //   }
+  // }
 }

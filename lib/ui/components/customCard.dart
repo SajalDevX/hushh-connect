@@ -129,6 +129,9 @@ class DraggableCardState extends State<DraggableCard>
     final currentUserId = widget.cardData.cards[index].first.userId;
 
     widget.viewModel.addToContact(currentUserId);
+    _controller.forward(from: 0).whenComplete(() {
+      _moveToNextCard();
+    });
   }
 
   void handleDislike() {

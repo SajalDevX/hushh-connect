@@ -1,7 +1,6 @@
 // ignore_for_file: file_names
 
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
@@ -102,7 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<DraggableCardState> draggableCardKey =
       GlobalKey<DraggableCardState>();
   final ValueNotifier<int> currentCardIndexNotifier = ValueNotifier<int>(0);
-  bool _showOverlay = false;
 
   @override
   void initState() {
@@ -117,6 +115,12 @@ class _HomeScreenState extends State<HomeScreen> {
         // Fetch the next batch of users when the last card is swiped
         widget.viewModel.fetchUsersAndProducts();
       }
+    });
+  }
+
+  void _refreshScreen() {
+    setState(() {
+      widget.viewModel.fetchUsersAndProducts(isReload: true);
     });
   }
 
@@ -150,9 +154,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
 
-    Overlay.of(context)?.insert(overlayEntry);
+    Overlay.of(context).insert(overlayEntry);
 
-    Future.delayed(Duration(milliseconds: 1500), () {
+    Future.delayed(const Duration(milliseconds: 1500), () {
       if (overlayEntry.mounted) {
         overlayEntry.remove();
       }
@@ -165,14 +169,41 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _handleFollowUser() {
+    final icon = Image.asset(
+      'lib/assets/images/likehushhconnect.png',
+      width: 150,
+      height: 150,
+    );
+    OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned.fill(
+        child: Container(
+          color: Colors.black,
+          child: Center(
+            child: icon,
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry);
+
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
+    draggableCardKey.currentState?.handleFollow();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeViewModel>(
       builder: (context, viewModel, child) {
         if (viewModel.isLoading && viewModel.users.isEmpty) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (viewModel.users.isEmpty) {
-          return Center(child: Text('No users found.'));
+          return const Center(child: Text('No users found.'));
         }
 
         final cardData = CardData(
@@ -314,12 +345,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           fit: BoxFit.contain),
                       Row(
                         children: [
+                          //Add the toggle button here
                           const Icon(
                             Icons.search,
                             color: Colors.white,
                             size: 24,
                           ),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           Image.asset(
                             "lib/assets/images/notify_topbar.png",
                             height: 24,
@@ -358,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Flexible(
                           child: GestureDetector(
                             onTap: () {
-                              // Handle reload action
+                              _refreshScreen();
                             },
                             child: Container(
                               height: 47,
@@ -373,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Flexible(
                           child: GestureDetector(
                             onTap: () {
-                              _handleLikeOrDislike(false);
+                              _handleLikeOrDislike(true);
                             },
                             child: Container(
                               height: 67,
@@ -388,7 +420,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Flexible(
                           child: GestureDetector(
                             onTap: () {
-                              _handleLikeOrDislike(true);
+                              _handleFollowUser();
                             },
                             child: Container(
                               height: 47,

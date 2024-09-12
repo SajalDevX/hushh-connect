@@ -50,6 +50,7 @@ class _AuthOfficeScreenState extends State<AuthOfficeScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final double commonWidth = size.width * 0.9;
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     return Scaffold(
       body: Consumer<AuthViewModel>(
@@ -86,11 +87,17 @@ class _AuthOfficeScreenState extends State<AuthOfficeScreen> {
                       IconButton(
                         icon: const Icon(Icons.close, color: Color(0xff7c8591)),
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          authViewModel.updateProgress(7);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AuthSocialMediaScreen(),
+                            ),
+                          );
                         },
                         iconSize: 40,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       Text(
                         'I work at',
                         style: GoogleFonts.figtree(
@@ -99,7 +106,7 @@ class _AuthOfficeScreenState extends State<AuthOfficeScreen> {
                           color: const Color(0xffe9ebee),
                         ),
                       ),
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 8),
                       SizedBox(
                         width: commonWidth,
                         child: Customtextbox(

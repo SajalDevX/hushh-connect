@@ -92,8 +92,7 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'lib/assets/images/app_bg.jpeg'), // Add your background image path here
+                image: AssetImage('lib/assets/images/app_bg.jpeg'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -115,7 +114,14 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
                 IconButton(
                   icon: const Icon(Icons.close, color: Color(0xff7c8591)),
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    authViewModel.updateProgress(10);
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MainScreen(),
+                      ),
+                    );
                   },
                   iconSize: 40,
                 ),

@@ -134,6 +134,16 @@ class DraggableCardState extends State<DraggableCard>
     });
   }
 
+  void handleFollow() {
+    final index = widget.currentCardIndex.value;
+    final currentUserId = widget.cardData.cards[index].first.userId;
+
+    widget.viewModel.followUser(currentUserId);
+    _controller.forward(from: 0).whenComplete(() {
+      _moveToNextCard();
+    });
+  }
+
   void handleDislike() {
     _controller.forward(from: 0).whenComplete(() {
       _moveToNextCard();

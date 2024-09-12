@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hushhxtinder/ui/auth/authHomeLocationScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
@@ -56,7 +57,7 @@ class AuthViewModel extends ChangeNotifier {
   // Getters for images
   List<File?> get images => _images;
 
-  Future<void> _updateProgress(int progress) async {
+  Future<void> updateProgress(int progress) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('profile_progress', progress);
     log('Profile progress saved: $progress');
@@ -234,7 +235,7 @@ class AuthViewModel extends ChangeNotifier {
             log('Error: FirebaseAuth.instance.currentUser is null after sign-in.');
           }
 
-          await _updateProgress(4);
+          await updateProgress(4);
           log('Progress updated to 4.');
         },
         verificationFailed: (FirebaseAuthException error) {
@@ -279,8 +280,9 @@ class AuthViewModel extends ChangeNotifier {
       );
 
       // Attempt to sign in with the credential
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      log('User signed in with OTP.');
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      log('OTP verification successful. User signed in.');
 
       // Attempt to save the user to Supabase
       if (FirebaseAuth.instance.currentUser != null) {
@@ -292,15 +294,73 @@ class AuthViewModel extends ChangeNotifier {
 
       await completeOnboarding();
       log('Onboarding completed.');
-      await _updateProgress(5);
+      await updateProgress(5);
       log('Progress updated to 5.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('OTP verified successfully!')),
+      );
+      // OTP verification success - Navigate to the next screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AuthCurrentLocation(),
+        ),
+      );
     } catch (e) {
-      log('Exception in verifyOtp: $e');
+      if (e is FirebaseAuthException) {
+        // Handle OTP verification failure
+        log('OTP verification failed: ${e.message}');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('OTP verification failed: ${e.message}'),
+        ));
+      } else {
+        log('Exception in verifyOtp: $e');
+      }
     } finally {
       isLoading = false;
       notifyListeners();
     }
   }
+
+  // Future<void> verifyOtp(BuildContext context) async {
+  //   if (verificationId == null) {
+  //     log('Error: Verification ID is null.');
+  //     return;
+  //   }
+
+  //   isLoading = true;
+  //   notifyListeners();
+  //   log('Verifying OTP: ${otpController.text} with Verification ID: $verificationId');
+
+  //   try {
+  //     final credential = PhoneAuthProvider.credential(
+  //       verificationId: verificationId!,
+  //       smsCode: otpController.text,
+  //     );
+
+  //     // Attempt to sign in with the credential
+  //     await FirebaseAuth.instance.signInWithCredential(credential);
+  //     log('User signed in with OTP.');
+
+  //     // Attempt to save the user to Supabase
+  //     if (FirebaseAuth.instance.currentUser != null) {
+  //       await saveUserToSupabase(FirebaseAuth.instance.currentUser);
+  //       log('User saved to Supabase.');
+  //     } else {
+  //       log('Error: FirebaseAuth.instance.currentUser is null after OTP sign-in.');
+  //     }
+
+  //     await completeOnboarding();
+  //     log('Onboarding completed.');
+  //     await updateProgress(5);
+  //     log('Progress updated to 5.');
+  //   } catch (e) {
+  //     log('Exception in verifyOtp: $e');
+  //   } finally {
+  //     isLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
 
   Future<void> saveUserToSupabase(User? firebaseUser) async {
     if (firebaseUser == null) {
@@ -330,7 +390,7 @@ class AuthViewModel extends ChangeNotifier {
       'id': FirebaseAuth.instance.currentUser?.uid,
       'current_address': _location,
     });
-    _updateProgress(6);
+    updateProgress(6);
   }
 
   Future<void> uploadSocialMediaLinksToSupabase() async {
@@ -347,7 +407,7 @@ class AuthViewModel extends ChangeNotifier {
       'id': FirebaseAuth.instance.currentUser?.uid,
       'socialmedia': linksJson,
     });
-    _updateProgress(7);
+    updateProgress(7);
   }
 
   Future<void> uploadOfficeInfoToSupabase() async {
@@ -361,7 +421,7 @@ class AuthViewModel extends ChangeNotifier {
       'id': FirebaseAuth.instance.currentUser?.uid,
       'office_details': officeInfoJson,
     });
-    _updateProgress(8);
+    updateProgress(8);
   }
 
   Future<void> uploadImagesToSupabase(List<String> imageUrls) async {
@@ -375,7 +435,7 @@ class AuthViewModel extends ChangeNotifier {
       'images': imageLinksJson,
     });
 
-    _updateProgress(9);
+    updateProgress(9);
 
     log('Image links saved in JSON format: $imageLinksJson');
   }
@@ -399,6 +459,6 @@ class AuthViewModel extends ChangeNotifier {
       'id': FirebaseAuth.instance.currentUser?.uid,
       'passions': imageLinksJson,
     });
-    _updateProgress(10);
+    updateProgress(10);
   }
 }

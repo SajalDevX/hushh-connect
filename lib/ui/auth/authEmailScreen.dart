@@ -82,11 +82,11 @@ class _AuthEmailScreenState extends State<AuthEmailScreen> {
 
                   const SizedBox(
                       height: 16), // Add some space after the progress bar
-                  const Icon(
-                    Icons.close,
-                    color: Color(0xff7c8591),
-                    size: 40,
-                  ),
+                  // const Icon(
+                  //   Icons.close,
+                  //   color: Color(0xff7c8591),
+                  //   size: 40,
+                  // ),
                   const SizedBox(height: 16),
                   Text(
                     'My Email is',

@@ -76,7 +76,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
           // Main Content
           if (isDelayCompleted && !viewModel.isLoading)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 56),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 48),
+              //Here Issue
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

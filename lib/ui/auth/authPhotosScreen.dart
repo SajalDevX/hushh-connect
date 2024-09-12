@@ -130,6 +130,8 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final AuthViewModel authViewModel = AuthViewModel(); // Initialize ViewModel
+
     final size = MediaQuery.of(context).size;
     final double photoWidth = size.width * 0.28; // Width for each image box
     final double photoHeight = size.height * 0.2; // Height for each image box
@@ -160,7 +162,14 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
                   IconButton(
                     icon: const Icon(Icons.close, color: Color(0xff7c8591)),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      authViewModel.updateProgress(9);
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AuthPassionsScreen(),
+                        ),
+                      );
                     },
                     iconSize: 40,
                   ),

@@ -86,11 +86,11 @@ class _AuthPhoneScreenState extends State<AuthPhoneScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  const Icon(
-                    Icons.close,
-                    color: Color(0xff7c8591),
-                    size: 40,
-                  ),
+                  // const Icon(
+                  //   Icons.close,
+                  //   color: Color(0xff7c8591),
+                  //   size: 40,
+                  // ),
                   const SizedBox(height: 16),
                   Text(
                     'My Phone Number is',

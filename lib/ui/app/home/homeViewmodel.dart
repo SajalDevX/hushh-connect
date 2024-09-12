@@ -1,11 +1,9 @@
 // ignore_for_file: avoid_print
-
 import 'dart:convert';
 import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hushhxtinder/data/models/productModel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -15,8 +13,8 @@ class HomeViewModel extends ChangeNotifier {
   bool isLoading = false;
   List<Map<String, dynamic>> users = [];
   int currentPage = 0;
-  static const int pageSize = 10;
-  List<Map<String, dynamic>> userDetails = []; // Define userDetails here
+  static const int pageSize = 5;
+  List<Map<String, dynamic>> userDetails = [];
 
   Future<void> fetchUsers() async {
     if (isLoading) return;
@@ -144,9 +142,6 @@ class HomeViewModel extends ChangeNotifier {
         'userId': contactUserId,
         'contact_userId': currentUserId,
       });
-
-      // print('UserId added: $contactUserId');
-      // print('Insert response: $response');
     } catch (e) {
       print('Exception occurred: $e');
     } finally {
@@ -252,7 +247,7 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchUsersAndProducts() async {
+  Future<void> fetchUsersAndProducts({bool isReload = false}) async {
     if (isLoading) return;
     isLoading = true;
     notifyListeners();
@@ -265,19 +260,27 @@ class HomeViewModel extends ChangeNotifier {
         throw Exception('User is not logged in.');
       }
 
+      // Clear the users list on reload
+      if (isReload) {
+        users.clear();
+        currentPage = 0; // Reset the current page
+      }
+
       final from = currentPage * pageSize;
       final to = from + pageSize - 1;
 
-      // Fetch users with their associated products in a single query
       final response = await supabaseClient
           .from('users')
-          .select('*, product_table(*)') // Join users with their products
-          // .neq('id', currentUserId) // Exclude the current user
+          .select('*, product_table(*)')
+          .neq('id', currentUserId)
           .range(from, to);
 
       // Check if response is empty
-      if (response == null || response.isEmpty) {
+      if (response.isEmpty) {
         print('No users found.');
+        // Update state to reflect no users found
+        isLoading = false;
+        notifyListeners();
         return;
       }
 
@@ -302,6 +305,98 @@ class HomeViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> followUser(String followingUserId) async {
+    if (isLoading) return;
+    isLoading = true;
+
+    try {
+      final supabaseClient = Supabase.instance.client;
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (currentUserId == null) {
+        throw Exception('No current user ID found.');
+      }
+
+      // Check if the follow relationship already exists
+      final existingFollow = await supabaseClient
+          .from('likes_table')
+          .select('id')
+          .eq('follower_id', currentUserId)
+          .eq('following_id', followingUserId)
+          .maybeSingle();
+
+      if (existingFollow != null) {
+        print('You are already following user: $followingUserId');
+        return;
+      }
+
+      // Add a new follow relationship
+      final response = await supabaseClient.from('likes_table').insert({
+        'follower_id': currentUserId,
+        'following_id': followingUserId,
+      });
+
+      if (response != null) {
+        print('Successfully followed user: $followingUserId');
+      }
+    } catch (e) {
+      print('Error following user: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Future<void> fetchUsersAndProducts() async {
+  //   if (isLoading) return;
+  //   isLoading = true;
+  //   notifyListeners();
+
+  //   try {
+  //     final supabaseClient = Supabase.instance.client;
+  //     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+  //     if (currentUserId == null) {
+  //       throw Exception('User is not logged in.');
+  //     }
+
+  //     final from = currentPage * pageSize;
+  //     final to = from + pageSize - 1;
+
+  //     final response = await supabaseClient
+  //         .from('users')
+  //         .select('*, product_table(*)') // Join users with their products
+  //         // .neq('id', currentUserId) // Exclude the current user
+  //         .range(from, to);
+
+  //     // Check if response is empty
+  //     if (response.isEmpty) {
+  //       print('No users found.');
+  //       return;
+  //     }
+
+  //     // Process the fetched data
+  //     final fetchedUsers = List<Map<String, dynamic>>.from(response);
+
+  //     // Convert product data using fromJson
+  //     fetchedUsers.forEach((user) {
+  //       user['products'] = (user['product_table'] as List<dynamic>?)
+  //           ?.map((item) => Product.fromJson(item as Map<String, dynamic>))
+  //           .toList();
+  //     });
+
+  //     // Update the state with the new users
+  //     users.addAll(fetchedUsers);
+  //     users.shuffle();
+  //     currentPage++;
+  //   } catch (e) {
+  //     print('Exception: $e');
+  //   } finally {
+  //     isLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
 
   // Future<void> fetchUsersAndProducts() async {
   //   if (isLoading) return;

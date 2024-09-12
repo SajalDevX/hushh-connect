@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/firebase_options.dart';
 import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
+import 'package:hushhxtinder/ui/app/connect/connectViewModel.dart';
 import 'package:hushhxtinder/ui/app/home/homeScreen.dart';
 import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
 import 'package:hushhxtinder/ui/app/product/productViewmodel.dart';
@@ -45,6 +46,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => HomeViewModel()),
         ChangeNotifierProvider(create: (context) => ProfileViewModel()),
         ChangeNotifierProvider(create: (context) => Productviewmodel()),
+        ChangeNotifierProvider(create: (context) => ConnectViewModel()),
       ],
       child: const MyApp(),
     ),

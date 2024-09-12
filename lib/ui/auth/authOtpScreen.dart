@@ -37,18 +37,8 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
       // Start the loading state and verify OTP
       viewModel.isLoading = true;
       await viewModel.verifyOtp(context);
+
       viewModel.isLoading = false;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('OTP verified successfully!')),
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AuthCurrentLocation(),
-        ),
-      );
     }
   }
 
@@ -85,11 +75,11 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  const Icon(
-                    Icons.close,
-                    color: Color(0xff7c8591),
-                    size: 40,
-                  ),
+                  // const Icon(
+                  //   Icons.close,
+                  //   color: Color(0xff7c8591),
+                  //   size: 40,
+                  // ),
                   const SizedBox(height: 16),
                   Text(
                     'Enter the OTP',

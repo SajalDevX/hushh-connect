@@ -78,6 +78,7 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final double commonWidth = size.width * 0.85;
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     return Scaffold(
       body: Stack(
@@ -104,7 +105,13 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
                   IconButton(
                     icon: const Icon(Icons.close, color: Color(0xff7c8591)),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      authViewModel.updateProgress(8);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AuthPhotosScreen(),
+                        ),
+                      );
                     },
                     iconSize: 40,
                   ),

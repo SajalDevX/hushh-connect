@@ -282,24 +282,19 @@ class AuthViewModel extends ChangeNotifier {
       // Attempt to sign in with the credential
       final userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
-      log('OTP verification successful. User signed in.');
 
       // Attempt to save the user to Supabase
       if (FirebaseAuth.instance.currentUser != null) {
         await saveUserToSupabase(FirebaseAuth.instance.currentUser);
-        log('User saved to Supabase.');
       } else {
         log('Error: FirebaseAuth.instance.currentUser is null after OTP sign-in.');
       }
 
       await completeOnboarding();
-      log('Onboarding completed.');
       await updateProgress(5);
-      log('Progress updated to 5.');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('OTP verified successfully!')),
       );
-      // OTP verification success - Navigate to the next screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

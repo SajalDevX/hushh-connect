@@ -405,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Flexible(
                           child: GestureDetector(
                             onTap: () {
-                              _handleLikeOrDislike(true);
+                              _handleLikeOrDislike(false);
                             },
                             child: Container(
                               height: 67,

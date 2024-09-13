@@ -34,10 +34,33 @@ class ProfileViewModel extends ChangeNotifier {
         imageUrls = List<String>.from(json.decode(data['images']));
       }
 
+      // Parse social media JSON object
+      Map<String, String>? socialmedia;
+      if (data['socialmedia'] != null) {
+        socialmedia =
+            Map<String, String>.from(json.decode(data['socialmedia']));
+      }
+
+      // Parse passions as a list of strings
+      List<String>? passions;
+      if (data['passions'] != null) {
+        passions = List<String>.from(json.decode(data['passions']));
+      }
+
+      // Office details stored as a JSON object
+      String? officeDetails;
+      if (data['office_details'] != null) {
+        officeDetails = jsonEncode(data['office_details']);
+      }
+
       // Create a ProfileData object
       profile = ProfileData(
         name: data['name'] ?? 'Unknown',
         imageurl: imageUrls.isNotEmpty ? imageUrls[0] : '',
+        homeLoc: data['current_address'] ?? '',
+        officeDetails: officeDetails,
+        passions: passions,
+        socialmedia: socialmedia,
       );
 
       return profile;
@@ -51,5 +74,23 @@ class ProfileViewModel extends ChangeNotifier {
         notifyListeners();
       });
     }
+  }
+
+  double getProfileCompletionPercentage() {
+    if (profile == null) return 0.0;
+
+    int filledFields = 0;
+    final totalFields = 6; // Number of fields to check
+
+    if (profile!.name.isNotEmpty) filledFields++;
+    if (profile!.imageurl.isNotEmpty) filledFields++;
+    if (profile!.homeLoc?.isNotEmpty ?? false) filledFields++;
+    if (profile!.officeDetails?.isNotEmpty ?? false) filledFields++;
+    if (profile!.socialmedia != null && profile!.socialmedia!.isNotEmpty)
+      filledFields++;
+    if (profile!.passions != null && profile!.passions!.isNotEmpty)
+      filledFields++;
+
+    return (filledFields / totalFields) * 100.0;
   }
 }

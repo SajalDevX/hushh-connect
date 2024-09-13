@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hushhxtinder/ui/components/userCard.dart';
 import 'package:provider/provider.dart';
 import 'package:hushhxtinder/ui/app/connect/connectViewModel.dart';
 
@@ -17,22 +20,22 @@ class _ConnectScreenState extends State<ConnectScreen>
   @override
   void initState() {
     super.initState();
-    _tabController =
-        TabController(length: 3, vsync: this); // Initialize TabController
-    final connectViewModel =
-        Provider.of<ConnectViewModel>(context, listen: false);
+    _tabController = TabController(length: 3, vsync: this);
 
-    // Fetch data for all sections when the screen is initialized
+    // Use addPostFrameCallback to ensure data fetching is done after the first frame is rendered.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ConnectViewModel>().fetchFollowingUsers();
+      final connectViewModel =
+          Provider.of<ConnectViewModel>(context, listen: false);
+
+      connectViewModel.fetchFollowingUsers();
+      connectViewModel.fetchMutualUsers();
+      connectViewModel.fetchFollowers();
     });
-    connectViewModel.fetchFollowers();
-    connectViewModel.fetchMutualUsers();
   }
 
   @override
   void dispose() {
-    _tabController.dispose(); // Dispose the controller when not needed
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -53,7 +56,6 @@ class _ConnectScreenState extends State<ConnectScreen>
           // Main Content
           Column(
             children: [
-              // Top Bar with Logo
               Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -80,21 +82,20 @@ class _ConnectScreenState extends State<ConnectScreen>
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.grey,
                   tabs: const [
-                    Tab(text: 'Mutual'),
+                    // Tab(text: 'Mutual'),
                     Tab(text: 'Following'),
                     Tab(text: 'Followers'),
                   ],
                 ),
               ),
-              // TabBarView for displaying the content of each section
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildUserSection(
-                      users: connectViewModel.mutualUsers,
-                      isLoading: connectViewModel.isLoadingMutual,
-                    ),
+                    // _buildUserSection(
+                    //   users: connectViewModel.mutualUsers,
+                    //   isLoading: connectViewModel.isLoadingMutual,
+                    // ),
                     _buildUserSection(
                       users: connectViewModel.followingUsers,
                       isLoading: connectViewModel.isLoadingFollowing,
@@ -113,7 +114,6 @@ class _ConnectScreenState extends State<ConnectScreen>
     );
   }
 
-  // Build User Section (mutual, following, or followers)
   Widget _buildUserSection({
     required List<Map<String, dynamic>> users,
     required bool isLoading,
@@ -135,16 +135,25 @@ class _ConnectScreenState extends State<ConnectScreen>
                     child: ListView.builder(
                       itemCount: users.length,
                       itemBuilder: (context, index) {
-                        final user = users[index];
-                        return ListTile(
-                          title: Text(
-                            user['username'] ?? 'User',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          leading: CircleAvatar(
-                            backgroundImage:
-                                NetworkImage(user['avatar_url'] ?? ''),
-                          ),
+                        final user = users[index]['users'];
+
+                        final String name = user['name'] ?? 'Unknown User';
+
+                        final String imagesJson = user['images'] ?? '[]';
+                        List<dynamic> images = [];
+                        try {
+                          images = jsonDecode(imagesJson) as List<dynamic>;
+                        } catch (e) {
+                          print('Error decoding images JSON: $e');
+                        }
+
+                        String imageUrl = images[0] as String;
+
+                        Uri? uri = Uri.tryParse(imageUrl);
+
+                        return UserImageCard(
+                          name: name,
+                          imageUrl: imageUrl,
                         );
                       },
                     ),

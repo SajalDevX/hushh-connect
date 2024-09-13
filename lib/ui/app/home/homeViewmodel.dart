@@ -13,7 +13,7 @@ class HomeViewModel extends ChangeNotifier {
   bool isLoading = false;
   List<Map<String, dynamic>> users = [];
   int currentPage = 0;
-  static const int pageSize = 5;
+  static const int pageSize = 10;
   List<Map<String, dynamic>> userDetails = [];
 
   Future<void> fetchUsers() async {
@@ -294,7 +294,6 @@ class HomeViewModel extends ChangeNotifier {
             .toList();
       });
 
-      // Update the state with the new users
       users.addAll(fetchedUsers);
       users.shuffle();
       currentPage++;

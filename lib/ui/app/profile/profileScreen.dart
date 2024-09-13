@@ -14,6 +14,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isPressedSettings = false;
   bool isPressedAddProduct = false;
   bool isPressedAddMedia = false;
+  double profileCompletePercent = 0;
 
   @override
   void initState() {
@@ -87,6 +88,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     } else {
                       final profile = snapshot.data!;
+                      final profileViewModel =
+                          Provider.of<ProfileViewModel>(context, listen: false);
+                      profileCompletePercent =
+                          profileViewModel.getProfileCompletionPercentage();
+
                       return SingleChildScrollView(
                         child: Column(
                           children: [
@@ -132,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ],
                                     ),
                                     child: Text(
-                                      '20% complete',
+                                      '${profileCompletePercent.toInt()}% complete',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: Colors.white,
@@ -296,10 +302,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           text,
           style: TextStyle(
             fontFamily: 'Figtree',
-            fontSize: screenWidth * 0.04,
+            fontSize: screenWidth * 0.035,
+            color: Color.fromRGBO(233, 235, 238, 1),
             fontWeight: FontWeight.bold,
-            color: Color.fromRGBO(148, 155, 165, 1),
-            letterSpacing: 0.1,
           ),
         ),
       ],

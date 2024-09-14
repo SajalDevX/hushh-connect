@@ -13,7 +13,8 @@ class UserImageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      margin:
+          const EdgeInsets.all(0), // Remove additional margins around the card
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
@@ -22,20 +23,18 @@ class UserImageCard extends StatelessWidget {
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          // Display the image
-          Image.network(
-            imageUrl,
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Image.network(
-                'https://example.com/default_image.png',
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-              );
-            },
+          // Display the image, ensuring it fills the entire card
+          Positioned.fill(
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover, // Ensures the image fills the entire space
+              errorBuilder: (context, error, stackTrace) {
+                return Image.network(
+                  'https://example.com/default_image.png',
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
           ),
           // Overlay the user's name at the bottom
           Container(

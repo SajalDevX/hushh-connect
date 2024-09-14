@@ -1,103 +1,26 @@
-// ignore_for_file: file_names
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/data/models/productModel.dart';
-import 'package:hushhxtinder/ui/app/connect/connectScreen.dart';
-import 'package:hushhxtinder/ui/app/community/exploreScreen.dart';
-import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
-import 'package:hushhxtinder/ui/app/profile/profileScreen.dart';
-import 'package:hushhxtinder/ui/components/customCard.dart';
+import 'package:hushhxtinder/ui/app/community/detail/communityDetailViewModel.dart';
+import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
 import 'package:provider/provider.dart';
-import 'homeViewmodel.dart';
+import 'package:hushhxtinder/ui/components/customCard.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class MainScreen extends StatefulWidget {
+class CommunityDetailScreen extends StatefulWidget {
+  final int communityId;
+  final String communityName;
+  CommunityDetailScreen(
+      {Key? key, required this.communityId, required this.communityName})
+      : super(key: key);
+
   @override
-  _MainScreenState createState() => _MainScreenState();
+  _CommunityDetailScreenState createState() => _CommunityDetailScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
-  final HomeViewModel _viewModel = HomeViewModel();
-
-  List<Widget> _screens = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      HomeScreen(viewModel: _viewModel),
-      const ExploreScreen(),
-      const ConnectScreen(),
-      FriendsScreen(),
-      ProfileScreen(),
-    ];
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<HomeViewModel>.value(
-      value: _viewModel,
-      child: MaterialApp(
-        home: Scaffold(
-          body: _screens[_selectedIndex],
-          bottomNavigationBar: BottomNavigationBar(
-            items: [
-              _buildBottomNavigationBarItem(0, 'home_nav.png'),
-              _buildBottomNavigationBarItem(1, 'explore_nav.png'),
-              _buildBottomNavigationBarItem(2, 'create_nav.png'),
-              _buildBottomNavigationBarItem(3, 'chat_nav.png'),
-              _buildBottomNavigationBarItem(4, 'profile_nav.png'),
-            ],
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-            backgroundColor: const Color(0xff111418),
-            selectedItemColor: Colors.purple,
-            unselectedItemColor: Colors.grey,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            type: BottomNavigationBarType.fixed,
-          ),
-        ),
-      ),
-    );
-  }
-
-  BottomNavigationBarItem _buildBottomNavigationBarItem(
-      int index, String iconPath) {
-    return BottomNavigationBarItem(
-      icon: GestureDetector(
-        onTap: () => _onItemTapped(index),
-        child: Image.asset(
-          'lib/assets/images/$iconPath',
-          width: 56,
-          height: 56,
-          color: _selectedIndex == index ? Colors.purple : Colors.grey,
-        ),
-      ),
-      label: '',
-    );
-  }
-}
-
-class HomeScreen extends StatefulWidget {
-  final HomeViewModel viewModel;
-
-  HomeScreen({Key? key, required this.viewModel}) : super(key: key);
-
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
+class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   final GlobalKey<DraggableCardState> draggableCardKey =
       GlobalKey<DraggableCardState>();
   final ValueNotifier<int> currentCardIndexNotifier = ValueNotifier<int>(0);
@@ -106,21 +29,25 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeViewModel>().fetchUsersAndProducts();
+      context
+          .read<CommunityUsersViewModel>()
+          .fetchUsersAndProductsInCommunity(widget.communityId);
     });
 
-    // Listen for card index changes
     currentCardIndexNotifier.addListener(() {
-      if (currentCardIndexNotifier.value >= widget.viewModel.users.length - 1) {
-        // Fetch the next batch of users when the last card is swiped
-        widget.viewModel.fetchUsersAndProducts();
+      final communityViewModel = context.read<CommunityUsersViewModel>();
+      if (currentCardIndexNotifier.value >=
+          communityViewModel.usersAndProducts.length - 1) {
+        communityViewModel.fetchUsersAndProductsInCommunity(widget.communityId);
       }
     });
   }
 
   void _refreshScreen() {
     setState(() {
-      widget.viewModel.fetchUsersAndProducts(isReload: true);
+      context
+          .read<CommunityUsersViewModel>()
+          .fetchUsersAndProductsInCommunity(widget.communityId);
     });
   }
 
@@ -132,16 +59,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _handleLikeOrDislike(bool isLike) {
     final icon = isLike
-        ? Image.asset(
-            'lib/assets/images/likehushhconnect.png',
-            width: 150,
-            height: 150,
-          )
-        : Image.asset(
-            'lib/assets/images/nopehushhconnect.png',
-            width: 150,
-            height: 150,
-          );
+        ? Image.asset('lib/assets/images/likehushhconnect.png',
+            width: 150, height: 150)
+        : Image.asset('lib/assets/images/nopehushhconnect.png',
+            width: 150, height: 150);
 
     OverlayEntry overlayEntry = OverlayEntry(
       builder: (context) => Positioned.fill(
@@ -170,11 +91,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleFollowUser() {
-    final icon = Image.asset(
-      'lib/assets/images/likehushhconnect.png',
-      width: 150,
-      height: 150,
-    );
+    final icon = Image.asset('lib/assets/images/likehushhconnect.png',
+        width: 150, height: 150);
+
     OverlayEntry overlayEntry = OverlayEntry(
       builder: (context) => Positioned.fill(
         child: Container(
@@ -193,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
         overlayEntry.remove();
       }
     });
+
     draggableCardKey.currentState?.handleFollow();
   }
 
@@ -324,40 +244,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Stack(
           children: [
-            Positioned.fill(
-              child: Image.asset(
-                'lib/assets/images/app_bg.jpeg',
-                fit: BoxFit.cover,
-              ),
-            ),
             Positioned(
               top: 0,
               left: 0,
               right: 0,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    vertical: 16.0, horizontal: 12.0),
+                  vertical: 16.0,
+                  horizontal: 12.0,
+                ),
                 child: SafeArea(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SvgPicture.asset("lib/assets/images/huash_logo_2.svg",
-                          fit: BoxFit.contain),
-                      Row(
-                        children: [
-                          //Add the toggle button here
-                          const Icon(
-                            Icons.search,
+                      IconButton(
+                        icon: const Icon(
+                          Icons.cancel,
+                          size: 32,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          // Define your action for the cancel button (e.g., pop screen)
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      Expanded(
+                        child: Center(
+                            child: Text(
+                          "Let's be friends",
+                          style: GoogleFonts.figtree(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            size: 24,
+                            decoration: TextDecoration
+                                .none, // This removes the underline
                           ),
-                          const SizedBox(width: 16),
-                          Image.asset(
-                            "lib/assets/images/notify_topbar.png",
-                            height: 24,
-                          ),
-                        ],
-                      )
+                        )),
+                      ),
                     ],
                   ),
                 ),
@@ -367,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
               top: 120,
               left: 0,
               right: 0,
-              bottom: 0,
+              bottom: 56,
               child: Center(
                 child: DraggableCard(
                   key: draggableCardKey,
@@ -387,21 +309,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              _refreshScreen();
-                            },
-                            child: Container(
-                              height: 47,
-                              color: Colors.transparent,
-                              child: SvgPicture.asset(
-                                'lib/assets/images/reload.svg',
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                        ),
                         Flexible(
                           child: GestureDetector(
                             onTap: () {
@@ -442,21 +349,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Colors.transparent,
                               child: SvgPicture.asset(
                                 'lib/assets/images/heart.svg',
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              // Handle spark action
-                            },
-                            child: Container(
-                              height: 47,
-                              color: Colors.transparent,
-                              child: Image.asset(
-                                'lib/assets/images/navbar_fifth.png',
                                 fit: BoxFit.contain,
                               ),
                             ),

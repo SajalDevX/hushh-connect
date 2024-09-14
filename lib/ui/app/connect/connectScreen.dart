@@ -132,7 +132,15 @@ class _ConnectScreenState extends State<ConnectScreen>
                     ),
                   )
                 : Expanded(
-                    child: ListView.builder(
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // 2 columns
+                        crossAxisSpacing: 10.0, // Space between columns
+                        mainAxisSpacing: 10.0, // Space between rows
+                        childAspectRatio:
+                            0.75, // Adjust the aspect ratio if needed
+                      ),
                       itemCount: users.length,
                       itemBuilder: (context, index) {
                         final user = users[index]['users'];
@@ -147,7 +155,9 @@ class _ConnectScreenState extends State<ConnectScreen>
                           print('Error decoding images JSON: $e');
                         }
 
-                        String imageUrl = images[0] as String;
+                        String imageUrl = images.isNotEmpty
+                            ? images[0] as String
+                            : 'https://fallback.url/default.jpg';
 
                         Uri? uri = Uri.tryParse(imageUrl);
 

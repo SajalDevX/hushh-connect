@@ -1,0 +1,65 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hushhxtinder/data/models/community_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class CommunityViewModel {
+  final SupabaseClient supabaseClient;
+  final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+  CommunityViewModel(this.supabaseClient);
+
+  Future<List<Community>> fetchAllCommunities() async {
+    final response = await supabaseClient
+        .from('communities')
+        .select('id, name, description, image, created_at')
+        .order('created_at', ascending: false);
+
+    return (response as List)
+        .map((community) => Community.fromJson(community))
+        .toList();
+  }
+
+  Future<void> joinCommunity(int communityId) async {
+    final existingUserResponse = await supabaseClient
+        .from('user_communities')
+        .select('*')
+        .eq('user_id', currentUserId)
+        .eq('community_id', communityId);
+
+    // Check if the user is already in the community
+    if ((existingUserResponse as List).isEmpty) {
+      final joinResponse =
+          await supabaseClient.from('user_communities').insert({
+        'user_id': currentUserId,
+        'community_id': communityId,
+      }); // Use execute() to actually run the insert query
+
+      // Check if there was an error in the response
+      if (joinResponse.error != null) {
+        throw Exception(
+            'Failed to join community: ${joinResponse.error!.message}');
+      }
+    }
+  }
+
+  Future<bool> isUserInCommunity(int communityId) async {
+    final response = await supabaseClient
+        .from('user_communities')
+        .select(
+            'user_id') // or select 'community_id', since there is no 'id' column
+        .eq('user_id', currentUserId)
+        .eq('community_id', communityId);
+
+    return (response as List).isNotEmpty;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCommunityUsers(
+      int communityId) async {
+    final response = await supabaseClient
+        .from('user_communities')
+        .select('users(id, name, image)')
+        .eq('community_id', communityId);
+
+    return (response as List).cast<Map<String, dynamic>>();
+  }
+}

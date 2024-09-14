@@ -115,8 +115,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ),
                       const SizedBox(height: 16),
                       // Community description
-                      const Text(
-                        'Find someone down for\nsomething spontaneous',
+                      Text(
+                        community.description,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white70,
@@ -127,42 +127,69 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       // Join Now button
                       ElevatedButton(
                         onPressed: () async {
-                          await _communityViewModel.joinCommunity(community.id);
-                          Navigator.pop(
-                              context); // Close the modal after joining
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text('You have joined ${community.name}!')),
-                          );
-                          // Optionally, navigate to the detail screen after joining with slide transition
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) {
-                                return CommunityDetailScreen(
-                                  communityId: community.id,
-                                  communityName: community.name,
-                                );
-                              },
-                              transitionsBuilder: (context, animation,
-                                  secondaryAnimation, child) {
-                                const begin = Offset(0.0, 1.0);
-                                const end = Offset.zero;
-                                const curve = Curves.ease;
+                          setState(() {
+                            isLoading =
+                                true; // Start loading when the button is pressed
+                          });
 
-                                var tween = Tween(begin: begin, end: end)
-                                    .chain(CurveTween(curve: curve));
-                                var offsetAnimation = animation.drive(tween);
+                          try {
+                            await _communityViewModel
+                                .joinCommunity(community.id);
 
-                                return SlideTransition(
-                                  position: offsetAnimation,
-                                  child: child,
-                                );
-                              },
-                            ),
-                          );
+                            // Show success message
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'You have joined ${community.name}!')),
+                            );
+
+                            // Close the modal after successfully joining
+                            Navigator.pop(context);
+
+                            // Add a short delay to ensure the modal closes before pushing the new screen
+                            Future.delayed(const Duration(milliseconds: 300),
+                                () {
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder:
+                                      (context, animation, secondaryAnimation) {
+                                    return CommunityDetailScreen(
+                                      communityId: community.id,
+                                      communityName: community.name,
+                                    );
+                                  },
+                                  transitionsBuilder: (context, animation,
+                                      secondaryAnimation, child) {
+                                    const begin = Offset(0.0, 1.0);
+                                    const end = Offset.zero;
+                                    const curve = Curves.ease;
+
+                                    var tween = Tween(begin: begin, end: end)
+                                        .chain(CurveTween(curve: curve));
+                                    var offsetAnimation =
+                                        animation.drive(tween);
+
+                                    return SlideTransition(
+                                      position: offsetAnimation,
+                                      child: child,
+                                    );
+                                  },
+                                ),
+                              );
+                            });
+                          } catch (e) {
+                            // Handle the error, if any
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('Error joining community: $e')),
+                            );
+                          } finally {
+                            setState(() {
+                              isLoading =
+                                  false; // Stop loading once the process is complete
+                            });
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
@@ -180,6 +207,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 16),
                       // No Thanks button
                       TextButton(

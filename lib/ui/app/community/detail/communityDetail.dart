@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
@@ -118,16 +119,20 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<HomeViewModel>(
+    return Consumer<CommunityUsersViewModel>(
       builder: (context, viewModel, child) {
-        if (viewModel.isLoading && viewModel.users.isEmpty) {
+        if (viewModel.isLoading && viewModel.usersAndProducts.isEmpty) {
           return const Center(child: CircularProgressIndicator());
-        } else if (viewModel.users.isEmpty) {
+        } else if (viewModel.usersAndProducts.isEmpty) {
           return const Center(child: Text('No users found.'));
         }
 
+        log("User product in screen : ${viewModel.usersAndProducts}");
+
         final cardData = CardData(
-          viewModel.users.map<List<ImageData>>((user) {
+          viewModel.usersAndProducts.map((userAndProduct) {
+            final user = userAndProduct[
+                'users']; // Extract 'users' from 'usersAndProducts'
             final List<dynamic> images = jsonDecode(user["images"] ?? '[]');
             final Map<String, dynamic> officeDetails =
                 jsonDecode(user["office_details"] ?? '{}');
@@ -146,9 +151,16 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
             final String otherlink =
                 socialMediaLinks['other'] ?? 'Not Available';
 
-            final List<Product> userProducts = user['products'] != null
-                ? List<Product>.from(user['products'])
-                : [];
+            // Extract products list, handling the case when 'products' might be null
+            final List<dynamic> productsJson = userAndProduct['products'] ?? [];
+            final List<Product> userProducts = productsJson.map((productJson) {
+              return Product.fromJson(
+                  productJson); // Assuming Product has a fromJson factory method
+            }).toList();
+
+            log("User products: ${userProducts}");
+            log("User passions: ${passions}");
+
             return [
               ImageData(
                 userId: user['id'],
@@ -241,6 +253,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
 
         final imageIndices = ValueNotifier<List<int>>(
             List.generate(cardData.cards.length, (index) => 0));
+        final HomeViewModel _viewModel = HomeViewModel();
 
         return Stack(
           children: [
@@ -296,7 +309,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                   cardData: cardData,
                   currentCardIndex: currentCardIndexNotifier,
                   imageIndices: imageIndices,
-                  viewModel: viewModel,
+                  viewModel: _viewModel,
                 ),
               ),
             ),

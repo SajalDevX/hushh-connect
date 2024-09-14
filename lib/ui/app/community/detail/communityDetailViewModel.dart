@@ -1,4 +1,6 @@
+import 'dart:developer';
 import 'package:flutter/foundation.dart';
+import 'package:hushhxtinder/data/models/productModel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CommunityUsersViewModel with ChangeNotifier {
@@ -22,18 +24,27 @@ class CommunityUsersViewModel with ChangeNotifier {
     notifyListeners();
 
     try {
+      // Fetch users and their products based on the community ID
       final response = await supabaseClient
           .from('user_communities')
           .select('users(*, product_table(*))')
-          .eq('community_id',
-              communityId); // Use execute() to get a proper response object
+          .eq('community_id', communityId);
 
-      // Handle the success case
-      _usersAndProducts = (response as List).cast<Map<String, dynamic>>();
+      // Map the response data into a list of users and their products
+      _usersAndProducts = List<Map<String, dynamic>>.from(response);
+
+      // Parse product data for each user
+      _usersAndProducts.forEach((user) {
+        user['products'] = (user['product_table'] as List<dynamic>?)
+            ?.map((item) => Product.fromJson(item as Map<String, dynamic>))
+            .toList();
+      });
+
+      // log("Fetched users and products: ${usersAndProducts}");
     } catch (error) {
       _hasError = true;
       _errorMessage = error.toString();
-      print('Exception occurred: $error');
+      log('Error fetching users and products: $error');
     } finally {
       _isLoading = false;
       notifyListeners();

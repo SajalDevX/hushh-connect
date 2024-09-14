@@ -26,19 +26,12 @@ class CommunityViewModel {
         .eq('user_id', currentUserId)
         .eq('community_id', communityId);
 
-    // Check if the user is already in the community
     if ((existingUserResponse as List).isEmpty) {
       final joinResponse =
           await supabaseClient.from('user_communities').insert({
         'user_id': currentUserId,
         'community_id': communityId,
-      }); // Use execute() to actually run the insert query
-
-      // Check if there was an error in the response
-      if (joinResponse.error != null) {
-        throw Exception(
-            'Failed to join community: ${joinResponse.error!.message}');
-      }
+      });
     }
   }
 

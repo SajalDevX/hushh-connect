@@ -131,7 +131,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             isLoading =
                                 true; // Start loading when the button is pressed
                           });
-
                           try {
                             await _communityViewModel
                                 .joinCommunity(community.id);
@@ -146,48 +145,41 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             // Close the modal after successfully joining
                             Navigator.pop(context);
 
-                            // Add a short delay to ensure the modal closes before pushing the new screen
-                            Future.delayed(const Duration(milliseconds: 300),
-                                () {
-                              Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder:
-                                      (context, animation, secondaryAnimation) {
-                                    return CommunityDetailScreen(
-                                      communityId: community.id,
-                                      communityName: community.name,
-                                    );
-                                  },
-                                  transitionsBuilder: (context, animation,
-                                      secondaryAnimation, child) {
-                                    const begin = Offset(0.0, 1.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.ease;
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) {
+                                  return CommunityDetailScreen(
+                                    communityId: community.id,
+                                    communityName: community.name,
+                                  );
+                                },
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  const begin = Offset(0.0, 1.0);
+                                  const end = Offset.zero;
+                                  const curve = Curves.ease;
 
-                                    var tween = Tween(begin: begin, end: end)
-                                        .chain(CurveTween(curve: curve));
-                                    var offsetAnimation =
-                                        animation.drive(tween);
+                                  var tween = Tween(begin: begin, end: end)
+                                      .chain(CurveTween(curve: curve));
+                                  var offsetAnimation = animation.drive(tween);
 
-                                    return SlideTransition(
-                                      position: offsetAnimation,
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              );
-                            });
+                                  return SlideTransition(
+                                    position: offsetAnimation,
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
                           } catch (e) {
-                            // Handle the error, if any
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   content: Text('Error joining community: $e')),
                             );
                           } finally {
                             setState(() {
-                              isLoading =
-                                  false; // Stop loading once the process is complete
+                              isLoading = false;
                             });
                           }
                         },

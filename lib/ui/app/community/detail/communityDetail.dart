@@ -13,7 +13,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class CommunityDetailScreen extends StatefulWidget {
   final int communityId;
   final String communityName;
-  CommunityDetailScreen(
+  const CommunityDetailScreen(
       {Key? key, required this.communityId, required this.communityName})
       : super(key: key);
 
@@ -25,14 +25,22 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   final GlobalKey<DraggableCardState> draggableCardKey =
       GlobalKey<DraggableCardState>();
   final ValueNotifier<int> currentCardIndexNotifier = ValueNotifier<int>(0);
+  bool _showLoading = true;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<CommunityUsersViewModel>()
-          .fetchUsersAndProductsInCommunity(widget.communityId);
+      // Show the circular progress indicator for 1 second
+      Future.delayed(const Duration(seconds: 1), () {
+        setState(() {
+          _showLoading = false;
+        });
+        // Fetch the data after showing the loading indicator
+        context
+            .read<CommunityUsersViewModel>()
+            .fetchUsersAndProductsInCommunity(widget.communityId);
+      });
     });
 
     currentCardIndexNotifier.addListener(() {
@@ -121,7 +129,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   Widget build(BuildContext context) {
     return Consumer<CommunityUsersViewModel>(
       builder: (context, viewModel, child) {
-        if (viewModel.isLoading && viewModel.usersAndProducts.isEmpty) {
+        if (_showLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (viewModel.isLoading && viewModel.usersAndProducts.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         } else if (viewModel.usersAndProducts.isEmpty) {
           return const Center(child: Text('No users found.'));

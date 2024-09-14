@@ -114,7 +114,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Community description
                       Text(
                         community.description,
                         textAlign: TextAlign.center,
@@ -128,8 +127,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ElevatedButton(
                         onPressed: () async {
                           setState(() {
-                            isLoading =
-                                true; // Start loading when the button is pressed
+                            isLoading = true;
                           });
                           try {
                             await _communityViewModel
@@ -142,7 +140,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                       'You have joined ${community.name}!')),
                             );
 
-                            // Close the modal after successfully joining
                             Navigator.pop(context);
 
                             Navigator.push(

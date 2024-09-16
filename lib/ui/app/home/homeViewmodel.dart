@@ -397,7 +397,6 @@ class HomeViewModel extends ChangeNotifier {
         }
       }
 
-      // If user hasn't skipped or answered, allow opening the Vibes screen
       print("Check for vibes is active or not: true");
       return true; // Event is active and user hasn't skipped or answered
     } catch (e) {

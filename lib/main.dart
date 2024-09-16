@@ -12,6 +12,7 @@ import 'package:hushhxtinder/ui/app/home/homeScreen.dart';
 import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
 import 'package:hushhxtinder/ui/app/product/productViewmodel.dart';
 import 'package:hushhxtinder/ui/app/profile/profileViewModel.dart';
+import 'package:hushhxtinder/ui/app/vibes/vibesViewModel.dart';
 import 'package:hushhxtinder/ui/auth/authEmailScreen.dart';
 import 'package:hushhxtinder/ui/auth/authHomeLocationScreen.dart';
 import 'package:hushhxtinder/ui/auth/authNameScreen.dart';
@@ -49,6 +50,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => Productviewmodel()),
         ChangeNotifierProvider(create: (context) => ConnectViewModel()),
         ChangeNotifierProvider(create: (context) => CommunityUsersViewModel()),
+        ChangeNotifierProvider(create: (context) => VibesViewModel()),
       ],
       child: const MyApp(),
     ),

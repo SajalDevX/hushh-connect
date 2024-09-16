@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -347,6 +346,125 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> checkAndOpenVibesScreen(BuildContext context) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final supabaseClient = Supabase.instance.client;
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (currentUserId == null) {
+        throw Exception('User is not logged in.');
+      }
+
+      // Fetch event with start and end times
+      final eventResponse = await supabaseClient
+          .from('vibes_events')
+          .select('id, start_time, end_time')
+          .maybeSingle();
+
+      if (eventResponse == null) {
+        return false;
+      }
+
+      // Get event start and end time from the response
+      final eventId = eventResponse['id'];
+      final eventStart = DateTime.parse(eventResponse['start_time']);
+      final eventEnd = DateTime.parse(eventResponse['end_time']);
+      final currentTime = DateTime.now();
+
+      // Check if current time lies between event start and end times
+      if (!(currentTime.isAfter(eventStart) &&
+          currentTime.isBefore(eventEnd))) {
+        print("Check for vibes is active or not: false");
+        return false; // Event has ended
+      }
+
+      // Check if the user has skipped or completed the event
+      final userStatusResponse = await supabaseClient
+          .from('vibes_user_status')
+          .select('status')
+          .eq('user_id', currentUserId)
+          .eq('event_id', eventId)
+          .maybeSingle();
+
+      if (userStatusResponse != null) {
+        final status = userStatusResponse['status'];
+        if (status == 'skipped' || status == 'answered') {
+          print("User has already skipped or answered the event.");
+          return false; // User has already completed or skipped the event
+        }
+      }
+
+      // If user hasn't skipped or answered, allow opening the Vibes screen
+      print("Check for vibes is active or not: true");
+      return true; // Event is active and user hasn't skipped or answered
+    } catch (e) {
+      print('Error checking vibes event: $e');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<int?> fetchActiveVibeEventId() async {
+    try {
+      final supabaseClient = Supabase.instance.client;
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (currentUserId == null) {
+        throw Exception('User is not logged in.');
+      }
+
+      // Fetch event with start and end times
+      final eventResponse = await supabaseClient
+          .from('vibes_events')
+          .select('id, start_time, end_time')
+          .maybeSingle();
+
+      if (eventResponse == null) {
+        return null; // No active event found
+      }
+
+      // Get event start and end time from the response
+      final eventId = eventResponse['id'];
+      final eventStart = DateTime.parse(eventResponse['start_time']);
+      final eventEnd = DateTime.parse(eventResponse['end_time']);
+      final currentTime = DateTime.now();
+
+      // Check if current time lies between event start and end times
+      if (currentTime.isAfter(eventStart) && currentTime.isBefore(eventEnd)) {
+        // Check if the user has skipped or completed the event
+        final userStatusResponse = await supabaseClient
+            .from('vibes_user_status')
+            .select('status')
+            .eq('user_id', currentUserId)
+            .eq('event_id', eventId)
+            .maybeSingle();
+
+        if (userStatusResponse != null) {
+          final status = userStatusResponse['status'];
+          if (status == 'skipped' || status == 'answered') {
+            return null; // User has already completed or skipped the event
+          }
+        }
+
+        // Return the event ID if it's active and user hasn't skipped or completed
+        return eventId;
+      } else {
+        return null; // Event has not started or has ended
+      }
+    } catch (e) {
+      print('Error fetching active Vibe event: $e');
+      return null;
+    }
+  }
+}
+
+
+
   // Future<void> fetchUsersAndProducts() async {
   //   if (isLoading) return;
   //   isLoading = true;
@@ -476,4 +594,3 @@ class HomeViewModel extends ChangeNotifier {
   //     return [];
   //   }
   // }
-}

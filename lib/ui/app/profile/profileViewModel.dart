@@ -1,12 +1,18 @@
-import 'dart:convert'; // Import to handle JSON decoding
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/models/profile_model.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ProfileViewModel extends ChangeNotifier {
   bool isLoading = false;
   ProfileData? profile;
+  List<String> imageUrls = [];
+  final ImagePicker _picker = ImagePicker();
+  final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
   Future<ProfileData?> fetchUser() async {
     if (isLoading) return profile;
@@ -24,17 +30,14 @@ class ProfileViewModel extends ChangeNotifier {
           .from('users')
           .select()
           .eq('id', currentUserId)
-          .single(); // Use single() to fetch a single row
+          .single();
 
       final data = response;
 
-      // Parse the image URLs from the JSON string
-      List<String> imageUrls = [];
       if (data['images'] != null) {
         imageUrls = List<String>.from(json.decode(data['images']));
       }
 
-      // Parse social media JSON object
       Map<String, String>? socialmedia;
       if (data['socialmedia'] != null) {
         socialmedia =
@@ -73,6 +76,65 @@ class ProfileViewModel extends ChangeNotifier {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         notifyListeners();
       });
+    }
+  }
+
+  Future<void> addImage() async {
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      try {
+        // Upload to Firebase Storage (optional: also use Supabase Storage if needed)
+        final ref = _firebaseStorage.ref().child(
+            'user_images/${FirebaseAuth.instance.currentUser?.uid}/${pickedFile.name}');
+        UploadTask uploadTask = ref.putFile(File(pickedFile.path));
+        final TaskSnapshot snapshot = await uploadTask;
+        final String downloadUrl = await snapshot.ref.getDownloadURL();
+
+        // Add image URL to the list
+        imageUrls.add(downloadUrl);
+
+        // Update the profile in Supabase
+        await _updateProfileImages();
+      } catch (e) {
+        print('Error uploading image: $e');
+      }
+    }
+  }
+
+  Future<void> removeImage(int index) async {
+    String imageUrl = imageUrls[index];
+    imageUrls.removeAt(index);
+
+    try {
+      // Delete from Firebase Storage
+      Reference imageRef = _firebaseStorage.refFromURL(imageUrl);
+      await imageRef.delete();
+
+      // Update the profile in Supabase
+      await _updateProfileImages();
+    } catch (e) {
+      print('Error deleting image: $e');
+    }
+  }
+
+  Future<void> _updateProfileImages() async {
+    try {
+      final supabaseClient = Supabase.instance.client;
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (currentUserId == null) {
+        throw Exception('User is not logged in.');
+      }
+
+      // Update the 'images' field in Supabase
+      await supabaseClient
+          .from('users')
+          .update({'images': json.encode(imageUrls)}).eq('id', currentUserId);
+
+      notifyListeners();
+    } catch (e) {
+      print('Error updating profile: $e');
     }
   }
 

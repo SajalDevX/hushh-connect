@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/models/profile_model.dart';
 import 'package:hushhxtinder/ui/app/product/productScreen.dart';
+import 'package:hushhxtinder/ui/app/profile/edit_profile/addMediaScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileViewModel.dart';
 import 'package:provider/provider.dart';
 
@@ -187,24 +188,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       () => _resetAllExcept('settings'),
                                       screenWidth,
                                       screenHeight),
-                                  _buildButton('addProduct', Icons.edit,
-                                      'Add Products', isPressedAddProduct, () {
-                                    _resetAllExcept('addProduct');
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        top: screenWidth * 0.15),
+                                    child: _buildButton(
+                                        'addProduct',
+                                        Icons.edit,
+                                        'Add Products',
+                                        isPressedAddProduct, () {
+                                      _resetAllExcept('addProduct');
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProductListScreen()),
+                                      );
+                                    }, screenWidth, screenHeight),
+                                  ),
+                                  _buildButton('addMedia', Icons.add_a_photo,
+                                      'Add Media', isPressedAddMedia, () {
+                                    _resetAllExcept('addMedia');
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              ProductListScreen()),
+                                              EditProfileScreen()),
                                     );
                                   }, screenWidth, screenHeight),
-                                  _buildButton(
-                                      'addMedia',
-                                      Icons.add_a_photo,
-                                      'Add Media',
-                                      isPressedAddMedia,
-                                      () => _resetAllExcept('addMedia'),
-                                      screenWidth,
-                                      screenHeight),
                                 ],
                               ),
                             ),

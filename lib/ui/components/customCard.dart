@@ -216,7 +216,7 @@ class DraggableCardState extends State<DraggableCard>
         currentCardIndex >= widget.cardData.cards.length) {
       return Container(
         color: Colors.transparent,
-        child: Center(
+        child: const Center(
           child: Text(
             'No more cards',
             style: TextStyle(fontSize: 24, color: Colors.black),

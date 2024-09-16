@@ -9,6 +9,7 @@ import 'package:hushhxtinder/ui/app/connect/connectScreen.dart';
 import 'package:hushhxtinder/ui/app/community/exploreScreen.dart';
 import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileScreen.dart';
+import 'package:hushhxtinder/ui/app/vibes/vibesScreen.dart';
 import 'package:hushhxtinder/ui/components/customCard.dart';
 import 'package:provider/provider.dart';
 import 'homeViewmodel.dart';
@@ -90,7 +91,6 @@ class _MainScreenState extends State<MainScreen> {
 
 class HomeScreen extends StatefulWidget {
   final HomeViewModel viewModel;
-
   HomeScreen({Key? key, required this.viewModel}) : super(key: key);
 
   @override
@@ -107,15 +107,48 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeViewModel>().fetchUsersAndProducts();
+      _checkAndOpenVibesScreen();
     });
 
     // Listen for card index changes
     currentCardIndexNotifier.addListener(() {
       if (currentCardIndexNotifier.value >= widget.viewModel.users.length - 1) {
-        // Fetch the next batch of users when the last card is swiped
         widget.viewModel.fetchUsersAndProducts();
       }
     });
+  }
+
+  Future<void> _checkAndOpenVibesScreen() async {
+    final isVibesActive =
+        await widget.viewModel.checkAndOpenVibesScreen(context);
+    final vibeEventId = await widget.viewModel.fetchActiveVibeEventId();
+    if (isVibesActive) {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return VibesScreen(
+              vibeEventName: "Bollywood",
+              vibeEventId: vibeEventId!,
+            );
+          },
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
+
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+        ),
+      );
+    }
   }
 
   void _refreshScreen() {

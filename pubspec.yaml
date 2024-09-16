@@ -52,6 +52,9 @@ dependencies:
   firebase_messaging: ^15.1.0
   flutter_local_notifications: ^17.2.2
   http: ^1.2.2
+  shimmer: ^3.0.0
+  marquee_list: ^1.0.0
+
 
 
   # The following adds the Cupertino Icons font to your application.

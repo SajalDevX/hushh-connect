@@ -28,7 +28,6 @@ class _ConnectScreenState extends State<ConnectScreen>
           Provider.of<ConnectViewModel>(context, listen: false);
 
       connectViewModel.fetchFollowingUsers();
-      connectViewModel.fetchMutualUsers();
       connectViewModel.fetchFollowers();
     });
   }
@@ -158,8 +157,6 @@ class _ConnectScreenState extends State<ConnectScreen>
                         String imageUrl = images.isNotEmpty
                             ? images[0] as String
                             : 'https://fallback.url/default.jpg';
-
-                        Uri? uri = Uri.tryParse(imageUrl);
 
                         return UserImageCard(
                           name: name,

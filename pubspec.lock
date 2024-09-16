@@ -608,6 +608,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.1"
+  marquee_list:
+    dependency: "direct main"
+    description:
+      name: marquee_list
+      sha256: "786ee8764d9f9f8683519f0221eac6d09c7f2a6309d98df848b53135151192f3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   matcher:
     dependency: transitive
     description:
@@ -832,6 +840,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
+  shimmer:
+    dependency: "direct main"
+    description:
+      name: shimmer
+      sha256: "5f88c883a22e9f9f299e5ba0e4f7e6054857224976a5d9f839d4ebdc94a14ac9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   sky_engine:
     dependency: transitive
     description: flutter

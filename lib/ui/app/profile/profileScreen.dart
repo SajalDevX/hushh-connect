@@ -3,6 +3,7 @@ import 'package:hushhxtinder/data/models/profile_model.dart';
 import 'package:hushhxtinder/ui/app/product/productScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/edit_profile/addMediaScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileViewModel.dart';
+import 'package:hushhxtinder/ui/app/settings/settings_screen.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -180,14 +181,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  _buildButton(
-                                      'settings',
-                                      Icons.settings,
-                                      'Settings',
-                                      isPressedSettings,
-                                      () => _resetAllExcept('settings'),
-                                      screenWidth,
-                                      screenHeight),
+                                  _buildButton('settings', Icons.settings,
+                                      'Settings', isPressedSettings, () {
+                                    _resetAllExcept('addProduct');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              SettingsScreen()),
+                                    );
+                                  }, screenWidth, screenHeight),
                                   Padding(
                                     padding: EdgeInsets.only(
                                         top: screenWidth * 0.15),

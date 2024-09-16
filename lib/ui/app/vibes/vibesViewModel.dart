@@ -38,9 +38,8 @@ class VibesViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> submitVibesAnswers({
-    required List<Map<String, dynamic>> answers,
-  }) async {
+  Future<void> submitVibesAnswers(
+      {required List<Map<String, dynamic>> answers}) async {
     final supabaseClient = Supabase.instance.client;
     final now = DateTime.now().toIso8601String();
 
@@ -50,6 +49,7 @@ class VibesViewModel extends ChangeNotifier {
               'user_id': currentUserId,
               'question_id': answer['question_id'],
               'response': answer['response'],
+              'event_id': answer['event_id'],
               'timestamp': now,
             })
         .toList();

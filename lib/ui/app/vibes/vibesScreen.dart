@@ -114,7 +114,8 @@ class _VibesScreenState extends State<VibesScreen> {
     final answers = selectedAnswers.entries
         .map((entry) => {
               'question_id': questions[entry.key]['id'], // Question ID
-              'response': entry.value, // Selected answer
+              'response': entry.value,
+              'event_id': widget.vibeEventId
             })
         .toList();
 

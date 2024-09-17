@@ -71,6 +71,7 @@ class HomeViewModel extends ChangeNotifier {
         throw Exception('User is not logged in.');
       }
 
+      // Fetch the current user's position
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
       double currentLat = position.latitude;
@@ -78,19 +79,33 @@ class HomeViewModel extends ChangeNotifier {
 
       const radiusInMeters = radiusInMiles * 1609.34;
 
+      // Call the RPC function and join with product data
       final response = await supabaseClient.rpc('fetch_users_nearby', params: {
         'longitude': currentLon,
         'latitude': currentLat,
         'radius': radiusInMeters,
         'current_user_id': currentUserId
-      });
+      }).select(
+          '*, product_table(*)'); // Include the product data for each user
 
+      // Ensure the response is not null
       final fetchedUsers = List<Map<String, dynamic>>.from(response ?? []);
-
+      print('fetched users are : $fetchedUsers');
       if (fetchedUsers.isNotEmpty) {
+        // Process the fetched users and their products
+        fetchedUsers.forEach((user) {
+          // Convert the product data using fromJson method
+          user['products'] = (user['product_table'] as List<dynamic>?)
+              ?.map((item) => Product.fromJson(item as Map<String, dynamic>))
+              .toList();
+        });
+
+        // Shuffle the users and add them to the list
         fetchedUsers.shuffle();
         users.addAll(fetchedUsers);
         currentPage++;
+      } else {
+        print('No nearby users found.');
       }
     } catch (e) {
       print('Exception: $e');

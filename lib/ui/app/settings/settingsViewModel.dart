@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SettingsViewModel extends ChangeNotifier {
@@ -68,5 +69,18 @@ class SettingsViewModel extends ChangeNotifier {
     } catch (e) {
       print('Error deleting responses and status: $e');
     }
+  }
+
+  Future<void> setNearbyUsersPreference(bool isNearbyEnabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('nearby_users', isNearbyEnabled);
+    notifyListeners();
+  }
+
+  // Get the current "nearby users" preference
+  Future<bool> getNearbyUsersPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('nearby_users') ??
+        false; // Return false if no value is set
   }
 }

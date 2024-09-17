@@ -9,6 +9,7 @@ import 'package:hushhxtinder/ui/app/connect/connectScreen.dart';
 import 'package:hushhxtinder/ui/app/community/exploreScreen.dart';
 import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileScreen.dart';
+import 'package:hushhxtinder/ui/app/settings/settingsViewModel.dart';
 import 'package:hushhxtinder/ui/app/vibes/vibesScreen.dart';
 import 'package:hushhxtinder/ui/components/customCard.dart';
 import 'package:provider/provider.dart';
@@ -105,15 +106,38 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeViewModel>().fetchUsersAndProducts();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Fetch nearby users preference from settings
+      final isNearbyUsersOn =
+          await context.read<SettingsViewModel>().getNearbyUsersPreference();
+      print('Nearby user is : $isNearbyUsersOn');
+
+      // If nearby users preference is true, fetch nearby users
+      if (isNearbyUsersOn) {
+        await context.read<HomeViewModel>().fetchUsersNearby();
+      } else {
+        // Else, fetch regular users and products
+        await context.read<HomeViewModel>().fetchUsersAndProducts();
+      }
+
       _checkAndOpenVibesScreen();
     });
 
-    // Listen for card index changes
+    // Listen for card index changes to fetch more users when reaching the last card
     currentCardIndexNotifier.addListener(() {
       if (currentCardIndexNotifier.value >= widget.viewModel.users.length - 1) {
-        widget.viewModel.fetchUsersAndProducts();
+        // Check nearby users preference again before fetching
+        context
+            .read<SettingsViewModel>()
+            .getNearbyUsersPreference()
+            .then((isNearbyUsersOn) {
+          if (isNearbyUsersOn) {
+            context.read<HomeViewModel>().fetchUsersNearby();
+          } else {
+            context.read<HomeViewModel>().fetchUsersAndProducts();
+          }
+        });
       }
     });
   }

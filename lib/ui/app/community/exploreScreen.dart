@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/data/models/community_model.dart';
 import 'package:hushhxtinder/ui/app/community/detail/communityDetail.dart';
 import 'package:hushhxtinder/ui/app/community/communityViewmodel.dart';
+import 'package:hushhxtinder/ui/app/home/currentUserProfile.dart';
+import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
+import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -14,6 +18,7 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   late CommunityViewModel _communityViewModel;
+  late HomeViewModel _homeViewModel;
 
   @override
   void initState() {
@@ -192,6 +197,59 @@ class _ExploreScreenState extends State<ExploreScreen> {
       );
     }
   }
+
+  // void _moveToDetailScreen(List<ImageData> currentCardData) {
+  //   Navigator.push(
+  //     context,
+  //     PageRouteBuilder(
+  //       pageBuilder: (context, animation, secondaryAnimation) {
+  //         return CurrentUserProfile(
+  //           CardData: currentCardData,
+  //           onMessageClick: () {
+  //             _homeViewModel.addToContact(currentCardData[0].userId);
+  //             Navigator.push(
+  //               context,
+  //               PageRouteBuilder(
+  //                 pageBuilder: (context, animation, secondaryAnimation) {
+  //                   return FriendsScreen();
+  //                 },
+  //                 transitionsBuilder:
+  //                     (context, animation, secondaryAnimation, child) {
+  //                   const begin = Offset(0.0, 1.0);
+  //                   const end = Offset.zero;
+  //                   const curve = Curves.ease;
+
+  //                   var tween = Tween(begin: begin, end: end)
+  //                       .chain(CurveTween(curve: curve));
+  //                   var offsetAnimation = animation.drive(tween);
+
+  //                   return SlideTransition(
+  //                     position: offsetAnimation,
+  //                     child: child,
+  //                   );
+  //                 },
+  //               ),
+  //             );
+  //           },
+  //         );
+  //       },
+  //       transitionsBuilder: (context, animation, secondaryAnimation, child) {
+  //         const begin = Offset(0.0, 1.0);
+  //         const end = Offset.zero;
+  //         const curve = Curves.ease;
+
+  //         var tween =
+  //             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+  //         var offsetAnimation = animation.drive(tween);
+
+  //         return SlideTransition(
+  //           position: offsetAnimation,
+  //           child: child,
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {

@@ -565,7 +565,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               _moveToDetailScreen(currentCardData);
                             },
                             child: Container(
-                              height: 45,
+                              height: 36,
                               color: Colors.transparent,
                               child: Image.asset(
                                 'lib/assets/images/arrow-up.png',

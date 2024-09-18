@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_build_context_synchronously, use_key_in_widget_constructors, library_private_types_in_public_api
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -7,6 +7,7 @@ import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/data/models/productModel.dart';
 import 'package:hushhxtinder/ui/app/connect/connectScreen.dart';
 import 'package:hushhxtinder/ui/app/community/exploreScreen.dart';
+import 'package:hushhxtinder/ui/app/home/currentUserProfile.dart';
 import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileScreen.dart';
 import 'package:hushhxtinder/ui/app/settings/settingsViewModel.dart';
@@ -142,6 +143,59 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _moveToDetailScreen(List<ImageData> currentCardData) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return CurrentUserProfile(
+            CardData: currentCardData,
+            onMessageClick: () {
+              widget.viewModel.addToContact(currentCardData[0].userId);
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) {
+                    return FriendsScreen();
+                  },
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(0.0, 1.0);
+                    const end = Offset.zero;
+                    const curve = Curves.ease;
+
+                    var tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+                    var offsetAnimation = animation.drive(tween);
+
+                    return SlideTransition(
+                      position: offsetAnimation,
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _checkAndOpenVibesScreen() async {
     final isVibesActive =
         await widget.viewModel.checkAndOpenVibesScreen(context);
@@ -262,7 +316,6 @@ class _HomeScreenState extends State<HomeScreen> {
         } else if (viewModel.users.isEmpty) {
           return const Center(child: Text('No users found.'));
         }
-
         final cardData = CardData(
           viewModel.users.map<List<ImageData>>((user) {
             final List<dynamic> images = jsonDecode(user["images"] ?? '[]');
@@ -507,18 +560,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         Flexible(
                           child: GestureDetector(
                             onTap: () {
-                              // Handle spark action
+                              final currentCardData = cardData
+                                  .cards[currentCardIndexNotifier.value];
+                              _moveToDetailScreen(currentCardData);
                             },
                             child: Container(
-                              height: 47,
+                              height: 45,
                               color: Colors.transparent,
                               child: Image.asset(
-                                'lib/assets/images/navbar_fifth.png',
+                                'lib/assets/images/arrow-up.png',
                                 fit: BoxFit.contain,
                               ),
                             ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ],

@@ -56,7 +56,6 @@ dependencies:
   marquee_list: ^1.0.0
 
 
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   location: ^6.0.2
@@ -95,7 +94,6 @@ flutter:
     - lib/assets/images/create_nav.png
     - lib/assets/images/explore_nav.png
     - lib/assets/images/home_nav.png
-
     - lib/assets/images/profile_nav.png
     - lib/assets/images/dislike.svg
     - lib/assets/images/heart.svg
@@ -121,6 +119,10 @@ flutter:
     - lib/assets/images/coffeedate.jpeg
     - lib/assets/images/Frame.png
     - lib/assets/images/grey_tick.png
+    - lib/assets/images/arrow-down.png
+    - lib/assets/images/arrow-up.png
+
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

@@ -45,7 +45,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // Delete Vibes Responses Button
             ElevatedButton(
               onPressed: () {
                 showDialog(

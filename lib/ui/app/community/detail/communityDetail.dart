@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/data/models/productModel.dart';
 import 'package:hushhxtinder/ui/app/community/detail/communityDetailViewModel.dart';
+import 'package:hushhxtinder/ui/app/home/currentUserProfile.dart';
+import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:hushhxtinder/ui/components/customCard.dart';
@@ -26,7 +28,6 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
       GlobalKey<DraggableCardState>();
   final ValueNotifier<int> currentCardIndexNotifier = ValueNotifier<int>(0);
   bool _showLoading = true;
-
   @override
   void initState() {
     super.initState();
@@ -64,6 +65,61 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   void dispose() {
     currentCardIndexNotifier.dispose();
     super.dispose();
+  }
+
+  final HomeViewModel viewModel = HomeViewModel();
+
+  void _moveToDetailScreen(List<ImageData> currentCardData) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return CurrentUserProfile(
+            CardData: currentCardData,
+            onMessageClick: () {
+              viewModel.addToContact(currentCardData[0].userId);
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) {
+                    return FriendsScreen();
+                  },
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(0.0, 1.0);
+                    const end = Offset.zero;
+                    const curve = Curves.ease;
+
+                    var tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+                    var offsetAnimation = animation.drive(tween);
+
+                    return SlideTransition(
+                      position: offsetAnimation,
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   void _handleLikeOrDislike(bool isLike) {
@@ -137,8 +193,6 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           return const Center(child: Text('No users found.'));
         }
 
-        log("User product in screen : ${viewModel.usersAndProducts}");
-
         final cardData = CardData(
           viewModel.usersAndProducts.map((userAndProduct) {
             final user = userAndProduct[
@@ -167,9 +221,6 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
               return Product.fromJson(
                   productJson); // Assuming Product has a fromJson factory method
             }).toList();
-
-            log("User products: ${userProducts}");
-            log("User passions: ${passions}");
 
             return [
               ImageData(
@@ -377,6 +428,23 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                             ),
                           ),
                         ),
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: () {
+                              final currentCardData = cardData
+                                  .cards[currentCardIndexNotifier.value];
+                              _moveToDetailScreen(currentCardData);
+                            },
+                            child: Container(
+                              height: 36,
+                              color: Colors.transparent,
+                              child: Image.asset(
+                                'lib/assets/images/arrow-up.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                        )
                       ],
                     ),
                   ],

@@ -15,7 +15,46 @@ class AuthResumeScreen extends StatefulWidget {
   State<AuthResumeScreen> createState() => _AuthResumeScreenState();
 }
 
-class _AuthResumeScreenState extends State<AuthResumeScreen> {
+class _AuthResumeScreenState extends State<AuthResumeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Color?> _color1;
+  late Animation<Color?> _color2;
+  late Animation<Color?> _color3;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize the animation controller for gradient
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    )..repeat(reverse: true);
+
+    // Define color transitions for the animated gradient
+    _color1 = ColorTween(
+      begin: const Color.fromARGB(255, 214, 75, 75), // Dark Blue
+      end: const Color(0xff190087), // Indigo Blue
+    ).animate(_controller);
+
+    _color2 = ColorTween(
+      begin: const Color(0xffa230ed), // Deeper Indigo
+      end: const Color(0xff6b00d7), // Royal Blue
+    ).animate(_controller);
+
+    _color3 = ColorTween(
+      begin: const Color(0xff3e00b3),
+      end: const Color.fromARGB(255, 213, 22, 22), // Deep Violet
+    ).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   void _skip() {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => AuthOfficeScreen()));
@@ -35,125 +74,118 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
         TextEditingController(text: tasks);
 
     showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: Text(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color.fromARGB(255, 43, 15, 108),
+                Color.fromARGB(255, 95, 17, 97),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
                 'Fill in the missing fields',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
+                  color: Colors.white,
                 ),
               ),
-              content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      controller: companyController,
-                      decoration: InputDecoration(
-                        labelText: 'Company',
-                        labelStyle: TextStyle(color: Colors.grey[600]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.blue),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.blueAccent),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10), // Spacing between fields
-                    TextField(
-                      controller: roleController,
-                      decoration: InputDecoration(
-                        labelText: 'Role',
-                        labelStyle: TextStyle(color: Colors.grey[600]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.blue),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.blueAccent),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      controller: tasksController,
-                      decoration: InputDecoration(
-                        labelText: 'Tasks',
-                        labelStyle: TextStyle(color: Colors.grey[600]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.blue),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.blueAccent),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 16),
+              _buildGradientTextField(
+                  controller: companyController, label: 'Company'),
+              const SizedBox(height: 10),
+              _buildGradientTextField(
+                  controller: roleController, label: 'Role'),
+              const SizedBox(height: 10),
+              _buildGradientTextField(
+                  controller: tasksController, label: 'Tasks'),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IAgreeButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      size: 120,
+                      text: "Cancel"),
+                  IAgreeButton(
+                      onPressed: () async {
+                        authViewModel.updateOfficeInfo(
+                          company: companyController.text,
+                          role: roleController.text,
+                          tasks: tasksController.text,
+                        );
+                        if (companyController.text.isNotEmpty &&
+                            roleController.text.isNotEmpty &&
+                            tasksController.text.isNotEmpty) {
+                          await authViewModel.uploadOfficeInfoToSupabase();
+                          Navigator.of(context).pop();
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const AuthSocialMediaScreen(),
+                            ),
+                          );
+                        } else {
+                          Navigator.of(context).pop();
+                          _showInputFieldsDialog(context);
+                        }
+                      },
+                      size: 120,
+                      text: 'OK')
+                ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  child: Text('Cancel'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.red, // Cancel button color
-                  ),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    authViewModel.updateOfficeInfo(
-                      company: companyController.text,
-                      role: roleController.text,
-                      tasks: tasksController.text,
-                    );
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                    // Check if all fields are filled
-                    if (companyController.text.isNotEmpty &&
-                        roleController.text.isNotEmpty &&
-                        tasksController.text.isNotEmpty) {
-                      await authViewModel.uploadOfficeInfoToSupabase();
-                      Navigator.of(context).pop(); // Close the dialog
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AuthSocialMediaScreen(),
-                        ),
-                      );
-                    } else {
-                      Navigator.of(context).pop(); // Close the dialog
-                      _showInputFieldsDialog(context); // Show the dialog again
-                    }
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue, // Button color
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text('OK'),
-                ),
-              ],
-            ));
+  Widget _buildGradientTextField(
+      {required TextEditingController controller, required String label}) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white),
+        filled: true,
+        fillColor: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.1),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Colors.white,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Colors.white,
+          ),
+        ),
+      ),
+      style: const TextStyle(color: Colors.white),
+    );
   }
 
   void _handleUploadResume(BuildContext context) async {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-
-    // Resume upload and text extraction
     await authViewModel.uploadResumeAndExtractText();
-
-    // Show input fields dialog for extracted data
     _showInputFieldsDialog(context);
   }
 
@@ -165,15 +197,24 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            width: size.width,
-            height: size.height,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('lib/assets/images/app_bg.jpeg'),
-                fit: BoxFit.cover,
-              ),
-            ),
+          // Animated Gradient Background
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      _color1.value ?? Colors.deepPurpleAccent,
+                      _color2.value ?? Colors.blueAccent,
+                      _color3.value ?? Colors.pinkAccent,
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           SafeArea(
             child: Padding(
@@ -191,7 +232,7 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
                       color: const Color(0xffe9ebee),
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   const Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -224,7 +265,7 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
                       ],
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   SizedBox(
                     width: size.width * widthFactor,
                     child: IAgreeButton(
@@ -233,7 +274,7 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
                       size: size.width * widthFactor,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: size.width * widthFactor,
                     child: ElevatedButton(
@@ -247,7 +288,7 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
                   ),
                   const SizedBox(
                     height: 36,
-                  )
+                  ),
                 ],
               ),
             ),

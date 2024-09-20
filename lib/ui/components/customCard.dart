@@ -199,13 +199,13 @@ class DraggableCardState extends State<DraggableCard>
     setState(() {
       int currentCard = widget.currentCardIndex.value;
       int currentImage = widget.imageIndices.value[currentCard];
+
+      // Check if we are at the first image of the current card
       if (currentImage > 0) {
+        // Go to the previous image within the same card
         widget.imageIndices.value[currentCard]--;
-      } else if (currentCard > 0) {
-        widget.currentCardIndex.value--;
-        widget.imageIndices.value[widget.currentCardIndex.value] =
-            widget.cardData.cards[widget.currentCardIndex.value].length - 1;
       }
+      // If it's the first image of the current card, do nothing (prevent going back to the previous card)
     });
   }
 

@@ -3,6 +3,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/ui/auth/authOfficeScreen.dart';
+import 'package:hushhxtinder/ui/auth/authResumeScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:hushhxtinder/ui/components/customTextBox.dart';
@@ -278,7 +279,7 @@ class _AuthCurrentLocationState extends State<AuthCurrentLocation> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => AuthOfficeScreen(),
+            builder: (context) => AuthResumeScreen(),
           ),
         );
       } catch (e) {

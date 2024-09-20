@@ -2,7 +2,6 @@
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/firebase_options.dart';
 import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
@@ -64,10 +63,10 @@ void main() async {
 ///
 ///
 ///
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  log('Handling a background message: ${message.messageId}');
-}
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   await Firebase.initializeApp();
+//   log('Handling a background message: ${message.messageId}');
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -96,7 +95,7 @@ class SplashScreen extends StatelessWidget {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       // await prefs.clear();
-      // await prefs.setInt('profile_progress', 8);
+      // await prefs.setInt('profile_progress', 5);
       // Check if Firebase authentication is valid
       bool isAuthenticated = FirebaseAuth.instance.currentUser != null;
       bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;

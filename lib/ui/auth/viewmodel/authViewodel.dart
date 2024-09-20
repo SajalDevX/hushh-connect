@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hushhxtinder/ui/auth/authHomeLocationScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sharpapi_flutter_client/sharpapi_flutter_client.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+import 'dart:typed_data' as typed_data;
+
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class AuthViewModel extends ChangeNotifier {
   bool isLoading = false;
@@ -125,40 +129,6 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  // Future<void> _initializeFirebaseMessaging() async {
-  //   // Request permission for iOS devices
-  //   NotificationSettings settings = await _firebaseMessaging.requestPermission(
-  //     alert: true,
-  //     badge: true,
-  //     sound: true,
-  //   );
-
-  //   if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-  //     log('User granted permission');
-  //     _setupFlutterLocalNotifications();
-  //     _firebaseMessaging.onTokenRefresh.listen(_saveTokenToDatabase);
-  //     _firebaseMessaging.getToken().then(_saveTokenToDatabase);
-  //   } else {
-  //     log('User declined or has not accepted permission');
-  //   }
-
-  //   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  //     log("Received message: ${message.notification?.title}");
-  //     _showNotification(message);
-  //   });
-  // }
-
-  ///
-  ///
-  ///
-  ///
-  ///
   Future<void> _saveTokenToDatabase(String? token) async {
     if (token != null) {
       final supabaseClient = supabase.Supabase.instance.client;
@@ -169,12 +139,6 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  ///
-  ///
-  ///
-  ///
-  ///
-  // Setup Flutter Local Notifications
   void _setupFlutterLocalNotifications() {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -185,31 +149,24 @@ class AuthViewModel extends ChangeNotifier {
     _flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  // Show notification when app is in foreground
-  Future<void> _showNotification(RemoteMessage message) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'your_channel_id', // Replace with your channel ID
-      'your_channel_name', // Replace with your channel name
-      channelDescription: 'your_channel_description', // Optional
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await _flutterLocalNotificationsPlugin.show(
-      message.notification.hashCode,
-      message.notification?.title,
-      message.notification?.body,
-      platformChannelSpecifics,
-    );
-  }
+  // Future<void> _showNotification(RemoteMessage message) async {
+  //   const AndroidNotificationDetails androidPlatformChannelSpecifics =
+  //       AndroidNotificationDetails(
+  //     'your_channel_id', // Replace with your channel ID
+  //     'your_channel_name', // Replace with your channel name
+  //     channelDescription: 'your_channel_description', // Optional
+  //     importance: Importance.max,
+  //     priority: Priority.high,
+  //   );
+  //   const NotificationDetails platformChannelSpecifics =
+  //       NotificationDetails(android: androidPlatformChannelSpecifics);
+  //   await _flutterLocalNotificationsPlugin.show(
+  //     message.notification.hashCode,
+  //     message.notification?.title,
+  //     message.notification?.body,
+  //     platformChannelSpecifics,
+  //   );
+  // }
 
   Future<void> verifyPhoneNumber(BuildContext context) async {
     isLoading = true;
@@ -317,46 +274,6 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  // Future<void> verifyOtp(BuildContext context) async {
-  //   if (verificationId == null) {
-  //     log('Error: Verification ID is null.');
-  //     return;
-  //   }
-
-  //   isLoading = true;
-  //   notifyListeners();
-  //   log('Verifying OTP: ${otpController.text} with Verification ID: $verificationId');
-
-  //   try {
-  //     final credential = PhoneAuthProvider.credential(
-  //       verificationId: verificationId!,
-  //       smsCode: otpController.text,
-  //     );
-
-  //     // Attempt to sign in with the credential
-  //     await FirebaseAuth.instance.signInWithCredential(credential);
-  //     log('User signed in with OTP.');
-
-  //     // Attempt to save the user to Supabase
-  //     if (FirebaseAuth.instance.currentUser != null) {
-  //       await saveUserToSupabase(FirebaseAuth.instance.currentUser);
-  //       log('User saved to Supabase.');
-  //     } else {
-  //       log('Error: FirebaseAuth.instance.currentUser is null after OTP sign-in.');
-  //     }
-
-  //     await completeOnboarding();
-  //     log('Onboarding completed.');
-  //     await updateProgress(5);
-  //     log('Progress updated to 5.');
-  //   } catch (e) {
-  //     log('Exception in verifyOtp: $e');
-  //   } finally {
-  //     isLoading = false;
-  //     notifyListeners();
-  //   }
-  // }
-
   Future<void> saveUserToSupabase(User? firebaseUser) async {
     if (firebaseUser == null) {
       log("Firebase user is null, cannot save to Supabase");
@@ -435,7 +352,6 @@ class AuthViewModel extends ChangeNotifier {
     log('Image links saved in JSON format: $imageLinksJson');
   }
 
-  // Method to add image to ViewModel
   void addImage(File image, int index) {
     if (index >= 0 && index < _images.length) {
       _images[index] = image;
@@ -455,5 +371,48 @@ class AuthViewModel extends ChangeNotifier {
       'passions': imageLinksJson,
     });
     updateProgress(10);
+  }
+
+  String extractedText = '';
+
+  Future<void> uploadResumeAndExtractText() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+
+    if (result != null) {
+      String? filePath = result.files.single.path;
+      if (filePath != null) {
+        typed_data.Uint8List bytes = await File(filePath).readAsBytes();
+
+        final PdfDocument document = PdfDocument(inputBytes: bytes);
+        String content = PdfTextExtractor(document).extractText();
+        document.dispose();
+
+        extractedText = content;
+        log('Resume text fetched successfully: $content');
+
+        final lines = content.split('\n');
+        for (String line in lines) {
+          if (line.contains('Experience') || line.contains('Worked at')) {
+            _tasks = line;
+          } else if (line.contains('Company')) {
+            _company = line;
+          } else if (line.contains('Role')) {
+            _role = line;
+          }
+        }
+        if (company != null && role != null && tasks != null) {
+          updateOfficeInfo(
+              company: _company ?? '', role: _role ?? '', tasks: _tasks ?? '');
+          await uploadOfficeInfoToSupabase();
+        } else {
+          log('Error: Could not extract company, role, or tasks from resume.');
+        }
+      } else {
+        log('Error: File path is null.');
+      }
+    } else {
+      log('Error: No file selected.');
+    }
   }
 }

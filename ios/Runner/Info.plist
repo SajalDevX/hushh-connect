@@ -73,7 +73,8 @@
 </array>
 <key>FirebaseAppDelegateProxyEnabled</key>
 <false/>
-
+<key>NSFileProviderUsageDescription</key>
+<string>We need access to your files.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Your description here</string>
 </dict>

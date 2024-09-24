@@ -11,13 +11,7 @@ class EditProfileScreen extends StatefulWidget {
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Color?> _color1;
-  late Animation<Color?> _color2;
-  late Animation<Color?> _color3;
-
+class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _roleController = TextEditingController();
@@ -47,31 +41,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         }
       }
     });
-
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2500),
-    )..repeat(reverse: true);
-
-    _color1 = ColorTween(
-      begin: const Color.fromARGB(255, 214, 75, 75),
-      end: const Color(0xff190087),
-    ).animate(_controller);
-
-    _color2 = ColorTween(
-      begin: const Color(0xffa230ed),
-      end: const Color(0xff6b00d7),
-    ).animate(_controller);
-
-    _color3 = ColorTween(
-      begin: const Color(0xff3e00b3),
-      end: const Color.fromARGB(255, 213, 22, 22),
-    ).animate(_controller);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _roleController.dispose();
@@ -105,27 +78,21 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      _color1.value ?? Colors.deepPurpleAccent,
-                      _color2.value ?? Colors.blueAccent,
-                      _color3.value ?? Colors.pinkAccent,
-                    ],
-                  ),
-                ),
-              );
-            },
+          Container(
+            width: size.width,
+            height: size.height,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                    'lib/assets/images/app_bg.jpeg'), // Replace with your image path
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           SafeArea(
             child: Padding(

@@ -95,7 +95,7 @@ class SplashScreen extends StatelessWidget {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       // await prefs.clear();
-      await prefs.setInt('profile_progress', 6);
+      // await prefs.setInt('profile_progress', 6);
       // Check if Firebase authentication is valid
       bool isAuthenticated = FirebaseAuth.instance.currentUser != null;
       bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;

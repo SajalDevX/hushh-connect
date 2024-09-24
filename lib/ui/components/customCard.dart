@@ -745,36 +745,6 @@ class DraggableCardState extends State<DraggableCard>
             ),
           ),
           Positioned(
-            top: 40,
-            left: 20,
-            child: Opacity(
-              opacity: likeOpacity,
-              child: Transform.rotate(
-                angle: -math.pi / 12,
-                child: Image.asset(
-                  "lib/assets/images/likehushhconnect.png",
-                  height: 148,
-                  width: 148,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 40,
-            right: 20,
-            child: Opacity(
-              opacity: dislikeOpacity,
-              child: Transform.rotate(
-                angle: math.pi / 12,
-                child: Image.asset(
-                  "lib/assets/images/nopehushhconnect.png",
-                  height: 148,
-                  width: 148,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
             top: 10,
             left: 10,
             right: 10,
@@ -789,9 +759,10 @@ class DraggableCardState extends State<DraggableCard>
             left: 0,
             right: 0,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: [
@@ -825,19 +796,27 @@ class DraggableCardState extends State<DraggableCard>
                     ),
                   ),
                   SizedBox(height: 10),
-                  // Constrain the height of the GridView to prevent overflow
-                  SizedBox(
-                    height: 800, // Adjust the height as needed
-                    child: GridView.count(
-                      crossAxisCount: 2, // Two products per row
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      shrinkWrap: true,
-                      physics:
-                          NeverScrollableScrollPhysics(), // Disable scrolling inside the grid
-                      children: productCards,
-                    ),
-                  ),
+                  imageData.products.isEmpty
+                      ? const Center(
+                          child: Text(
+                            "No products",
+                            style: TextStyle(
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      : SizedBox(
+                          height: 800, // Adjust the height as needed
+                          child: GridView.count(
+                            crossAxisCount: 2, // Two products per row
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            children: productCards,
+                          ),
+                        ),
                 ],
               ),
             ),

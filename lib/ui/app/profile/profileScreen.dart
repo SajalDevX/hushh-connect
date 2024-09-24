@@ -112,7 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 CircleAvatar(
                                   radius: screenWidth * 0.18,
                                   backgroundImage:
-                                      NetworkImage(profile.imageurl),
+                                      NetworkImage(profile.images![0]),
                                 ),
                                 Positioned(
                                   bottom: -1,

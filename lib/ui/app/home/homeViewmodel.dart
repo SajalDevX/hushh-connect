@@ -89,7 +89,7 @@ class HomeViewModel extends ChangeNotifier {
           '*, product_table(*)'); // Include the product data for each user
 
       // Ensure the response is not null
-      final fetchedUsers = List<Map<String, dynamic>>.from(response ?? []);
+      final fetchedUsers = List<Map<String, dynamic>>.from(response);
       if (fetchedUsers.isNotEmpty) {
         // Process the fetched users and their products
         fetchedUsers.forEach((user) {
@@ -144,13 +144,12 @@ class HomeViewModel extends ChangeNotifier {
       }
 
       final uuid = Uuid().v4();
-
-      final response = await supabaseClient.from('contact').insert({
+      await supabaseClient.from('contact').insert({
         'chat_id': uuid,
         'userId': currentUserId,
         'contact_userId': contactUserId,
       });
-      final response2 = await supabaseClient.from('contact').insert({
+      await supabaseClient.from('contact').insert({
         'chat_id': uuid,
         'userId': contactUserId,
         'contact_userId': currentUserId,

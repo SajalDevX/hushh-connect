@@ -759,8 +759,7 @@ class DraggableCardState extends State<DraggableCard>
             left: 0,
             right: 0,
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -799,8 +798,9 @@ class DraggableCardState extends State<DraggableCard>
                   imageData.products.isEmpty
                       ? const Center(
                           child: Text(
-                            "No products",
+                            "No Products",
                             style: TextStyle(
+                              fontWeight: FontWeight.bold,
                               fontSize: 24,
                               color: Colors.white,
                             ),

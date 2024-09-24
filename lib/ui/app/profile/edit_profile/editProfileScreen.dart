@@ -35,7 +35,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   json.decode(profileViewModel.profile!.officeDetails!))
               : null;
           _roleController.text = officeDetails?['role'] ?? '';
-          print("Office details in Screen is ${_roleController.text}");
           _companyController.text = officeDetails?['company'] ?? '';
           _tasksController.text = officeDetails?['tasks'] ?? '';
         }

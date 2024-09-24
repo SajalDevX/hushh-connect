@@ -19,14 +19,13 @@ class UserImageCard extends StatelessWidget {
           margin: const EdgeInsets.all(
               0), // Remove additional margins around the card
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(8),
           ),
           clipBehavior:
               Clip.antiAlias, // Ensures the image fits the rounded corners
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              // Display the image, ensuring it fills the entire card
               Positioned.fill(
                 child: Image.network(
                   imageUrl,
@@ -42,7 +41,13 @@ class UserImageCard extends StatelessWidget {
               // Overlay the user's name at the bottom
               Container(
                 width: double.infinity,
-                color: Colors.black.withOpacity(0.5),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.transparent, Colors.black],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
                 padding: const EdgeInsets.all(10),
                 child: Text(
                   name,
@@ -53,7 +58,7 @@ class UserImageCard extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-              ),
+              )
             ],
           ),
         ));

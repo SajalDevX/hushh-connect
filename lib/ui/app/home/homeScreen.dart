@@ -282,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _handleFollowUser() {
     final icon = Image.asset(
-      'lib/assets/images/likehushhconnect.png',
+      'lib/assets/images/super_like.png',
       width: 150,
       height: 150,
     );

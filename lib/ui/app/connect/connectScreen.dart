@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hushhxtinder/ui/app/home/currentUserProfile.dart';
+import 'package:hushhxtinder/ui/app/connect/userdata/userDetailScreen.dart';
 import 'package:hushhxtinder/ui/components/userCard.dart';
 import 'package:provider/provider.dart';
 import 'package:hushhxtinder/ui/app/connect/connectViewModel.dart';
@@ -18,40 +18,39 @@ class _ConnectScreenState extends State<ConnectScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // void _onCardClick() {
-  //   Navigator.push(
-  //     context,
-  //     PageRouteBuilder(
-  //       pageBuilder: (context, animation, secondaryAnimation) {
-  //         return CurrentUserProfile(
-  //           CardData: currentCardData,
-  //           onMessageClick: () {},
-  //         );
-  //       },
-  //       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-  //         const begin = Offset(0.0, 1.0);
-  //         const end = Offset.zero;
-  //         const curve = Curves.ease;
+  void _onCardClick(String uid) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return UserProfileDetailScreen(
+            onMessageClick: () {},
+            uid: uid,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
 
-  //         var tween =
-  //             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-  //         var offsetAnimation = animation.drive(tween);
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
 
-  //         return SlideTransition(
-  //           position: offsetAnimation,
-  //           child: child,
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
 
-    // Use addPostFrameCallback to ensure data fetching is done after the first frame is rendered.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final connectViewModel =
           Provider.of<ConnectViewModel>(context, listen: false);
@@ -74,19 +73,16 @@ class _ConnectScreenState extends State<ConnectScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
           Positioned.fill(
             child: Image.asset(
               'lib/assets/images/app_bg.jpeg',
               fit: BoxFit.cover,
             ),
           ),
-          // Main Content
           Column(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SafeArea(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -101,7 +97,6 @@ class _ConnectScreenState extends State<ConnectScreen>
                   ),
                 ),
               ),
-              // TabBar for User List Sections
               Container(
                 color: Colors.transparent,
                 child: TabBar(
@@ -110,7 +105,6 @@ class _ConnectScreenState extends State<ConnectScreen>
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.grey,
                   tabs: const [
-                    // Tab(text: 'Mutual'),
                     Tab(text: 'Following'),
                     Tab(text: 'Followers'),
                   ],
@@ -120,16 +114,13 @@ class _ConnectScreenState extends State<ConnectScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    // _buildUserSection(
-                    //   users: connectViewModel.mutualUsers,
-                    //   isLoading: connectViewModel.isLoadingMutual,
-                    // ),
                     _buildUserSection(
                       users: connectViewModel.followingUsers,
                       isLoading: connectViewModel.isLoadingFollowing,
                     ),
                     _buildUserSection(
                       users: connectViewModel.followers,
+                      isFollowing: false,
                       isLoading: connectViewModel.isLoadingFollowers,
                     ),
                   ],
@@ -145,6 +136,7 @@ class _ConnectScreenState extends State<ConnectScreen>
   Widget _buildUserSection({
     required List<Map<String, dynamic>> users,
     required bool isLoading,
+    bool isFollowing = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,9 +164,14 @@ class _ConnectScreenState extends State<ConnectScreen>
                       itemCount: users.length,
                       itemBuilder: (context, index) {
                         final user = users[index]['users'];
-
                         final String name = user['name'] ?? 'Unknown User';
+                        // Use isFollowing flag to fetch the right ID
+                        final String uid = isFollowing
+                            ? users[index]['following_id'] ?? 'Unknown Uid'
+                            : users[index]['follower_id'] ?? 'Unknown Uid';
+                        print("uid is $uid");
 
+                        // Decoding images from JSON string
                         final String imagesJson = user['images'] ?? '[]';
                         List<dynamic> images = [];
                         try {
@@ -188,7 +185,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                             : 'https://fallback.url/default.jpg';
 
                         return UserImageCard(
-                          onCardClick: () {},
+                          onCardClick: () => _onCardClick(uid),
                           name: name,
                           imageUrl: imageUrl,
                         );

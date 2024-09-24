@@ -34,45 +34,52 @@ class ProfileViewModel extends ChangeNotifier {
 
       final data = response;
 
+      // Check if 'images' is a JSON-encoded string or already a List<String>
+
       if (data['images'] != null) {
-        imageUrls = List<String>.from(json.decode(data['images']));
+        if (data['images'] is String) {
+          imageUrls = List<String>.from(json.decode(data['images']));
+        } else if (data['images'] is List) {
+          imageUrls = List<String>.from(data['images']);
+        }
       }
 
+      // Check for 'socialmedia'
       Map<String, String>? socialmedia;
       if (data['socialmedia'] != null) {
         socialmedia =
             Map<String, String>.from(json.decode(data['socialmedia']));
       }
 
-      // Parse passions as a list of strings
+      // Check for 'passions'
       List<String>? passions;
       if (data['passions'] != null) {
         passions = List<String>.from(json.decode(data['passions']));
       }
 
-      // Office details stored as a JSON object but encoded as a String in the database
+      // Check for 'office_details'
       Map<String, dynamic>? officeDetails;
       if (data['office_details'] != null && data['office_details'] is String) {
-        // Decode office_details JSON string into a Map
         officeDetails = jsonDecode(data['office_details']);
       }
 
       print('Office details: $officeDetails');
 
       profile = ProfileData(
+          uid: data['id'] ?? 'null',
           name: data['name'] ?? 'Unknown',
-          imageurl: imageUrls.isNotEmpty ? imageUrls[0] : '',
+          images: imageUrls,
+          profile_img: imageUrls.isNotEmpty ? imageUrls[0] : '',
           homeLoc: data['current_address'] ?? '',
-          officeDetails: officeDetails != null
-              ? jsonEncode(officeDetails)
-              : null, // Store as a JSON string in the ProfileData model
+          officeDetails:
+              officeDetails != null ? jsonEncode(officeDetails) : null,
           passions: passions,
           socialmedia: socialmedia,
           email: data['email'] ?? 'Unknown');
 
       return profile;
     } catch (e) {
-      print('Exception: $e');
+      print('Exception in viewmodel: $e');
       return null;
     } finally {
       isLoading = false;
@@ -86,18 +93,26 @@ class ProfileViewModel extends ChangeNotifier {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
+      isLoading = true;
+      notifyListeners(); // Notify listeners to update UI
+
       try {
         final ref = _firebaseStorage.ref().child(
             'user_images/${FirebaseAuth.instance.currentUser?.uid}/${pickedFile.name}');
         UploadTask uploadTask = ref.putFile(File(pickedFile.path));
+
+        // Wait for the upload to complete
         final TaskSnapshot snapshot = await uploadTask;
         final String downloadUrl = await snapshot.ref.getDownloadURL();
 
         imageUrls.add(downloadUrl);
 
-        await _updateProfileImages();
+        await _updateProfileImages(); // Update the user's profile images if needed
       } catch (e) {
         print('Error uploading image: $e');
+      } finally {
+        isLoading = false;
+        notifyListeners(); // Notify listeners to hide the progress indicator
       }
     }
   }
@@ -145,7 +160,7 @@ class ProfileViewModel extends ChangeNotifier {
     final totalFields = 6; // Number of fields to check
 
     if (profile!.name.isNotEmpty) filledFields++;
-    if (profile!.imageurl.isNotEmpty) filledFields++;
+    if (profile!.profile_img.isNotEmpty) filledFields++;
     if (profile!.homeLoc?.isNotEmpty ?? false) filledFields++;
     if (profile!.officeDetails?.isNotEmpty ?? false) filledFields++;
     if (profile!.socialmedia != null && profile!.socialmedia!.isNotEmpty)
@@ -183,8 +198,7 @@ class ProfileViewModel extends ChangeNotifier {
         return false;
       }
 
-      // Perform the update query
-      final response = await supabaseClient
+      await supabaseClient
           .from('users')
           .update(updatedUser)
           .eq('id', currentUserId); // Ensure that execute() is awaited

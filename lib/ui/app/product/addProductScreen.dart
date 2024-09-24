@@ -22,7 +22,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   File? _productImage;
   final _picker = ImagePicker();
-  bool _isLoading = false; // New variable to manage loading state
+  bool _isLoading = false;
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -49,7 +49,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final double? price = double.tryParse(_productPriceController.text);
 
     if (price == null) {
-      // Show error message if price is invalid
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid price')),
       );
@@ -57,7 +56,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
 
     setState(() {
-      _isLoading = true; // Set loading state to true
+      _isLoading = true;
     });
 
     try {
@@ -68,23 +67,25 @@ class _AddProductScreenState extends State<AddProductScreen> {
         productPrice: price,
         productLink: _productLinkController.text,
       );
-      // Notify the previous screen about the new product
       widget.onProductAdded();
     } catch (e) {
-      // Handle upload errors here
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to add product: $e')),
       );
     } finally {
       setState(() {
-        _isLoading = false; // Set loading state to false
+        _isLoading = false;
       });
-      Navigator.pop(context); // Pop the screen after saving
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Get screen size
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -110,7 +111,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
+          : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
@@ -118,12 +119,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     onTap: _pickImage,
                     child: _productImage == null
                         ? Container(
-                            height: 278,
+                            height: screenHeight * 0.25,
                             color: Colors.grey[200],
                             child: const Center(
                                 child: Text('Tap to select image')),
                           )
-                        : Image.file(_productImage!, height: 200),
+                        : Image.file(_productImage!,
+                            height: screenHeight * 0.35),
                   ),
                   const SizedBox(height: 16),
                   const Text(
@@ -140,10 +142,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     child: IAgreeButton(
                       onPressed: _saveProduct,
                       text: "Add Product",
-                      size: 42,
+                      size: screenHeight * 0.06,
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -152,6 +154,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   Widget _buildTextField(
       String label, TextEditingController controller, int maxLines) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
@@ -159,6 +163,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         maxLines: maxLines,
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: TextStyle(fontSize: screenWidth * 0.045),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: const BorderSide(

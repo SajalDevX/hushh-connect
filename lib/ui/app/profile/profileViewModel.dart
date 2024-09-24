@@ -50,21 +50,25 @@ class ProfileViewModel extends ChangeNotifier {
         passions = List<String>.from(json.decode(data['passions']));
       }
 
-      // Office details stored as a JSON object
-      String? officeDetails;
-      if (data['office_details'] != null) {
-        officeDetails = jsonEncode(data['office_details']);
+      // Office details stored as a JSON object but encoded as a String in the database
+      Map<String, dynamic>? officeDetails;
+      if (data['office_details'] != null && data['office_details'] is String) {
+        // Decode office_details JSON string into a Map
+        officeDetails = jsonDecode(data['office_details']);
       }
 
-      // Create a ProfileData object
+      print('Office details: $officeDetails');
+
       profile = ProfileData(
-        name: data['name'] ?? 'Unknown',
-        imageurl: imageUrls.isNotEmpty ? imageUrls[0] : '',
-        homeLoc: data['current_address'] ?? '',
-        officeDetails: officeDetails,
-        passions: passions,
-        socialmedia: socialmedia,
-      );
+          name: data['name'] ?? 'Unknown',
+          imageurl: imageUrls.isNotEmpty ? imageUrls[0] : '',
+          homeLoc: data['current_address'] ?? '',
+          officeDetails: officeDetails != null
+              ? jsonEncode(officeDetails)
+              : null, // Store as a JSON string in the ProfileData model
+          passions: passions,
+          socialmedia: socialmedia,
+          email: data['email'] ?? 'Unknown');
 
       return profile;
     } catch (e) {
@@ -72,7 +76,6 @@ class ProfileViewModel extends ChangeNotifier {
       return null;
     } finally {
       isLoading = false;
-      // Call notifyListeners() outside of the build phase
       WidgetsBinding.instance.addPostFrameCallback((_) {
         notifyListeners();
       });
@@ -84,17 +87,14 @@ class ProfileViewModel extends ChangeNotifier {
         await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       try {
-        // Upload to Firebase Storage (optional: also use Supabase Storage if needed)
         final ref = _firebaseStorage.ref().child(
             'user_images/${FirebaseAuth.instance.currentUser?.uid}/${pickedFile.name}');
         UploadTask uploadTask = ref.putFile(File(pickedFile.path));
         final TaskSnapshot snapshot = await uploadTask;
         final String downloadUrl = await snapshot.ref.getDownloadURL();
 
-        // Add image URL to the list
         imageUrls.add(downloadUrl);
 
-        // Update the profile in Supabase
         await _updateProfileImages();
       } catch (e) {
         print('Error uploading image: $e');
@@ -154,5 +154,51 @@ class ProfileViewModel extends ChangeNotifier {
       filledFields++;
 
     return (filledFields / totalFields) * 100.0;
+  }
+
+  Future<bool> editUserProfile(
+      String? name, String? email, Map<String, String>? officeDetails) async {
+    try {
+      final supabaseClient = Supabase.instance.client;
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+      if (currentUserId == null) {
+        throw Exception('User is not logged in.');
+      }
+
+      // Build the updated user map
+      Map<String, dynamic> updatedUser = {};
+      if (name != null && name.isNotEmpty) {
+        updatedUser['name'] = name;
+      }
+      if (email != null && email.isNotEmpty) {
+        updatedUser['email'] = email;
+      }
+      if (officeDetails != null && officeDetails.isNotEmpty) {
+        updatedUser['office_details'] = jsonEncode(officeDetails);
+      }
+
+      if (updatedUser.isEmpty) {
+        print('No changes to update');
+        return false;
+      }
+
+      // Perform the update query
+      final response = await supabaseClient
+          .from('users')
+          .update(updatedUser)
+          .eq('id', currentUserId); // Ensure that execute() is awaited
+
+      // Reload the user profile after updating
+      await fetchUser();
+
+      return true;
+    } catch (e) {
+      print('Exception: $e');
+      return false;
+    } finally {
+      notifyListeners();
+      isLoading = false;
+    }
   }
 }

@@ -52,6 +52,7 @@ class _AuthEmailScreenState extends State<AuthEmailScreen> {
     const double widthFactor = 0.85; // Set a width factor for responsiveness
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Background image

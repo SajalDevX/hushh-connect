@@ -324,7 +324,6 @@ class _HomeScreenState extends State<HomeScreen> {
             final List<dynamic> passions = jsonDecode(user["passions"] ?? '[]');
             final Map<String, dynamic> socialMediaLinks =
                 jsonDecode(user['socialmedia'] ?? '{}');
-
             final String instagram =
                 socialMediaLinks['instagram'] ?? 'Not Available';
             final String twitter =
@@ -455,7 +454,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           fit: BoxFit.contain),
                       Row(
                         children: [
-                          //Add the toggle button here
                           const Icon(
                             Icons.search,
                             color: Colors.white,

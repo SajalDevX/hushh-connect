@@ -19,13 +19,12 @@ class _ProfileCardState extends State<CurrentUserProfile> {
     final ImageData data1 = widget.CardData[0];
     final ImageData data2 = widget.CardData[1];
     final ImageData data3 = widget.CardData[2];
-    final ImageData data4 = widget.CardData[3];
-    final ImageData data5 = widget.CardData[4];
-    final List<String> imageUrls =
-        widget.CardData.map((data) => data.imageRes).toList();
-
+    final List<String> imageUrls = widget.CardData.where((data) =>
+            data.imageRes.isNotEmpty) // Null values ko filter karta hai
+        .map((data) => data.imageRes)
+        .toList();
     return Scaffold(
-      backgroundColor: Colors.black, // Black background
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
           // Top fixed title bar

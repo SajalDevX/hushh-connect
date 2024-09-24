@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hushhxtinder/ui/app/home/currentUserProfile.dart';
 import 'package:hushhxtinder/ui/components/userCard.dart';
 import 'package:provider/provider.dart';
 import 'package:hushhxtinder/ui/app/connect/connectViewModel.dart';
@@ -16,6 +17,34 @@ class ConnectScreen extends StatefulWidget {
 class _ConnectScreenState extends State<ConnectScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
+  // void _onCardClick() {
+  //   Navigator.push(
+  //     context,
+  //     PageRouteBuilder(
+  //       pageBuilder: (context, animation, secondaryAnimation) {
+  //         return CurrentUserProfile(
+  //           CardData: currentCardData,
+  //           onMessageClick: () {},
+  //         );
+  //       },
+  //       transitionsBuilder: (context, animation, secondaryAnimation, child) {
+  //         const begin = Offset(0.0, 1.0);
+  //         const end = Offset.zero;
+  //         const curve = Curves.ease;
+
+  //         var tween =
+  //             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+  //         var offsetAnimation = animation.drive(tween);
+
+  //         return SlideTransition(
+  //           position: offsetAnimation,
+  //           child: child,
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 
   @override
   void initState() {
@@ -159,6 +188,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                             : 'https://fallback.url/default.jpg';
 
                         return UserImageCard(
+                          onCardClick: () {},
                           name: name,
                           imageUrl: imageUrl,
                         );

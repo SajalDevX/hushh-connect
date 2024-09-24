@@ -53,6 +53,7 @@ class _AuthOfficeScreenState extends State<AuthOfficeScreen> {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Consumer<AuthViewModel>(
         builder: (context, authViewModel, child) {
           return Stack(

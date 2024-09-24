@@ -95,7 +95,7 @@ class SplashScreen extends StatelessWidget {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       // await prefs.clear();
-      // await prefs.setInt('profile_progress', 5);
+      await prefs.setInt('profile_progress', 6);
       // Check if Firebase authentication is valid
       bool isAuthenticated = FirebaseAuth.instance.currentUser != null;
       bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
@@ -151,16 +151,16 @@ class SplashScreen extends StatelessWidget {
       }
 
       // If onboarding is not completed, redirect to the onboarding screen
-      if (!onboardingCompleted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-        );
-      } else {
-        // Otherwise, redirect to the appropriate screen based on profile progress
+      if (onboardingCompleted) {
+        // Here, we will clear the back stack to prevent going back to previous screens
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => nextScreen),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
         );
       }
     } catch (e) {

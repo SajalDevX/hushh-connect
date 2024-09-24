@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/models/profile_model.dart';
 import 'package:hushhxtinder/ui/app/product/productScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/edit_profile/addMediaScreen.dart';
+import 'package:hushhxtinder/ui/app/profile/edit_profile/editProfileScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileViewModel.dart';
 import 'package:hushhxtinder/ui/app/settings/settings_screen.dart';
 import 'package:provider/provider.dart';
@@ -54,8 +55,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: ClipPath(
                 clipper: CurvedBackgroundClipper(),
                 child: Container(
-                  height: screenHeight * 0.68,
-                  decoration: BoxDecoration(
+                  height: screenHeight * 0.71,
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Color(0xFF0A0C18), Color(0xFF320A3B)],
                       begin: Alignment.topCenter,
@@ -77,14 +78,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   future: _profileFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
                       return Center(
                         child: Text('Error: ${snapshot.error}',
-                            style: TextStyle(color: Colors.white)),
+                            style: const TextStyle(color: Colors.white)),
                       );
                     } else if (!snapshot.hasData || snapshot.data == null) {
-                      return Center(
+                      return const Center(
                         child: Text('No profile data available',
                             style: TextStyle(color: Colors.white)),
                       );
@@ -121,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         horizontal: screenWidth * 0.05),
                                     width: screenWidth * 0.35,
                                     decoration: BoxDecoration(
-                                      gradient: LinearGradient(
+                                      gradient: const LinearGradient(
                                         colors: [
                                           Color(0xFFE54D60),
                                           Color(0xFFA342FF),
@@ -130,7 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         end: Alignment.centerLeft,
                                       ),
                                       borderRadius: BorderRadius.circular(20),
-                                      boxShadow: [
+                                      boxShadow: const [
                                         BoxShadow(
                                           color:
                                               Color.fromRGBO(33, 37, 41, 0.3),
@@ -149,6 +150,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                 ),
+                                Positioned(
+                                  top: -100,
+                                  right: 10,
+                                  bottom: 0,
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                EditProfileScreen()),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromARGB(
+                                            255, 71, 32, 110),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.3),
+                                            spreadRadius: 2,
+                                            blurRadius: 5,
+                                          ),
+                                        ],
+                                      ),
+                                      padding: const EdgeInsets.all(8),
+                                      child: Icon(
+                                        Icons.edit,
+                                        color: const Color.fromARGB(
+                                            255, 255, 255, 255),
+                                        size: screenWidth * 0.06,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                             SizedBox(height: screenHeight * 0.02),
@@ -160,7 +198,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   style: TextStyle(
                                     fontFamily: 'Figtree',
                                     fontSize: screenWidth * 0.07,
-                                    color: Color.fromRGBO(233, 235, 238, 1),
+                                    color:
+                                        const Color.fromRGBO(233, 235, 238, 1),
                                     fontWeight: FontWeight.bold,
                                   ),
                                   textAlign: TextAlign.center,
@@ -204,7 +243,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                ProductListScreen()),
+                                                const ProductListScreen()),
                                       );
                                     }, screenWidth, screenHeight),
                                   ),
@@ -215,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              EditProfileScreen()),
+                                              Addmediascreen()),
                                     );
                                   }, screenWidth, screenHeight),
                                 ],
@@ -228,7 +267,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
               ),
-              // Positioned content at the bottom
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
@@ -262,7 +300,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               horizontal: screenWidth * 0.1,
                               vertical: screenHeight * 0.02),
                         ),
-                        child: Text(
+                        child: const Text(
                           'GET HUSHH PLATINUM™',
                           style: TextStyle(color: Colors.white),
                         ),
@@ -285,28 +323,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
         InkWell(
           onTap: onTap,
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 200),
             padding: EdgeInsets.all(screenWidth * 0.035),
             decoration: BoxDecoration(
               gradient: isPressed
-                  ? LinearGradient(
+                  ? const LinearGradient(
                       colors: [
                         Color(0xFFE54D60),
                         Color(0xFFA342FF),
                       ],
                     )
                   : null,
-              color: isPressed ? null : Color(0xFF1A1B1D),
+              color: isPressed ? null : const Color(0xFF1A1B1D),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: Color.fromRGBO(102, 110, 123, 1),
+                color: const Color.fromRGBO(102, 110, 123, 1),
                 width: 1,
               ),
             ),
             child: Icon(
               icon,
-              color:
-                  isPressed ? Colors.white : Color.fromRGBO(124, 134, 146, 1),
+              color: isPressed
+                  ? Colors.white
+                  : const Color.fromRGBO(124, 134, 146, 1),
             ),
           ),
         ),
@@ -316,7 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(
             fontFamily: 'Figtree',
             fontSize: screenWidth * 0.035,
-            color: Color.fromRGBO(233, 235, 238, 1),
+            color: const Color.fromRGBO(233, 235, 238, 1),
             fontWeight: FontWeight.bold,
           ),
         ),

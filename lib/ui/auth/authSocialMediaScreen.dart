@@ -81,6 +81,7 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(

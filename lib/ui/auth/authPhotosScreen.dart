@@ -138,6 +138,7 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
     final double spacing = size.width * 0.04; // Spacing between image boxes
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(

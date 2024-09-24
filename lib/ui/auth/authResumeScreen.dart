@@ -15,43 +15,9 @@ class AuthResumeScreen extends StatefulWidget {
   State<AuthResumeScreen> createState() => _AuthResumeScreenState();
 }
 
-class _AuthResumeScreenState extends State<AuthResumeScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Color?> _color1;
-  late Animation<Color?> _color2;
-  late Animation<Color?> _color3;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Initialize the animation controller for gradient
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2500),
-    )..repeat(reverse: true);
-
-    // Define color transitions for the animated gradient
-    _color1 = ColorTween(
-      begin: const Color.fromARGB(255, 214, 75, 75), // Dark Blue
-      end: const Color(0xff190087), // Indigo Blue
-    ).animate(_controller);
-
-    _color2 = ColorTween(
-      begin: const Color(0xffa230ed), // Deeper Indigo
-      end: const Color(0xff6b00d7), // Royal Blue
-    ).animate(_controller);
-
-    _color3 = ColorTween(
-      begin: const Color(0xff3e00b3),
-      end: const Color.fromARGB(255, 213, 22, 22), // Deep Violet
-    ).animate(_controller);
-  }
-
+class _AuthResumeScreenState extends State<AuthResumeScreen> {
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -134,12 +100,13 @@ class _AuthResumeScreenState extends State<AuthResumeScreen>
                             tasksController.text.isNotEmpty) {
                           await authViewModel.uploadOfficeInfoToSupabase();
                           Navigator.of(context).pop();
-                          Navigator.pushReplacement(
+                          Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
                                   const AuthSocialMediaScreen(),
                             ),
+                            (Route<dynamic> route) => false,
                           );
                         } else {
                           Navigator.of(context).pop();
@@ -195,26 +162,17 @@ class _AuthResumeScreenState extends State<AuthResumeScreen>
     const double widthFactor = 0.85;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Animated Gradient Background
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      _color1.value ?? Colors.deepPurpleAccent,
-                      _color2.value ?? Colors.blueAccent,
-                      _color3.value ?? Colors.pinkAccent,
-                    ],
-                  ),
-                ),
-              );
-            },
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('lib/assets/images/app_bg.jpeg'),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           SafeArea(
             child: Padding(

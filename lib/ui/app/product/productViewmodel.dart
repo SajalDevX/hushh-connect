@@ -27,6 +27,7 @@ class Productviewmodel extends ChangeNotifier {
       products = data
           .map((item) => Product(
               productImageUrl: item['image'],
+              link: item["product_link"],
               productname: item['name'],
               productContent: item['description'],
               productPrice: item['price']))

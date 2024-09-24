@@ -16,7 +16,7 @@ class DraggableCard extends StatefulWidget {
   final ValueNotifier<List<int>> imageIndices;
   final HomeViewModel viewModel;
 
-  DraggableCard({
+  const DraggableCard({
     Key? key,
     required this.cardData,
     required this.currentCardIndex,
@@ -34,21 +34,42 @@ class DraggableCardState extends State<DraggableCard>
   late Animation<double> _offsetXAnimation;
   late Animation<double> _rotationAnimation;
   late Animation<double> _alphaAnimation;
-
+  late Animation<double> _flipAnimation;
   double offsetX = 0;
   double rotation = 0;
   double alpha = 1;
   late double screenWidth;
+  bool isFlipped = false;
+
+  void _toggleFlip() {
+    setState(() {
+      isFlipped = !isFlipped;
+      if (isFlipped) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _initializeAnimations();
+  }
+
+  void _initializeAnimations() {
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     _offsetXAnimation = Tween<double>(begin: 0, end: 0).animate(_controller);
     _rotationAnimation = Tween<double>(begin: 0, end: 0).animate(_controller);
     _alphaAnimation = Tween<double>(begin: 1, end: 1).animate(_controller);
-
+    _flipAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
     _controller.addListener(() {
       setState(() {
         offsetX = _offsetXAnimation.value;
@@ -71,49 +92,41 @@ class DraggableCardState extends State<DraggableCard>
   }
 
   void _onDragEnd(DragEndDetails details) {
-    final bool isSwipeRight =
-        offsetX > screenWidth * 0.4; // Changed from 0.3 to 0.5
-    final bool isSwipeLeft =
-        offsetX < -screenWidth * 0.4; // Negative value for left swipe
+    final bool isSwipeRight = offsetX > screenWidth * 0.4;
+    final bool isSwipeLeft = offsetX < -screenWidth * 0.4;
+
+    if (isFlipped) {
+      return;
+    }
 
     if (isSwipeRight || _controller.isAnimating || isSwipeLeft) {
-      // Ensure the last card is processed
-      if (widget.currentCardIndex.value <= widget.cardData.cards.length - 1) {
-        // Check if it's the last card or not
-        final isLastCard =
-            widget.currentCardIndex.value == widget.cardData.cards.length - 1;
+      final isLastCard =
+          widget.currentCardIndex.value == widget.cardData.cards.length - 1;
 
-        // Call the onCardSwiped function for right swipe
-        final index = widget.currentCardIndex.value;
-        final currentUserId = widget.cardData.cards[index].first.userId;
+      final index = widget.currentCardIndex.value;
+      final currentUserId = widget.cardData.cards[index].first.userId;
 
-        if (isSwipeRight) {
-          widget.viewModel.addToContact(currentUserId);
-
-          widget.currentCardIndex.value++;
-          widget.imageIndices.value[widget.currentCardIndex.value] = 0;
-        }
-
-        // Move to the next card if it's not the last card
-        if (!isLastCard) {
-          widget.currentCardIndex.value++;
-          widget.imageIndices.value[widget.currentCardIndex.value] = 0;
-        } else {
-          // Show empty screen or handle last card swipe
-          widget.currentCardIndex.value = -1;
-          widget.imageIndices.value = [];
-        }
-
-        _controller.forward(from: 0).whenComplete(() {
-          setState(() {
-            offsetX = 0;
-            rotation = 0;
-            alpha = 1;
-          });
-        });
+      if (isSwipeRight) {
+        widget.viewModel.addToContact(currentUserId);
       }
+
+      if (!isLastCard) {
+        widget.currentCardIndex.value++;
+        widget.imageIndices.value[widget.currentCardIndex.value] = 0;
+      } else {
+        widget.currentCardIndex.value = -1;
+        widget.imageIndices.value = [];
+      }
+
+      _controller.forward(from: 0).whenComplete(() {
+        setState(() {
+          offsetX = 0;
+          rotation = 0;
+          alpha = 1;
+          _resetAnimations(); // Reset after swipe
+        });
+      });
     } else {
-      // Return to original position
       _controller.reverse(from: 0).whenComplete(() {
         setState(() {
           offsetX = 0;
@@ -159,25 +172,23 @@ class DraggableCardState extends State<DraggableCard>
         widget.currentCardIndex.value++;
         widget.imageIndices.value[widget.currentCardIndex.value] = 0;
       } else {
-        widget.currentCardIndex.value = -1; // No more cards
+        widget.currentCardIndex.value = -1;
         widget.imageIndices.value = [];
       }
 
-      // Reset animations
-      _resetAnimations();
+      _resetAnimations(); // Reset after card change
     });
   }
 
   void _resetAnimations() {
-    // Reset the animations for next card
-    _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
-    _offsetXAnimation = Tween<double>(begin: 0, end: 0).animate(_controller);
-    _rotationAnimation = Tween<double>(begin: 0, end: 0).animate(_controller);
-    _alphaAnimation = Tween<double>(begin: 1, end: 1).animate(_controller);
+    _controller.reset(); // Ensure controller is reset for flip after swipe
+    _initializeAnimations();
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
+    if (isFlipped) {
+      return;
+    }
     setState(() {
       offsetX += details.delta.dx;
       rotation = (offsetX / screenWidth) * 30;
@@ -200,12 +211,9 @@ class DraggableCardState extends State<DraggableCard>
       int currentCard = widget.currentCardIndex.value;
       int currentImage = widget.imageIndices.value[currentCard];
 
-      // Check if we are at the first image of the current card
       if (currentImage > 0) {
-        // Go to the previous image within the same card
         widget.imageIndices.value[currentCard]--;
       }
-      // If it's the first image of the current card, do nothing (prevent going back to the previous card)
     });
   }
 
@@ -229,63 +237,109 @@ class DraggableCardState extends State<DraggableCard>
     final imageData =
         widget.cardData.cards[currentCardIndex][currentImageIndex];
 
-    final totalImages = widget.cardData.cards[currentCardIndex].length;
+    final totalImages = widget.cardData.cards[currentCardIndex].length - 1;
     final progress = totalImages > 0
         ? (currentImageIndex + 1) / totalImages.toDouble()
         : 0.0;
-
     Widget cardContent;
-
+    Widget backContent;
     final likeOpacity =
         offsetX > 0 ? (offsetX / screenWidth).clamp(0.0, 1.0) : 0.0;
     final dislikeOpacity =
         offsetX < 0 ? (offsetX.abs() / screenWidth).clamp(0.0, 1.0) : 0.0;
+    backContent = _buildProductCard(widget.cardData.cards[currentCardIndex][3],
+        likeOpacity, dislikeOpacity, 1, 1);
 
-    switch (currentImageIndex % 5) {
-      // Corrected to % 5
+    switch (currentImageIndex % 4) {
       case 0:
         cardContent = _buildProfileCard(
-            imageData, likeOpacity, dislikeOpacity, totalImages, progress);
+            widget.cardData.cards[currentCardIndex][0],
+            likeOpacity,
+            dislikeOpacity,
+            totalImages,
+            progress);
         break;
       case 1:
         cardContent = _buildDetailedProfileCard(
-            imageData, likeOpacity, dislikeOpacity, totalImages, progress);
+            widget.cardData.cards[currentCardIndex][1],
+            likeOpacity,
+            dislikeOpacity,
+            totalImages,
+            progress);
         break;
       case 2:
         cardContent = _buildPassionsCard(
-            imageData, likeOpacity, dislikeOpacity, totalImages, progress);
+            widget.cardData.cards[currentCardIndex][2],
+            likeOpacity,
+            dislikeOpacity,
+            totalImages,
+            progress);
         break;
       case 3:
-        cardContent = _buildProductCard(
-            imageData, likeOpacity, dislikeOpacity, totalImages, progress);
-        break;
-      case 4:
         cardContent = _buildSocialCard(
-            imageData, likeOpacity, dislikeOpacity, totalImages, progress);
+            widget.cardData.cards[currentCardIndex][4],
+            likeOpacity,
+            dislikeOpacity,
+            totalImages,
+            progress);
         break;
       default:
         cardContent = _buildSocialCard(
-            imageData, likeOpacity, dislikeOpacity, totalImages, progress);
+            widget.cardData.cards[currentCardIndex][4],
+            likeOpacity,
+            dislikeOpacity,
+            totalImages,
+            progress);
     }
     return Stack(
       children: [
         GestureDetector(
+          onDoubleTap: _toggleFlip,
           onPanUpdate: _onDragUpdate,
           onPanEnd: _onDragEnd,
           onTapUp: (details) {
             final tapPosition = details.localPosition.dx;
             if (tapPosition < screenWidth / 2) {
-              // Tap on the left half of the screen
               _previousImage();
             } else {
-              // Tap on the right half of the screen
               _nextImage();
             }
           },
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Transform.translate(
+          child: isFlipped
+              ? Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Transform(
+                        alignment: Alignment.center,
+                        transform:
+                            Matrix4.rotationY(_flipAnimation.value * math.pi),
+                        child: Opacity(
+                          opacity: alpha,
+                          child: _flipAnimation.value < 0.5
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.white.withOpacity(0.0),
+                                        Colors.black.withOpacity(1)
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ),
+                                  ),
+                                  child: cardContent,
+                                )
+                              : Transform(
+                                  alignment: Alignment.center,
+                                  transform: Matrix4.rotationY(math.pi),
+                                  child: backContent,
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Transform.translate(
                   offset: Offset(offsetX, 0),
                   child: Transform.rotate(
                     angle: rotation * (math.pi / 180),
@@ -307,9 +361,6 @@ class DraggableCardState extends State<DraggableCard>
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
         ),
       ],
     );
@@ -473,7 +524,7 @@ class DraggableCardState extends State<DraggableCard>
                       style: GoogleFonts.figtree(
                         fontSize: 14,
                         color: Colors.blue,
-                        decoration: TextDecoration.underline,
+                        decoration: TextDecoration.none,
                         letterSpacing: 0.09615,
                       ),
                     ),
@@ -645,151 +696,13 @@ class DraggableCardState extends State<DraggableCard>
     );
   }
 
-  // Widget _buildProductCard(ImageData imageData, double likeOpacity,
-  //     double dislikeOpacity, int totalImages, double progress) {
-  //   return Card(
-  //     color: Colors.grey.withOpacity(0.5),
-  //     shape: RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.circular(20),
-  //     ),
-  //     clipBehavior: Clip.antiAlias,
-  //     child: Stack(
-  //       fit: StackFit.expand,
-  //       children: [
-  //         Positioned.fill(
-  //           child: Opacity(
-  //             opacity: 1,
-  //             child: Image.network(
-  //               imageData.imageRes,
-  //               fit: BoxFit.cover,
-  //               loadingBuilder: (BuildContext context, Widget child,
-  //                   ImageChunkEvent? loadingProgress) {
-  //                 if (loadingProgress == null) {
-  //                   return child;
-  //                 }
-  //                 return Center(
-  //                   child: CircularProgressIndicator(
-  //                     value: loadingProgress.expectedTotalBytes != null
-  //                         ? loadingProgress.cumulativeBytesLoaded /
-  //                             (loadingProgress.expectedTotalBytes ?? 1)
-  //                         : null,
-  //                   ),
-  //                 );
-  //               },
-  //               errorBuilder: (context, error, stackTrace) {
-  //                 return Positioned.fill(
-  //                   child: Container(
-  //                     color:
-  //                         Colors.transparent, // Make the container transparent
-  //                   ),
-  //                 );
-  //               },
-  //             ),
-  //           ),
-  //         ),
-  //         Positioned.fill(
-  //           child: Container(
-  //             decoration: BoxDecoration(
-  //                 gradient: LinearGradient(
-  //                     colors: [Colors.white.withOpacity(0.1), Colors.black],
-  //                     begin: Alignment.topCenter,
-  //                     end: Alignment.bottomCenter)),
-  //           ),
-  //         ),
-  //         Positioned(
-  //           top: 40,
-  //           left: 20,
-  //           child: Opacity(
-  //             opacity: likeOpacity,
-  //             child: Transform.rotate(
-  //               angle: -math.pi / 12, // Tilt the "Like" icon
-  //               child: Image.asset(
-  //                 "lib/assets/images/likehushhconnect.png",
-  //                 height: 148,
-  //                 width: 148,
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         // "Dislike" icon
-  //         Positioned(
-  //           top: 40,
-  //           right: 20,
-  //           child: Opacity(
-  //             opacity: dislikeOpacity,
-  //             child: Transform.rotate(
-  //               angle: math.pi / 12, // Tilt the "Dislike" icon
-  //               child: Image.asset(
-  //                 "lib/assets/images/nopehushhconnect.png",
-  //                 height: 148,
-  //                 width: 148,
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         // Progress Bar
-  //         Positioned(
-  //           top: 10,
-  //           left: 10,
-  //           right: 10,
-  //           child: BlockProgressBar(
-  //             totalBlocks: totalImages,
-  //             progress: progress,
-  //             height: 6.0,
-  //           ),
-  //         ),
-  //         // Content
-  //         Positioned(
-  //           bottom: 64,
-  //           left: 0,
-  //           right: 0,
-  //           child: Padding(
-  //             padding: const EdgeInsets.symmetric(horizontal: 25.0),
-  //             child: Container(
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   Row(
-  //                     children: [
-  //                       Text(
-  //                         imageData.name,
-  //                         textAlign: TextAlign.justify,
-  //                         style: TextStyle(
-  //                           fontSize: 32,
-  //                           fontWeight: FontWeight.bold,
-  //                           color: Colors.white,
-  //                         ),
-  //                       ),
-  //                       SizedBox(width: 5),
-  //                       Icon(
-  //                         Icons.verified,
-  //                         color: Colors.blue,
-  //                         size: 19,
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildProductCard(ImageData imageData, double likeOpacity,
       double dislikeOpacity, int totalImages, double progress) {
-    // Calculate the number of products to display (maximum 4)
     int productsToShow =
         imageData.products.length > 4 ? 4 : imageData.products.length;
 
-    // Create a list of ProductCard widgets
     List<Widget> productCards = List.generate(productsToShow, (index) {
-      final product =
-          imageData.products[index]; // Assuming imageData has a 'products' list
-
+      final product = imageData.products[index];
       return ProductCard(
           product:
               product); // Use the ProductCard widget to display each product
@@ -876,24 +789,25 @@ class DraggableCardState extends State<DraggableCard>
             left: 0,
             right: 0,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   Row(
                     children: [
                       Text(
                         imageData.name,
                         textAlign: TextAlign.justify,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                       SizedBox(width: 5),
-                      Icon(
+                      const Icon(
                         Icons.verified,
                         color: Colors.blue,
                         size: 19,
@@ -901,7 +815,7 @@ class DraggableCardState extends State<DraggableCard>
                     ],
                   ),
                   SizedBox(height: 10),
-                  Text(
+                  const Text(
                     "Products",
                     textAlign: TextAlign.justify,
                     style: TextStyle(
@@ -1172,13 +1086,10 @@ class DraggableCardState extends State<DraggableCard>
               opacity: likeOpacity,
               child: Transform.rotate(
                 angle: -math.pi / 12, // Tilt the "Like" icon
-                child: GestureDetector(
-                  onTap: () => _launchURL('https://www.example.com/like'),
-                  child: Image.asset(
-                    "lib/assets/images/likehushhconnect.png",
-                    height: 148,
-                    width: 148,
-                  ),
+                child: Image.asset(
+                  "lib/assets/images/likehushhconnect.png",
+                  height: 148,
+                  width: 148,
                 ),
               ),
             ),
@@ -1191,13 +1102,10 @@ class DraggableCardState extends State<DraggableCard>
               opacity: dislikeOpacity,
               child: Transform.rotate(
                 angle: math.pi / 12, // Tilt the "Dislike" icon
-                child: GestureDetector(
-                  onTap: () => _launchURL('https://www.example.com/dislike'),
-                  child: Image.asset(
-                    "lib/assets/images/nopehushhconnect.png",
-                    height: 148,
-                    width: 148,
-                  ),
+                child: Image.asset(
+                  "lib/assets/images/nopehushhconnect.png",
+                  height: 148,
+                  width: 148,
                 ),
               ),
             ),

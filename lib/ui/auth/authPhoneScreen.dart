@@ -59,6 +59,7 @@ class _AuthPhoneScreenState extends State<AuthPhoneScreen> {
     const double widthFactor = 0.85; // Set a width factor for responsiveness
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Background image

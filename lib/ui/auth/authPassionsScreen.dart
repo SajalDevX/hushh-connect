@@ -86,9 +86,9 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // Background image
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -97,7 +97,6 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
               ),
             ),
           ),
-          // Content
           SingleChildScrollView(
             padding: EdgeInsets.symmetric(
               horizontal: size.width * 0.05, // Responsive horizontal padding
@@ -116,11 +115,12 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
                   onPressed: () {
                     authViewModel.updateProgress(10);
 
-                    Navigator.pushReplacement(
+                    Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder: (context) => MainScreen(),
                       ),
+                      (Route<dynamic> route) => false,
                     );
                   },
                   iconSize: 40,

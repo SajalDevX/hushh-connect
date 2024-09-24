@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/ui/app/profile/profileViewModel.dart';
+import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:provider/provider.dart';
 
-class EditProfileScreen extends StatelessWidget {
+class Addmediascreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          "Edit Profile",
+          "Add Media",
           style: TextStyle(
             color: Colors.white, // Ensure text is visible on black background
           ),
@@ -104,21 +105,14 @@ class EditProfileScreen extends StatelessWidget {
               ),
               const SizedBox(
                   height: 20), // Adds extra space above the Save Profile button
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.pinkAccent, // Button text color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Padding(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
-                  child: Text("Save Profile"),
+              SizedBox(
+                width: double.infinity - 120,
+                child: IAgreeButton(
+                  text: 'Save Profile',
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  size: double.infinity,
                 ),
               ),
               const SizedBox(

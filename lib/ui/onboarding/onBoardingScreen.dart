@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/auth/authNameScreen.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:hushhxtinder/ui/onboarding/components/rulesTextBox.dart';
 
@@ -9,10 +9,7 @@ class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
   void navigateToNextScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AuthNameScreen()),
-    );
+    context.go("/authName");
   }
 
   @override

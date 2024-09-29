@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/auth/authPhotosScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:hushhxtinder/ui/components/customTextBox.dart';
@@ -66,12 +66,7 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
       _isLoading = false;
     });
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AuthPhotosScreen(),
-      ),
-    );
+    context.go("/authPhotos");
   }
 
   @override
@@ -106,13 +101,8 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
                   IconButton(
                     icon: const Icon(Icons.close, color: Color(0xff7c8591)),
                     onPressed: () {
-                      authViewModel.updateProgress(8);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AuthPhotosScreen(),
-                        ),
-                      );
+                      authViewModel.updateProgress(9);
+                      context.go("/authPhotos");
                     },
                     iconSize: 40,
                   ),

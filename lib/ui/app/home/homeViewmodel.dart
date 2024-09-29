@@ -31,7 +31,6 @@ class HomeViewModel extends ChangeNotifier {
       final from = currentPage * pageSize;
       final to = from + pageSize - 1;
 
-      // Fetch users excluding the current user
       final response = await supabaseClient
           .from('users')
           .select('*')
@@ -308,6 +307,7 @@ class HomeViewModel extends ChangeNotifier {
 
       users.addAll(fetchedUsers);
       users.shuffle();
+      print("Size of users is : ${users.length}");
       currentPage++;
     } catch (e) {
       print('Exception: $e');

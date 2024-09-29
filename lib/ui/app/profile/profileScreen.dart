@@ -4,6 +4,7 @@ import 'package:hushhxtinder/ui/app/product/productScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/edit_profile/addMediaScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/edit_profile/editProfileScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileViewModel.dart';
+import 'package:hushhxtinder/ui/app/profile/qrScreen.dart';
 import 'package:hushhxtinder/ui/app/settings/settings_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -72,6 +73,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
               AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
+                actions: [
+                  FutureBuilder<ProfileData?>(
+                    future: _profileFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasData) {
+                        final profile = snapshot.data!;
+                        return PopupMenuButton<String>(
+                          icon: Icon(Icons.more_vert, color: Colors.white),
+                          onSelected: (String result) {
+                            if (result == 'generateQR') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      GenerateQrPromptScreen(profile: profile),
+                                ),
+                              );
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => [
+                            const PopupMenuItem<String>(
+                              value: 'generateQR',
+                              child: Text('Generate QR'),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return const Text("Error fetching profile");
+                      }
+                    },
+                  ),
+                ],
               ),
               Expanded(
                 child: FutureBuilder<ProfileData?>(
@@ -283,26 +318,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       SizedBox(height: screenHeight * 0.01),
-                      const Text(
-                        'Level up every action you take on hushh',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(height: screenHeight * 0.05),
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                      SizedBox(
+                        width: screenWidth * 0.9,
+                        child: TextButton(
+                          onPressed: () {
+                            // Action for the platinum button
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                const Color.fromRGBO(233, 235, 238, 1)),
                           ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.1,
-                              vertical: screenHeight * 0.02),
-                        ),
-                        child: const Text(
-                          'GET HUSHH PLATINUM™',
-                          style: TextStyle(color: Colors.white),
+                          child: Text(
+                            'Get hushh Platinum™',
+                            style: TextStyle(
+                              color: const Color.fromARGB(255, 80, 9, 148),
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -316,50 +349,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildButton(String button, IconData icon, String text, bool isPressed,
-      VoidCallback onTap, double screenWidth, double screenHeight) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.all(screenWidth * 0.035),
-            decoration: BoxDecoration(
-              gradient: isPressed
-                  ? const LinearGradient(
-                      colors: [
-                        Color(0xFFE54D60),
-                        Color(0xFFA342FF),
-                      ],
-                    )
-                  : null,
-              color: isPressed ? null : const Color(0xFF1A1B1D),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: const Color.fromRGBO(102, 110, 123, 1),
-                width: 1,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: isPressed
-                  ? Colors.white
-                  : const Color.fromRGBO(124, 134, 146, 1),
+  Widget _buildButton(
+      String label,
+      IconData icon,
+      String buttonText,
+      bool isPressed,
+      VoidCallback onTap,
+      double screenWidth,
+      double screenHeight) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: isPressed ? Colors.white : Colors.grey,
+            size: screenWidth * 0.08,
+          ),
+          SizedBox(height: screenHeight * 0.01),
+          Text(
+            buttonText,
+            style: TextStyle(
+              color: isPressed ? Colors.white : Colors.grey,
+              fontSize: screenWidth * 0.04,
             ),
           ),
-        ),
-        SizedBox(height: screenHeight * 0.005),
-        Text(
-          text,
-          style: TextStyle(
-            fontFamily: 'Figtree',
-            fontSize: screenWidth * 0.035,
-            color: const Color.fromRGBO(233, 235, 238, 1),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

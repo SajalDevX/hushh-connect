@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/ui/auth/authPassionsScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
@@ -119,12 +120,7 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
 
     await _uploadImages(); // Upload images before navigating
     if (!_isLoading) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AuthPassionsScreen(),
-        ),
-      );
+      context.go("/authPassions");
     }
   }
 
@@ -163,14 +159,8 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
                   IconButton(
                     icon: const Icon(Icons.close, color: Color(0xff7c8591)),
                     onPressed: () {
-                      authViewModel.updateProgress(9);
-
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AuthPassionsScreen(),
-                        ),
-                      );
+                      authViewModel.updateProgress(10);
+                      context.go("/authPassions");
                     },
                     iconSize: 40,
                   ),

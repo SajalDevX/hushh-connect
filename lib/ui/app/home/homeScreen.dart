@@ -81,8 +81,8 @@ class _MainScreenState extends State<MainScreen> {
         onTap: () => _onItemTapped(index),
         child: Image.asset(
           'lib/assets/images/$iconPath',
-          width: 56,
-          height: 56,
+          width: 46,
+          height: 46,
           color: _selectedIndex == index ? Colors.purple : Colors.grey,
         ),
       ),
@@ -334,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 socialMediaLinks['linkedin'] ?? 'Not Available';
             final String otherlink =
                 socialMediaLinks['other'] ?? 'Not Available';
-
+            // print("IMAGES ARE : ${images.length}");
             final List<Product> userProducts = user['products'] != null
                 ? List<Product>.from(user['products'])
                 : [];
@@ -409,7 +409,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               ImageData(
                 userId: user['id'],
-                imageRes: images.length > 2 ? images[2] : '',
+                imageRes: images.length > 3
+                    ? images[3]
+                    : (images.length > 2 ? images[2] : ''),
                 name: user['name'] ?? '',
                 role: '',
                 companyName: officeDetails['company'] ?? '',

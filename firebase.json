@@ -1,1 +1,41 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"hushhconnect-f3aac","appId":"1:884832724786:android:5f520e4884801b2d36592b","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"hushhconnect-f3aac","appId":"1:884832724786:ios:44895f9c3d08a83d36592b","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"hushhconnect-f3aac","appId":"1:884832724786:ios:44895f9c3d08a83d36592b","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"hushhconnect-f3aac","configurations":{"android":"1:884832724786:android:5f520e4884801b2d36592b","ios":"1:884832724786:ios:44895f9c3d08a83d36592b","macos":"1:884832724786:ios:44895f9c3d08a83d36592b","web":"1:884832724786:web:4d2211fbdc97f74636592b","windows":"1:884832724786:web:65b82fdcb02ebe7536592b"}}}}}}
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "hushhconnect-f3aac",
+                    "appId": "1:884832724786:android:5f520e4884801b2d36592b",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "hushhconnect-f3aac",
+                    "appId": "1:884832724786:ios:44895f9c3d08a83d36592b",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "macos": {
+                "default": {
+                    "projectId": "hushhconnect-f3aac",
+                    "appId": "1:884832724786:ios:44895f9c3d08a83d36592b",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "macos/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "hushhconnect-f3aac",
+                    "configurations": {
+                        "android": "1:884832724786:android:5f520e4884801b2d36592b",
+                        "ios": "1:884832724786:ios:44895f9c3d08a83d36592b",
+                        "macos": "1:884832724786:ios:44895f9c3d08a83d36592b",
+                        "web": "1:884832724786:web:4d2211fbdc97f74636592b",
+                        "windows": "1:884832724786:web:65b82fdcb02ebe7536592b"
+                    }
+                }
+            }
+        }
+    }
+}

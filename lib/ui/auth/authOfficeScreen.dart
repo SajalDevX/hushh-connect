@@ -1,4 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/ui/auth/authSocialMediaScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
@@ -38,19 +41,13 @@ class _AuthOfficeScreenState extends State<AuthOfficeScreen> {
     // Upload office info to Supabase
     await authViewModel.uploadOfficeInfoToSupabase();
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AuthSocialMediaScreen(),
-      ),
-    );
+    context.go("/authSocialMedia");
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final double commonWidth = size.width * 0.9;
-    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -85,19 +82,6 @@ class _AuthOfficeScreenState extends State<AuthOfficeScreen> {
                             0.6, // Set the current step for the email screen
                       ),
                       const SizedBox(height: 16),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Color(0xff7c8591)),
-                        onPressed: () {
-                          authViewModel.updateProgress(7);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AuthSocialMediaScreen(),
-                            ),
-                          );
-                        },
-                        iconSize: 40,
-                      ),
                       const SizedBox(height: 8),
                       Text(
                         'I work at',

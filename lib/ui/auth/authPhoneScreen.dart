@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/auth/authOtpScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:hushhxtinder/ui/components/customTextBox.dart';
@@ -44,12 +44,7 @@ class _AuthPhoneScreenState extends State<AuthPhoneScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('OTP sent successfully!')),
       );
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AuthOtpScreen(),
-        ),
-      );
+      context.go("/authOtp");
     }
   }
 

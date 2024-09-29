@@ -1,9 +1,12 @@
 // ignore_for_file: unnecessary_string_interpolations
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hushhxtinder/data/models/profile_model.dart';
 import 'package:hushhxtinder/ui/app/connect/userdata/userViewModel.dart';
+import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class UserProfileDetailScreen extends StatefulWidget {
   const UserProfileDetailScreen(
@@ -59,7 +62,6 @@ class _UserProfileDetailScreenState extends State<UserProfileDetailScreen> {
 
             return Stack(
               children: [
-                // Header
                 _buildHeader(profile),
 
                 // Body
@@ -119,7 +121,13 @@ class _UserProfileDetailScreenState extends State<UserProfileDetailScreen> {
               padding: const EdgeInsets.only(right: 16.0),
               child: InkWell(
                 onTap: () {
-                  Navigator.pop(context);
+                  // Try popping the route using Navigator
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).maybePop();
+                  } else {
+                    // If no route to pop, navigate to the main screen
+                    context.go('/main');
+                  }
                 },
                 child: Image.asset(
                   'lib/assets/images/arrow-down.png',
@@ -245,7 +253,8 @@ class _UserProfileDetailScreenState extends State<UserProfileDetailScreen> {
     return _buildSimpleActionBox(
       title: "Share ${profile.name}'s Profile",
       onTap: () {
-        // Share.share('Check out this profile: ${profile.name}');
+        String profileLink = 'https://stumato.store/profile/${widget.uid}';
+        Share.share('Check out this profile: ${profile.name}.\n$profileLink');
       },
     );
   }

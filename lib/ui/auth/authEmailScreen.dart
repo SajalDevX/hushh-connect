@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/auth/authPhoneScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:hushhxtinder/ui/components/customTextBox.dart';
@@ -34,12 +34,7 @@ class _AuthEmailScreenState extends State<AuthEmailScreen> {
     } else {
       final viewModel = Provider.of<AuthViewModel>(context, listen: false);
       viewModel.updateEmail(email);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AuthPhoneScreen(),
-        ),
-      );
+      context.go("/authPhone");
       setState(() {
         _errorText = null; // Clear error message on successful validation
       });

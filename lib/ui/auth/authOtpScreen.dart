@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/auth/authHomeLocationScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:hushhxtinder/ui/components/customTextBox.dart';

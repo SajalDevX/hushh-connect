@@ -29,7 +29,7 @@ class DraggableCard extends StatefulWidget {
 }
 
 class DraggableCardState extends State<DraggableCard>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _offsetXAnimation;
   late Animation<double> _rotationAnimation;
@@ -102,7 +102,6 @@ class DraggableCardState extends State<DraggableCard>
     if (isSwipeRight || _controller.isAnimating || isSwipeLeft) {
       final isLastCard =
           widget.currentCardIndex.value == widget.cardData.cards.length - 1;
-
       final index = widget.currentCardIndex.value;
       final currentUserId = widget.cardData.cards[index].first.userId;
 
@@ -167,7 +166,7 @@ class DraggableCardState extends State<DraggableCard>
     setState(() {
       final isLastCard =
           widget.currentCardIndex.value == widget.cardData.cards.length - 1;
-
+      // final isLastCard = widget.currentCardIndex.value >= 3;
       if (!isLastCard) {
         widget.currentCardIndex.value++;
         widget.imageIndices.value[widget.currentCardIndex.value] = 0;
@@ -200,7 +199,8 @@ class DraggableCardState extends State<DraggableCard>
     setState(() {
       int currentCard = widget.currentCardIndex.value;
       int currentImage = widget.imageIndices.value[currentCard];
-      if (currentImage < widget.cardData.cards[currentCard].length - 1) {
+      // if (currentImage < widget.cardData.cards[currentCard].length - 1) {
+      if (currentImage < 3) {
         widget.imageIndices.value[currentCard]++;
       }
     });
@@ -222,6 +222,7 @@ class DraggableCardState extends State<DraggableCard>
     final currentCardIndex = widget.currentCardIndex.value;
     if (currentCardIndex < 0 ||
         currentCardIndex >= widget.cardData.cards.length) {
+      // if (currentCardIndex < 0 || currentCardIndex >= 4) {
       return Container(
         color: Colors.transparent,
         child: const Center(

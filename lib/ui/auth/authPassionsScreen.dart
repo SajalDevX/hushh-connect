@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/app/home/homeScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/onboarding/components/customProgressIndicator.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthPassionsScreen extends StatefulWidget {
   const AuthPassionsScreen({super.key});
@@ -73,12 +74,7 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
         // Update passions and handle navigation
         await authViewModel.updatePassions(selectedPassions.toList());
         if (!authViewModel.isLoading) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainScreen(),
-            ),
-          );
+          context.go('/main');
         }
       }
     }
@@ -113,15 +109,8 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
                 IconButton(
                   icon: const Icon(Icons.close, color: Color(0xff7c8591)),
                   onPressed: () {
-                    authViewModel.updateProgress(10);
-
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MainScreen(),
-                      ),
-                      (Route<dynamic> route) => false,
-                    );
+                    authViewModel.updateProgress(11);
+                    context.go('/main');
                   },
                   iconSize: 40,
                 ),

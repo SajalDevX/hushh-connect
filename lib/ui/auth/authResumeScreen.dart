@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/auth/authOfficeScreen.dart';
 import 'package:hushhxtinder/ui/auth/authSocialMediaScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
@@ -22,8 +22,7 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
   }
 
   void _skip() {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => AuthOfficeScreen()));
+    context.go("/authOffice");
   }
 
   void _showInputFieldsDialog(BuildContext context) {
@@ -84,7 +83,7 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
                 children: [
                   IAgreeButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        context.pop();
                       },
                       size: 120,
                       text: "Cancel"),
@@ -99,17 +98,10 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
                             roleController.text.isNotEmpty &&
                             tasksController.text.isNotEmpty) {
                           await authViewModel.uploadOfficeInfoToSupabase();
-                          Navigator.of(context).pop();
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const AuthSocialMediaScreen(),
-                            ),
-                            (Route<dynamic> route) => false,
-                          );
+                          context.pop();
+                          context.go("/authSocialMedia");
                         } else {
-                          Navigator.of(context).pop();
+                          context.pop();
                           _showInputFieldsDialog(context);
                         }
                       },
@@ -180,7 +172,7 @@ class _AuthResumeScreenState extends State<AuthResumeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const GradientProgressBar(progress: 0.2),
+                  const GradientProgressBar(progress: 0.6),
                   const SizedBox(height: 36),
                   Text(
                     'Upload Your Resume',

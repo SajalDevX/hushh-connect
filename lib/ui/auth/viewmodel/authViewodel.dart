@@ -5,9 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:hushhxtinder/ui/auth/authHomeLocationScreen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sharpapi_flutter_client/sharpapi_flutter_client.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'dart:typed_data' as typed_data;
 
@@ -252,12 +251,7 @@ class AuthViewModel extends ChangeNotifier {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('OTP verified successfully!')),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AuthCurrentLocation(),
-        ),
-      );
+      context.go("/authLocation");
     } catch (e) {
       if (e is FirebaseAuthException) {
         // Handle OTP verification failure
@@ -319,7 +313,7 @@ class AuthViewModel extends ChangeNotifier {
       'id': FirebaseAuth.instance.currentUser?.uid,
       'socialmedia': linksJson,
     });
-    updateProgress(7);
+    updateProgress(9);
   }
 
   Future<void> uploadOfficeInfoToSupabase() async {
@@ -347,7 +341,7 @@ class AuthViewModel extends ChangeNotifier {
       'images': imageLinksJson,
     });
 
-    updateProgress(9);
+    updateProgress(10);
 
     log('Image links saved in JSON format: $imageLinksJson');
   }
@@ -370,7 +364,7 @@ class AuthViewModel extends ChangeNotifier {
       'id': FirebaseAuth.instance.currentUser?.uid,
       'passions': imageLinksJson,
     });
-    updateProgress(10);
+    updateProgress(11);
   }
 
   String extractedText = '';

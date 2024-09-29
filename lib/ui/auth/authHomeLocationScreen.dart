@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hushhxtinder/ui/auth/authResumeScreen.dart';
 import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:hushhxtinder/ui/components/customButton.dart';
 import 'package:hushhxtinder/ui/components/customTextBox.dart';
@@ -100,12 +100,7 @@ class _AuthCurrentLocationState extends State<AuthCurrentLocation> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Location updated successfully!')),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AuthResumeScreen(),
-          ),
-        );
+        context.go("/authResume");
       } catch (e) {
         setState(() {
           _errorText = 'Failed to update location. Please try again.';

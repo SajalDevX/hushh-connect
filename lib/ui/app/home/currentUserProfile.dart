@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CurrentUserProfile extends StatefulWidget {
   const CurrentUserProfile(
@@ -323,7 +324,8 @@ class _ProfileCardState extends State<CurrentUserProfile> {
   Widget _buildShareProfileBox(ImageData data) {
     return GestureDetector(
       onTap: () {
-        // Share.share('Check out this profile: ${data.name}');
+        String profileLink = 'https://stumato.store/profile/${data.userId}';
+        Share.share('Check out this profile: ${data.name}.\n$profileLink');
       },
       child: Container(
         decoration: BoxDecoration(

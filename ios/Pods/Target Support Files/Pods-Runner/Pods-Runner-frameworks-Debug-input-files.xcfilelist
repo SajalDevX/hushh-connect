@@ -27,5 +27,8 @@ ${BUILT_PRODUCTS_DIR}/libwebp/libwebp.framework
 ${BUILT_PRODUCTS_DIR}/location/location.framework
 ${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework
 ${BUILT_PRODUCTS_DIR}/pdfx/pdfx.framework
+${BUILT_PRODUCTS_DIR}/sensors_plus/sensors_plus.framework
+${BUILT_PRODUCTS_DIR}/share_plus/share_plus.framework
 ${BUILT_PRODUCTS_DIR}/shared_preferences_foundation/shared_preferences_foundation.framework
+${BUILT_PRODUCTS_DIR}/uni_links2/uni_links2.framework
 ${BUILT_PRODUCTS_DIR}/url_launcher_ios/url_launcher_ios.framework

@@ -34,7 +34,7 @@ import 'package:hushhxtinder/ui/onboarding/onBoardingScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uni_links2/uni_links.dart'; // Add this import for deep link handling
+import 'package:uni_links2/uni_links.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,3 +1,5 @@
+// ignore_for_file: sort_child_properties_last, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -122,13 +124,11 @@ class QrScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Close (cross) button at the top right corner
           Positioned(
             top: 40,
             left: 0,
             child: IconButton(
-              icon: const Icon(Icons.close,
-                  color: Color.fromARGB(255, 113, 31, 134)),
+              icon: const Icon(Icons.close, color: Colors.white),
               iconSize: 28,
               onPressed: () {
                 Navigator.of(context).pop();
@@ -141,7 +141,7 @@ class QrScreen extends StatelessWidget {
             children: [
               Center(
                 child: Card(
-                  color: const Color.fromARGB(255, 175, 127, 176),
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -189,7 +189,7 @@ class QrScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               Card(
-                color: const Color.fromARGB(255, 175, 127, 176),
+                color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),

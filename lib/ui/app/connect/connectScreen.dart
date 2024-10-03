@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/ui/app/connect/userdata/userDetailScreen.dart';
 import 'package:hushhxtinder/ui/components/userCard.dart';
 import 'package:provider/provider.dart';
 import 'package:hushhxtinder/ui/app/connect/connectViewModel.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ConnectScreen extends StatefulWidget {
   const ConnectScreen({Key? key}) : super(key: key);
@@ -17,6 +19,7 @@ class ConnectScreen extends StatefulWidget {
 class _ConnectScreenState extends State<ConnectScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentPage = 0; // Track the current page
 
   void _onCardClick(String uid) {
     Navigator.push(
@@ -66,11 +69,14 @@ class _ConnectScreenState extends State<ConnectScreen>
     super.dispose();
   }
 
+  PageController _pageController = PageController();
+
   @override
   Widget build(BuildContext context) {
     final connectViewModel = Provider.of<ConnectViewModel>(context);
 
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
           Positioned.fill(
@@ -97,22 +103,82 @@ class _ConnectScreenState extends State<ConnectScreen>
                   ),
                 ),
               ),
-              Container(
-                color: Colors.transparent,
-                child: TabBar(
-                  controller: _tabController,
-                  indicatorColor: Colors.amber,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.grey,
-                  tabs: const [
-                    Tab(text: 'Following'),
-                    Tab(text: 'Followers'),
-                  ],
+              SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0), // Adding left padding
+                  child: Text(
+                    "${connectViewModel.followers.length + connectViewModel.followingUsers.length}+ likes",
+                    style:
+                        GoogleFonts.figtree(fontSize: 19, color: Colors.white),
+                  ),
                 ),
               ),
+              const Divider(color: Colors.grey, thickness: 1.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: Image.asset(
+                      'lib/assets/images/filter.jpeg',
+                      height: 20,
+                      width: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _currentPage = 0; // Set current page
+                      });
+                      _pageController.jumpToPage(0);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _currentPage == 0
+                          ? Colors.white
+                          : Colors.grey, // Color for selected page
+                    ),
+                    child: const Text('Following'),
+                  ),
+                  const SizedBox(width: 5),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _currentPage = 1; // Set current page
+                      });
+                      _pageController.jumpToPage(1);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _currentPage == 1
+                          ? Colors.white
+                          : Colors.grey, // Color for selected page
+                    ),
+                    child: const Text('Followers'),
+                  ),
+                  const SizedBox(width: 5),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _currentPage == 2
+                          ? Colors.white
+                          : Colors.grey, // Color for selected page
+                    ),
+                    child: const Text('Shared'),
+                  ),
+                ],
+              ),
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage =
+                          index; // Update the current page on page change
+                    });
+                  },
                   children: [
                     _buildUserSection(
                       users: connectViewModel.followingUsers,
@@ -143,7 +209,28 @@ class _ConnectScreenState extends State<ConnectScreen>
       children: [
         const SizedBox(height: 10),
         isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? Expanded(
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // 2 columns
+                    crossAxisSpacing: 10.0, // Space between columns
+                    mainAxisSpacing: 10.0, // Space between rows
+                    childAspectRatio: 0.75,
+                  ),
+                  itemCount: 6, // Temporary shimmer cards count
+                  itemBuilder: (context, index) {
+                    return Shimmer.fromColors(
+                      baseColor: Colors.grey[700]!,
+                      highlightColor: Colors.grey[500]!,
+                      child: Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[700],
+                      ),
+                    );
+                  },
+                ),
+              )
             : users.isEmpty
                 ? const Center(
                     child: Text(
@@ -158,8 +245,7 @@ class _ConnectScreenState extends State<ConnectScreen>
                         crossAxisCount: 2, // 2 columns
                         crossAxisSpacing: 10.0, // Space between columns
                         mainAxisSpacing: 10.0, // Space between rows
-                        childAspectRatio:
-                            0.75, // Adjust the aspect ratio if needed
+                        childAspectRatio: 0.75,
                       ),
                       itemCount: users.length,
                       itemBuilder: (context, index) {

@@ -131,7 +131,7 @@ flutter:
     - lib/assets/images/arrow-down.png
     - lib/assets/images/arrow-up.png
     - lib/assets/images/super_like.png
-
+    - lib/assets/images/filter.jpeg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

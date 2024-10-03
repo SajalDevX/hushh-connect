@@ -31,7 +31,7 @@ class SettingsViewModel extends ChangeNotifier {
       final currentTime = DateTime.now();
 
       if (currentTime.isAfter(eventStart) && currentTime.isBefore(eventEnd)) {
-        final userStatusResponse = await supabaseClient
+        await supabaseClient
             .from('vibes_user_status')
             .select('status')
             .eq('user_id', currentUserId)
@@ -97,7 +97,20 @@ class SettingsViewModel extends ChangeNotifier {
           .delete()
           .eq('user_id', currentUserId);
 
+      await supabaseClient
+          .from('user_communities')
+          .delete()
+          .eq('user_id', currentUserId);
+
+      await supabaseClient.from('likes_table').delete().eq('id', currentUserId);
+
+      await supabaseClient
+          .from('contact')
+          .delete()
+          .eq('user_id', currentUserId);
+
       await currentUser.delete();
+
       notifyListeners();
     } catch (e) {
       print('Error deleting user: $e');

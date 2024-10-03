@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hushhxtinder/data/models/profile_model.dart';
 import 'package:hushhxtinder/ui/app/connect/userdata/userViewModel.dart';
-import 'package:hushhxtinder/ui/auth/viewmodel/authViewodel.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 

@@ -103,12 +103,11 @@ class _ConnectScreenState extends State<ConnectScreen>
                   ),
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0), // Adding left padding
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
                     "${connectViewModel.followers.length + connectViewModel.followingUsers.length}+ likes",
                     style:
@@ -212,12 +211,12 @@ class _ConnectScreenState extends State<ConnectScreen>
             ? Expanded(
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 2 columns
-                    crossAxisSpacing: 10.0, // Space between columns
-                    mainAxisSpacing: 10.0, // Space between rows
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
                     childAspectRatio: 0.75,
                   ),
-                  itemCount: 6, // Temporary shimmer cards count
+                  itemCount: 6,
                   itemBuilder: (context, index) {
                     return Shimmer.fromColors(
                       baseColor: Colors.grey[700]!,
@@ -242,22 +241,20 @@ class _ConnectScreenState extends State<ConnectScreen>
                     child: GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, // 2 columns
-                        crossAxisSpacing: 10.0, // Space between columns
-                        mainAxisSpacing: 10.0, // Space between rows
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10.0,
+                        mainAxisSpacing: 10.0,
                         childAspectRatio: 0.75,
                       ),
                       itemCount: users.length,
                       itemBuilder: (context, index) {
                         final user = users[index]['users'];
                         final String name = user['name'] ?? 'Unknown User';
-                        // Use isFollowing flag to fetch the right ID
                         final String uid = isFollowing
                             ? users[index]['following_id'] ?? 'Unknown Uid'
                             : users[index]['follower_id'] ?? 'Unknown Uid';
                         print("uid is $uid");
 
-                        // Decoding images from JSON string
                         final String imagesJson = user['images'] ?? '[]';
                         List<dynamic> images = [];
                         try {

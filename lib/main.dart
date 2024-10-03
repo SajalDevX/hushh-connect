@@ -128,7 +128,7 @@ class MyApp extends StatelessWidget {
         builder: (context, state) => ConnectScreen(),
       ),
       GoRoute(
-        path: '/profile/:uid', // Route to handle profile deep link
+        path: '/profile/:uid',
         builder: (context, state) {
           final String? uid = state.pathParameters['uid'];
           log('Navigating to profile with uid: $uid'); // Debug log

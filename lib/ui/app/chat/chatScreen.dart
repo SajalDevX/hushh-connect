@@ -69,7 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pop(context, true);
                   },
                 ),
                 title: Row(

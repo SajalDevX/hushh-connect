@@ -95,7 +95,7 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
           ),
           SingleChildScrollView(
             padding: EdgeInsets.symmetric(
-              horizontal: size.width * 0.05, // Responsive horizontal padding
+              horizontal: size.width * 0.05,
               vertical: 8.0,
             ),
             child: Column(
@@ -103,7 +103,7 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
               children: [
                 const SizedBox(height: 56),
                 const GradientProgressBar(
-                  progress: 0.9, // Set the current step for the email screen
+                  progress: 0.9,
                 ),
                 const SizedBox(height: 16),
                 IconButton(

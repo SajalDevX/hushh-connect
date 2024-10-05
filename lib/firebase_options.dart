@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCcPTB6AlhSsejtRtj7oMP4Aj_XuzQCblM',
-    appId: '1:884832724786:android:5f520e4884801b2d36592b',
+    appId: '1:884832724786:android:09e7fd8b9bd43c5036592b',
     messagingSenderId: '884832724786',
     projectId: 'hushhconnect-f3aac',
     storageBucket: 'hushhconnect-f3aac.appspot.com',

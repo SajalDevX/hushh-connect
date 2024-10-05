@@ -26,7 +26,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.hushhxtinder"
+    namespace "com.example.hushhconnectios"
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
@@ -44,7 +44,7 @@ android {
     }
 
     defaultConfig {
-    applicationId = "com.example.hushhxtinder"
+    applicationId = "com.example.hushhconnectios"
     minSdkVersion 23
     targetSdkVersion flutter.targetSdkVersion
     versionCode flutter.versionCode

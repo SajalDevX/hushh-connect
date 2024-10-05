@@ -7,6 +7,44 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:884832724786:android:483a657568f1f1e036592b",
+        "android_client_info": {
+          "package_name": "com.example.hushh_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcPTB6AlhSsejtRtj7oMP4Aj_XuzQCblM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:884832724786:android:09e7fd8b9bd43c5036592b",
+        "android_client_info": {
+          "package_name": "com.example.hushhconnectios"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcPTB6AlhSsejtRtj7oMP4Aj_XuzQCblM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:884832724786:android:5f520e4884801b2d36592b",
         "android_client_info": {
           "package_name": "com.example.hushhxtinder"

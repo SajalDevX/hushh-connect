@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Hushhxtinder</string>
+	<string>Hushh Connect</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>hushhxtinder</string>
+	<string>hushhconnectios</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -61,7 +61,7 @@
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>io.supabase.flutterquickstart</string>
-                <string>app-1-884832724786-ios-44895f9c3d08a83d36592b</string> <!-- New URL scheme added here -->
+                <string>app-1-884832724786-ios-44895f9c3d08a83d36592b</string> 
             </array>
         </dict>
     </array>
@@ -71,11 +71,33 @@
   <string>fetch</string>
   <string>remote-notification</string>
 </array>
-<key>FirebaseAppDelegateProxyEnabled</key>
-<false/>
+
 <key>NSFileProviderUsageDescription</key>
 <string>We need access to your files.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Your description here</string>
+
+<key>NSLocationAlwaysUsageDescription</key>
+<string>Your app requires location access to provide better services even when the app is not in use.</string>
+
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Your app requires location access to provide location-based features while using the app.</string>
+
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Your app needs access to your location at all times to deliver location-specific content and updates.</string>
+
+<key>LSMinimumSystemVersion</key>
+<string>14.0</string>
+
+<key>NSAppTransportSecurity</key>
+<dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+</dict>
+<key>FirebaseAppDelegateProxyEnabled</key>
+<true/>
+
+
+
 </dict>
 </plist>

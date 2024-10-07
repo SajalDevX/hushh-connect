@@ -59,6 +59,8 @@ dependencies:
   flutter_image: ^4.1.11
   sharpapi_flutter_client: ^1.2.0
   flutter_tilt: ^3.0.6
+  flutter_dotenv: ^5.1.0
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   location: ^6.0.2
@@ -91,6 +93,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
+    - lib/assets/.env
     - lib/assets/images/app_bg.jpeg
     - lib/assets/images/hush_logo.svg
     - lib/assets/images/instagram.png

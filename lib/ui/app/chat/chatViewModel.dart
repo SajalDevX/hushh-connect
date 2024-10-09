@@ -24,10 +24,10 @@ class ChatViewModel extends ChangeNotifier {
         .eq('chat_id', chatId)
         .order('created_at', ascending: true)
         .map((maps) {
-          return maps
-              .map((item) => Message.fromJson(item, currentUserId!))
-              .toList();
-        });
+      return maps
+          .map((item) => Message.fromJson(item, currentUserId!))
+          .toList();
+    });
   }
 
   /// Method to send a message
@@ -40,15 +40,29 @@ class ChatViewModel extends ChangeNotifier {
         chatId: chatId,
       );
       try {
+        // Insert message into the message table
         await _supabase.from('message').insert(message.toMap());
+
+        // Prepare JSONB data to update in contact table
+        final lastMessageData = {
+          'message': content,
+          'time_sent': DateTime.now().toUtc().toIso8601String(),
+          'user_from': currentUserId!,
+        };
+
+        // Update the last_message column in the contact table
+        await _supabase
+            .from('contact')
+            .update({'last_message': lastMessageData}).eq('chat_id', chatId);
+
         notifyListeners();
       } catch (e) {
-        print("Error sending message: $e");
+        print("Error sending message or updating contact: $e");
       }
     }
   }
 
-  Future<List<Map<String, String>>> fetchContacts() async {
+  Stream<List<Map<String, dynamic>>> fetchSortedUserDetailsWithLastMessage() {
     final supabaseClient = Supabase.instance.client;
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
@@ -56,54 +70,31 @@ class ChatViewModel extends ChangeNotifier {
       throw Exception('No current user ID found.');
     }
 
-    final response = await supabaseClient
+    // Creating a stream that listens to the `contact` table changes
+    return supabaseClient
         .from('contact')
-        .select('contact_userId, chat_id')
-        .eq('userId', currentUserId);
-
-    final List<Map<String, String>> contacts =
-        response.map<Map<String, String>>((contact) {
-      log("${contact['chat_id']}");
-      return {
-        'contact_userId':
-            contact['contact_userId'] as String? ?? '', // Handle null case
-        'chatId': contact['chat_id'] as String? ?? '', // Handle null case
-      };
-    }).toList();
-
-    return contacts;
-  }
-
-  Future<List<Map<String, dynamic>>> fetchUserDetails() async {
-    final supabaseClient = Supabase.instance.client;
-    isLoading = true;
-    userDetails = [];
-    notifyListeners();
-
-    try {
-      final contacts = await fetchContacts();
-
-      if (contacts.isEmpty) {
-        print('No user IDs found in contacts.');
-        return [];
-      }
-
-      final userIds =
-          contacts.map((contact) => contact['contact_userId']).toList();
+        .stream(primaryKey: ['contact_userId'])
+        .eq('userId', currentUserId)
+        .asyncMap((contacts) async {
+      final userIds = contacts.map((contact) => contact['contact_userId']).toList();
       final chatIdMap = {
         for (var contact in contacts)
-          contact['contact_userId']: contact['chatId']
+          contact['contact_userId']: contact['chat_id']
       };
 
-      log("ChatId map: $chatIdMap");
+      if (userIds.isEmpty) {
+        print('No user IDs found in contacts.');
+        return <Map<String, dynamic>>[]; // Return empty list if no contacts
+      }
 
+      // Fetch user details from `users` table
       final response = await supabaseClient
           .from('users')
           .select('id, name, images')
           .filter('id', 'in', '(${userIds.join(",")})');
 
-      userDetails =
-          (response as List<dynamic>).map<Map<String, dynamic>>((user) {
+      // Ensure response is cast correctly
+      final List<Map<String, dynamic>> userDetails = (response as List<dynamic>).map<Map<String, dynamic>>((user) {
         List<dynamic> imageUrls;
         try {
           imageUrls = user['images'] != null ? jsonDecode(user['images']) : [];
@@ -119,67 +110,49 @@ class ChatViewModel extends ChangeNotifier {
         }
 
         final chatId = chatIdMap[user['id']];
-        log("Fetched chatId for user ${user['id']}: $chatId");
 
-        if (chatId == null) {
-          print("Warning: No chatId found for user ${user['id']}");
-        }
+        // Handle null for lastMessage safely
+        final contact = contacts.firstWhere(
+              (contact) => contact['contact_userId'] == user['id'],
+          orElse: () => <String, dynamic>{},
+        );
+        final lastMessage = contact['last_message'] ?? {}; // Default to empty map if null
+
+        // Safely retrieve the time_sent field from last_message
+        final lastMessageTime = lastMessage['time_sent'] != null
+            ? lastMessage['time_sent']
+            : DateTime.now().toIso8601String(); // Use current time if time_sent is null
 
         return {
           'contact_userId': user['id'] as String,
           'name': user['name'] as String,
           'image': firstImageUrl,
           'chatId': chatId ?? '',
+          'last_message': lastMessage, // Safely handle lastMessage being null
+          'last_message_time': lastMessageTime, // Capture time_sent or fallback to current time
         };
       }).toList();
 
-      log("User details fetched: ${userDetails.length}");
+      // Sort by last message time
+      userDetails.sort((a, b) {
+        DateTime timeA = DateTime.parse(a['last_message_time']);
+        DateTime timeB = DateTime.parse(b['last_message_time']);
+        return timeB.compareTo(timeA); // Sort in descending order
+      });
+
       return userDetails;
-    } catch (e) {
-      print('Error in fetchUserDetails: $e');
-      rethrow;
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  /// Method to mark a message as read
+
   Future<void> markMessageAsRead(String messageId) async {
     try {
       await _supabase
           .from('message')
           .update({'mark_as_read': true}).eq('id', messageId);
-      notifyListeners(); // Notify listeners to update UI
+      notifyListeners();
     } catch (e) {
       print("Error marking message as read: $e");
-    }
-  }
-
-  Stream<Message?> getLastMessageForChat(String chatId) {
-    try {
-      // Subscribe to the 'message' table for real-time updates
-      final stream = _supabase
-          .from('message')
-          .stream(primaryKey: [
-            'chat_id'
-          ]) // Stream changes based on the 'chat_id' column
-          .eq('chat_id', chatId)
-          .order('created_at', ascending: false)
-          .limit(1)
-          .map((data) {
-            if (data.isNotEmpty) {
-              // Parse the last message and return it
-              return Message.fromJson(data.first, currentUserId!);
-            } else {
-              return null; // No message found for this chat
-            }
-          });
-
-      return stream;
-    } catch (e) {
-      print("Error setting up real-time stream for chat $chatId: $e");
-      return Stream.value(null); // Return a stream with a null value on error
     }
   }
 

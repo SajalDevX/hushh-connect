@@ -98,14 +98,14 @@ class _AuthSocialMediaScreenState extends State<AuthSocialMediaScreen> {
                     progress: 0.7,
                   ),
                   const SizedBox(height: 16),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Color(0xff7c8591)),
-                    onPressed: () {
-                      authViewModel.updateProgress(9);
-                      context.go("/authPhotos");
-                    },
-                    iconSize: 40,
-                  ),
+                  // IconButton(
+                  //   icon: const Icon(Icons.close, color: Color(0xff7c8591)),
+                  //   onPressed: () {
+                  //     authViewModel.updateProgress(9);
+                  //     context.go("/authPhotos");
+                  //   },
+                  //   iconSize: 40,
+                  // ),
                   const SizedBox(height: 36),
                   Text(
                     'Sync with social media',

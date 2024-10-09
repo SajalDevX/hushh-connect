@@ -171,7 +171,7 @@ class _SplashScreenState extends State<SplashScreen> {
       bool isAuthenticated = FirebaseAuth.instance.currentUser != null;
       bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
       int profileProgress = prefs.getInt('profile_progress') ?? 0;
-
+      // await prefs.clear();
       final Uri? initialUri = await getInitialUri();
       if (initialUri != null && initialUri.pathSegments.isNotEmpty) {
         log('Deep link detected: ${initialUri.toString()}');

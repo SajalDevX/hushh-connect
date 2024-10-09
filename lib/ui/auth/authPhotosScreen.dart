@@ -156,14 +156,14 @@ class _AuthPhotosScreenState extends State<AuthPhotosScreen> {
                     progress: 0.8, // Set the current step for the email screen
                   ),
                   const SizedBox(height: 16),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Color(0xff7c8591)),
-                    onPressed: () {
-                      authViewModel.updateProgress(10);
-                      context.go("/authPassions");
-                    },
-                    iconSize: 40,
-                  ),
+                  // IconButton(
+                  //   icon: const Icon(Icons.close, color: Color(0xff7c8591)),
+                  //   onPressed: () {
+                  //     authViewModel.updateProgress(10);
+                  //     context.go("/authPassions");
+                  //   },
+                  //   iconSize: 40,
+                  // ),
                   const SizedBox(height: 36),
                   Text(
                     'Add Photos',

@@ -106,14 +106,14 @@ class _AuthPassionsScreenState extends State<AuthPassionsScreen> {
                   progress: 0.9,
                 ),
                 const SizedBox(height: 16),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Color(0xff7c8591)),
-                  onPressed: () {
-                    authViewModel.updateProgress(11);
-                    context.go('/main');
-                  },
-                  iconSize: 40,
-                ),
+                // IconButton(
+                //   icon: const Icon(Icons.close, color: Color(0xff7c8591)),
+                //   onPressed: () {
+                //     authViewModel.updateProgress(11);
+                //     context.go('/main');
+                //   },
+                //   iconSize: 40,
+                // ),
                 const SizedBox(height: 8),
                 Text(
                   'Passions',

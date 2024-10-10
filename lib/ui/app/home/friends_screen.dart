@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hushhxtinder/ui/app/chat/chatScreen.dart';
 import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Import flutter_svg for SVG handling
@@ -21,21 +22,23 @@ class _FriendsScreenState extends State<FriendsScreen> {
     final chatViewModel = Provider.of<ChatViewModel>(context, listen: false);
 
     return Scaffold(
-      // Wrapping with Stack to allow layering (background image below, content above)
       body: Stack(
         children: [
           // Background image
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('lib/assets/images/app_bg.jpeg'), // Replace with your image path
+                image: AssetImage('lib/assets/images/app_bg.jpeg'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           // Main content
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16,) +EdgeInsets.only(top: 48),
+            padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                ) +
+                const EdgeInsets.only(top: 48),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -43,15 +46,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 Row(
                   children: [
                     SvgPicture.asset(
-                      'lib/assets/images/huash_logo_2.svg', // Replace with your SVG file path
+                      'lib/assets/images/huash_logo_2.svg',
+                      // Replace with your SVG file path
                       height: 30,
                     ),
                     const Spacer(),
                     InkWell(
                       onTap: () {
-                        // Display Snackbar on tap
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                          const SnackBar(
                             content: Text('Coming soon'),
                           ),
                         );
@@ -61,21 +64,23 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     const SizedBox(width: 16),
                     InkWell(
                       onTap: () {
-                        // Display Snackbar on tap
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Coming soon'),
                           ),
                         );
                       },
-                      child: const Icon(Icons.notifications, color: Colors.white),
-                    ),                  ],
+                      child:
+                          const Icon(Icons.notifications, color: Colors.white),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 // StreamBuilder for real-time data fetching
                 Flexible(
                   child: StreamBuilder<Map<String, List<Map<String, dynamic>>>>(
-                    stream: chatViewModel.fetchSortedUserDetailsWithLastMessage(),
+                    stream:
+                        chatViewModel.fetchSortedUserDetailsWithLastMessage(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Column(
@@ -88,8 +93,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       }
 
                       if (snapshot.hasData) {
-                        final usersWithMessages = snapshot.data!['usersWithMessages']!;
-                        final usersWithoutMessages = snapshot.data!['usersWithoutMessages']!;
+                        final usersWithMessages =
+                            snapshot.data!['usersWithMessages']!;
+                        final usersWithoutMessages =
+                            snapshot.data!['usersWithoutMessages']!;
 
                         return SingleChildScrollView(
                           child: Column(
@@ -112,8 +119,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                     scrollDirection: Axis.horizontal,
                                     itemCount: usersWithoutMessages.length,
                                     itemBuilder: (context, index) {
-                                      final contact = usersWithoutMessages[index];
-                                      return buildUserWithoutMessageBox(context, contact, chatViewModel);
+                                      final contact =
+                                          usersWithoutMessages[index];
+                                      return buildUserWithoutMessageBox(
+                                          context, contact, chatViewModel);
                                     },
                                   ),
                                 ),
@@ -130,17 +139,26 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               ),
                               const SizedBox(height: 10),
                               ListView.builder(
-                                shrinkWrap: true, // Important to use with SingleChildScrollView
-                                physics: NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                // Important to use with SingleChildScrollView
+                                physics: const NeverScrollableScrollPhysics(),
                                 padding: const EdgeInsets.only(top: 8),
                                 itemCount: usersWithMessages.length,
                                 itemBuilder: (context, index) {
                                   final contact = usersWithMessages[index];
-                                  final lastMessage = contact['last_message'] != null
-                                      ? contact['last_message']['message'] ?? 'No messages yet'
+                                  final lastMessage = contact['last_message'] !=
+                                          null
+                                      ? contact['last_message']['message'] ??
+                                          'No messages yet'
                                       : 'No messages yet';
 
-                                  return buildChatBox(contact, lastMessage);
+                                  final lastMessageTimeRaw = contact['last_message'] != null &&
+                                      contact['last_message']['time_sent'] != null
+                                      ? contact['last_message']['time_sent']
+                                      : DateTime.now().toIso8601String();
+                                  final DateTime parsedTime = DateTime.parse(lastMessageTimeRaw);
+                                  final String lastMessageTime = DateFormat.jm().format(parsedTime);
+                                  return buildChatBox(contact, lastMessage,lastMessageTime);
                                 },
                               ),
                             ],
@@ -170,7 +188,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
   }
 
   /// Build user boxes for users without messages (horizontal list)
-  Widget buildUserWithoutMessageBox(BuildContext context, Map<String, dynamic> contact, ChatViewModel chatViewModel) {
+  Widget buildUserWithoutMessageBox(BuildContext context,
+      Map<String, dynamic> contact, ChatViewModel chatViewModel) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -184,7 +203,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
             ),
           ),
         ).then((_) {
-          // Refresh the stream to fetch updated messages in real-time after returning from ChatScreen
           setState(() {
             chatViewModel.fetchSortedUserDetailsWithLastMessage();
           });
@@ -198,7 +216,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
               radius: 30,
               backgroundImage: contact['image'] != null
                   ? NetworkImage(contact['image'])
-                  : const AssetImage('lib/assets/images/user_placeholder.png') as ImageProvider,
+                  : const AssetImage('lib/assets/images/user_placeholder.png')
+                      as ImageProvider,
             ),
             const SizedBox(height: 4),
             Text(
@@ -211,10 +230,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
     );
   }
 
-  /// Build individual chat boxes for users with messages
-  Widget buildChatBox(Map<String, dynamic> contact, String lastMessage) {
+  Widget buildChatBox(Map<String, dynamic> contact, String lastMessage,String lastMessageTime) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: GestureDetector(
         onTap: () {
           Navigator.push(
@@ -234,18 +252,19 @@ class _FriendsScreenState extends State<FriendsScreen> {
             radius: 28,
             backgroundImage: contact['image'] != null
                 ? NetworkImage(contact['image'])
-                : AssetImage('lib/assets/images/user_placeholder.png') as ImageProvider,
+                : const AssetImage('lib/assets/images/user_placeholder.png')
+                    as ImageProvider,
           ),
           title: Text(
             contact['name'] ?? 'Unknown',
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
           subtitle: Text(
             lastMessage,
             style: TextStyle(color: Colors.white.withOpacity(0.7)),
           ),
           trailing: Text(
-            '14:33', // Replace with actual time
+            lastMessageTime, // Replace with actual time
             style: TextStyle(color: Colors.white.withOpacity(0.7)),
           ),
         ),
@@ -293,7 +312,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   Widget buildShimmerMessageList() {
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: shimmerItemCount,
       itemBuilder: (context, index) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),

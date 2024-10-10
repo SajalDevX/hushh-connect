@@ -24,10 +24,10 @@ class ChatViewModel extends ChangeNotifier {
         .eq('chat_id', chatId)
         .order('created_at', ascending: true)
         .map((maps) {
-      return maps
-          .map((item) => Message.fromJson(item, currentUserId!))
-          .toList();
-    });
+          return maps
+              .map((item) => Message.fromJson(item, currentUserId!))
+              .toList();
+        });
   }
 
   /// Method to send a message
@@ -61,97 +61,96 @@ class ChatViewModel extends ChangeNotifier {
       }
     }
   }
+
+
   Stream<Map<String, List<Map<String, dynamic>>>> fetchSortedUserDetailsWithLastMessage() {
     final supabaseClient = Supabase.instance.client;
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
     if (currentUserId == null) {
-      throw Exception('No current user ID found.');
+      throw Exception('No current user Id found.');
     }
-
     return supabaseClient
         .from('contact')
         .stream(primaryKey: ['contact_userId'])
         .eq('userId', currentUserId)
-        .asyncMap((contacts) async {
-      final userIds = contacts.map((contact) => contact['contact_userId']).toList();
-      final chatIdMap = {
-        for (var contact in contacts)
-          contact['contact_userId']: contact['chat_id']
-      };
+        .asyncMap(
+          (contacts) async {
+        final userIds =
+        contacts.map((contact) => contact['contact_userId']).toList();
+        final chatIdMap = {
+          for (var contact in contacts)
+            contact['contact_userId']: contact['chat_id']
+        };
+        if (userIds.isEmpty) {
+          print('No user IDs found in contacts');
+          return {
+            'usersWithMessages': <Map<String, dynamic>>[],
+            'usersWithoutMessages': <Map<String, dynamic>>[]
+          };
+        }
+        final response = await supabaseClient
+            .from('users')
+            .select('id,name,images')
+            .filter('id', 'in', '(${userIds.join(",")})');
 
-      if (userIds.isEmpty) {
-        print('No user IDs found in contacts.');
+        final List<Map<String, dynamic>> usersWithMessages = [];
+        final List<Map<String, dynamic>> usersWithoutMessages = [];
+
+        final List<Map<String, dynamic>> userDetails =
+        (response as List<dynamic>).map<Map<String, dynamic>>((user) {
+          List<dynamic> imageUrls;
+          try {
+            imageUrls =
+            user['images'] != null ? jsonDecode(user['images']) : [];
+          } catch (e) {
+            print('Error decoding images JSON: $e');
+            imageUrls = [];
+          }
+          String firstImageUrl = '';
+          if (imageUrls.isNotEmpty && imageUrls[0] is String) {
+            firstImageUrl = imageUrls[0];
+          }
+          final chatId = chatIdMap[user['id']];
+          final contact = contacts.firstWhere(
+                (contact) => contact['contact_userId'] == user['id'],
+            orElse: () => <String, dynamic>{},
+          );
+          final lastMessage = contact['last_message'] ?? {};
+          final lastMessageTime =
+              lastMessage['time_sent'] ?? DateTime.now().toIso8601String();
+          final userData = {
+            'contact_userId': user['id'] as String,
+            'name': user['name'] as String,
+            'image': firstImageUrl,
+            'chatId': chatId ?? '',
+            'last_message': lastMessage,
+            'last_message_time': lastMessageTime,
+          };
+          if (lastMessage.isEmpty ||
+              lastMessage['message'] == null ||
+              lastMessage['message'].isEmpty) {
+            usersWithoutMessages.add(userData);
+          } else {
+            usersWithMessages.add(userData);
+          }
+
+          return userData;
+        }).toList();
+        usersWithMessages.sort((a, b) {
+          DateTime timeA = DateTime.parse(a['last_message_time']);
+          DateTime timeB = DateTime.parse(b['last_message_time']);
+          return timeB.compareTo(timeA);
+        });
         return {
-          'usersWithMessages': <Map<String, dynamic>>[],
-          'usersWithoutMessages': <Map<String, dynamic>>[]
+          'usersWithMessages': usersWithMessages,
+          'usersWithoutMessages': usersWithoutMessages,
         };
-      }
-
-      // Fetch user details from `users` table
-      final response = await supabaseClient
-          .from('users')
-          .select('id, name, images')
-          .filter('id', 'in', '(${userIds.join(",")})');
-
-      final List<Map<String, dynamic>> usersWithMessages = [];
-      final List<Map<String, dynamic>> usersWithoutMessages = [];
-
-      final List<Map<String, dynamic>> userDetails = (response as List<dynamic>).map<Map<String, dynamic>>((user) {
-        List<dynamic> imageUrls;
-        try {
-          imageUrls = user['images'] != null ? jsonDecode(user['images']) : [];
-        } catch (e) {
-          print('Error decoding images JSON: $e');
-          imageUrls = [];
-        }
-
-        String firstImageUrl = '';
-        if (imageUrls.isNotEmpty && imageUrls[0] is String) {
-          firstImageUrl = imageUrls[0];
-        }
-
-        final chatId = chatIdMap[user['id']];
-
-        // Handle null for lastMessage safely
-        final contact = contacts.firstWhere(
-              (contact) => contact['contact_userId'] == user['id'],
-          orElse: () => <String, dynamic>{},
-        );
-        final lastMessage = contact['last_message'] ?? {}; // Default to empty map if null
-        final lastMessageTime = lastMessage['time_sent'] ?? DateTime.now().toIso8601String(); // Use current time if time_sent is null
-
-        final userData = {
-          'contact_userId': user['id'] as String,
-          'name': user['name'] as String,
-          'image': firstImageUrl,
-          'chatId': chatId ?? '',
-          'last_message': lastMessage,
-          'last_message_time': lastMessageTime,
-        };
-
-        if (lastMessage.isEmpty || lastMessage['message'] == null || lastMessage['message'].isEmpty) {
-          usersWithoutMessages.add(userData); // User without messages
-        } else {
-          usersWithMessages.add(userData); // User with messages
-        }
-
-        return userData;
-      }).toList();
-
-      // Sort both lists by last message time (descending order for users with messages)
-      usersWithMessages.sort((a, b) {
-        DateTime timeA = DateTime.parse(a['last_message_time']);
-        DateTime timeB = DateTime.parse(b['last_message_time']);
-        return timeB.compareTo(timeA);
-      });
-
-      return {
-        'usersWithMessages': usersWithMessages,
-        'usersWithoutMessages': usersWithoutMessages,
-      };
-    });
+      },
+    );
   }
+
+
 
 
   Future<void> markMessageAsRead(String messageId) async {

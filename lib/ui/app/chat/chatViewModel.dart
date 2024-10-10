@@ -61,8 +61,7 @@ class ChatViewModel extends ChangeNotifier {
       }
     }
   }
-
-  Stream<List<Map<String, dynamic>>> fetchSortedUserDetailsWithLastMessage() {
+  Stream<Map<String, List<Map<String, dynamic>>>> fetchSortedUserDetailsWithLastMessage() {
     final supabaseClient = Supabase.instance.client;
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
@@ -70,7 +69,6 @@ class ChatViewModel extends ChangeNotifier {
       throw Exception('No current user ID found.');
     }
 
-    // Creating a stream that listens to the `contact` table changes
     return supabaseClient
         .from('contact')
         .stream(primaryKey: ['contact_userId'])
@@ -84,7 +82,10 @@ class ChatViewModel extends ChangeNotifier {
 
       if (userIds.isEmpty) {
         print('No user IDs found in contacts.');
-        return <Map<String, dynamic>>[]; // Return empty list if no contacts
+        return {
+          'usersWithMessages': <Map<String, dynamic>>[],
+          'usersWithoutMessages': <Map<String, dynamic>>[]
+        };
       }
 
       // Fetch user details from `users` table
@@ -93,7 +94,9 @@ class ChatViewModel extends ChangeNotifier {
           .select('id, name, images')
           .filter('id', 'in', '(${userIds.join(",")})');
 
-      // Ensure response is cast correctly
+      final List<Map<String, dynamic>> usersWithMessages = [];
+      final List<Map<String, dynamic>> usersWithoutMessages = [];
+
       final List<Map<String, dynamic>> userDetails = (response as List<dynamic>).map<Map<String, dynamic>>((user) {
         List<dynamic> imageUrls;
         try {
@@ -104,7 +107,6 @@ class ChatViewModel extends ChangeNotifier {
         }
 
         String firstImageUrl = '';
-
         if (imageUrls.isNotEmpty && imageUrls[0] is String) {
           firstImageUrl = imageUrls[0];
         }
@@ -117,30 +119,37 @@ class ChatViewModel extends ChangeNotifier {
           orElse: () => <String, dynamic>{},
         );
         final lastMessage = contact['last_message'] ?? {}; // Default to empty map if null
+        final lastMessageTime = lastMessage['time_sent'] ?? DateTime.now().toIso8601String(); // Use current time if time_sent is null
 
-        // Safely retrieve the time_sent field from last_message
-        final lastMessageTime = lastMessage['time_sent'] != null
-            ? lastMessage['time_sent']
-            : DateTime.now().toIso8601String(); // Use current time if time_sent is null
-
-        return {
+        final userData = {
           'contact_userId': user['id'] as String,
           'name': user['name'] as String,
           'image': firstImageUrl,
           'chatId': chatId ?? '',
-          'last_message': lastMessage, // Safely handle lastMessage being null
-          'last_message_time': lastMessageTime, // Capture time_sent or fallback to current time
+          'last_message': lastMessage,
+          'last_message_time': lastMessageTime,
         };
+
+        if (lastMessage.isEmpty || lastMessage['message'] == null || lastMessage['message'].isEmpty) {
+          usersWithoutMessages.add(userData); // User without messages
+        } else {
+          usersWithMessages.add(userData); // User with messages
+        }
+
+        return userData;
       }).toList();
 
-      // Sort by last message time
-      userDetails.sort((a, b) {
+      // Sort both lists by last message time (descending order for users with messages)
+      usersWithMessages.sort((a, b) {
         DateTime timeA = DateTime.parse(a['last_message_time']);
         DateTime timeB = DateTime.parse(b['last_message_time']);
-        return timeB.compareTo(timeA); // Sort in descending order
+        return timeB.compareTo(timeA);
       });
 
-      return userDetails;
+      return {
+        'usersWithMessages': usersWithMessages,
+        'usersWithoutMessages': usersWithoutMessages,
+      };
     });
   }
 

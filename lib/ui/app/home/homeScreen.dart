@@ -8,12 +8,12 @@ import 'package:hushhxtinder/data/models/productModel.dart';
 import 'package:hushhxtinder/ui/app/connect/connectScreen.dart';
 import 'package:hushhxtinder/ui/app/community/exploreScreen.dart';
 import 'package:hushhxtinder/ui/app/home/currentUserProfile.dart';
-import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/app/profile/profileScreen.dart';
 import 'package:hushhxtinder/ui/app/settings/settingsViewModel.dart';
 import 'package:hushhxtinder/ui/app/vibes/vibesScreen.dart';
 import 'package:hushhxtinder/ui/components/customCard.dart';
 import 'package:provider/provider.dart';
+import 'friends_screen.dart';
 import 'homeViewmodel.dart';
 
 class MainScreen extends StatefulWidget {

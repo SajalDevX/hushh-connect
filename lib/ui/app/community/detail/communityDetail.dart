@@ -5,11 +5,12 @@ import 'package:hushhxtinder/data/models/card_model.dart';
 import 'package:hushhxtinder/data/models/productModel.dart';
 import 'package:hushhxtinder/ui/app/community/detail/communityDetailViewModel.dart';
 import 'package:hushhxtinder/ui/app/home/currentUserProfile.dart';
-import 'package:hushhxtinder/ui/app/home/friendsScreen.dart';
 import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:hushhxtinder/ui/components/customCard.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../home/friends_screen.dart';
 
 class CommunityDetailScreen extends StatefulWidget {
   final int communityId;

@@ -128,7 +128,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                 ),
                                 const SizedBox(height: 16),
                               ],
-                              // Vertical list for users with messages
                               Text(
                                 'Messages',
                                 style: GoogleFonts.poppins(

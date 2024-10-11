@@ -1,7 +1,9 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/supabaseCredentials.dart';
@@ -15,6 +17,7 @@ class ChatViewModel extends ChangeNotifier {
   List<Conversation> chats = [];
   List<Map<String, dynamic>> userDetails = [];
   bool isLoading = false;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   /// Stream to fetch messages for a specific chat in real-time
   Stream<List<Message>> getMessagesForChat(String chatId) {
@@ -31,6 +34,29 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   /// Method to send a message
+  Future<String?> uploadImageToFirebaseWithProgress(File imageFile, String chatId, {required Function(double) onProgress}) async {
+    try {
+      final String fileName = '${chatId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final Reference ref = _storage.ref().child('chat_images/$chatId').child(fileName);
+
+      UploadTask uploadTask = ref.putFile(imageFile);
+
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+        onProgress(progress); // Notify the progress
+      });
+
+      TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => {});
+      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+
+      return downloadUrl;
+    } catch (e) {
+      print("Error uploading image to Firebase: $e");
+      return null;
+    }
+  }
+
+
   Future<void> sendMessage(String content, String userTo, String chatId) async {
     if (currentUserId != null) {
       final message = Message.create(
@@ -39,21 +65,27 @@ class ChatViewModel extends ChangeNotifier {
         userTo: userTo,
         chatId: chatId,
       );
+
       try {
-        // Insert message into the message table
+        // Insert the message into the Supabase database
         await _supabase.from('message').insert(message.toMap());
 
-        // Prepare JSONB data to update in contact table
+        // Check if the content is an image (URL)
+        bool isImage = content.contains('http') &&
+            (content.endsWith('.png') || content.endsWith('.jpg') || content.endsWith('.jpeg') || content.endsWith('.gif'));
+
+        // If it's an image, store "Image" as the last message in the contact table
         final lastMessageData = {
-          'message': content,
+          'message': isImage ? 'Photo' : content, // Use "Image" if it's an image
           'time_sent': DateTime.now().toUtc().toIso8601String(),
           'user_from': currentUserId!,
         };
 
-        // Update the last_message column in the contact table
+        // Update the last message info in the contact table
         await _supabase
             .from('contact')
-            .update({'last_message': lastMessageData}).eq('chat_id', chatId);
+            .update({'last_message': lastMessageData})
+            .eq('chat_id', chatId);
 
         notifyListeners();
       } catch (e) {
@@ -61,6 +93,7 @@ class ChatViewModel extends ChangeNotifier {
       }
     }
   }
+
 
 
   Stream<Map<String, List<Map<String, dynamic>>>> fetchSortedUserDetailsWithLastMessage() {

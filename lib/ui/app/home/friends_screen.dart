@@ -151,13 +151,19 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                           'No messages yet'
                                       : 'No messages yet';
 
-                                  final lastMessageTimeRaw = contact['last_message'] != null &&
-                                      contact['last_message']['time_sent'] != null
-                                      ? contact['last_message']['time_sent']
-                                      : DateTime.now().toIso8601String();
-                                  final DateTime parsedTime = DateTime.parse(lastMessageTimeRaw);
-                                  final String lastMessageTime = DateFormat.jm().format(parsedTime);
-                                  return buildChatBox(contact, lastMessage,lastMessageTime);
+                                  final lastMessageTimeRaw =
+                                      contact['last_message'] != null &&
+                                              contact['last_message']
+                                                      ['time_sent'] !=
+                                                  null
+                                          ? contact['last_message']['time_sent']
+                                          : DateTime.now().toIso8601String();
+                                  final DateTime parsedTime =
+                                      DateTime.parse(lastMessageTimeRaw);
+                                  final String lastMessageTime =
+                                      DateFormat.jm().format(parsedTime);
+                                  return buildChatBox(
+                                      contact, lastMessage, lastMessageTime);
                                 },
                               ),
                             ],
@@ -195,11 +201,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => ChatScreen(
-              userTo: contact['contact_userId'] ?? '',
-              profile: contact['image'] ?? '',
-              name: contact['name'] ?? 'Unknown',
-              chatId: contact['chatId'] ?? '',
-            ),
+                userTo: contact['contact_userId'] ?? '',
+                profile: contact['image'] ?? '',
+                name: contact['name'] ?? 'Unknown',
+                chatId: contact['chatId'] ?? '',
+                phone: contact['phone'] ?? ''),
           ),
         ).then((_) {
           setState(() {
@@ -229,7 +235,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
     );
   }
 
-  Widget buildChatBox(Map<String, dynamic> contact, String lastMessage,String lastMessageTime) {
+  Widget buildChatBox(Map<String, dynamic> contact, String lastMessage,
+      String lastMessageTime) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: GestureDetector(
@@ -238,11 +245,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
             context,
             MaterialPageRoute(
               builder: (context) => ChatScreen(
-                userTo: contact['contact_userId'] ?? '',
-                profile: contact['image'] ?? '',
-                name: contact['name'] ?? 'Unknown',
-                chatId: contact['chatId'] ?? '',
-              ),
+                  userTo: contact['contact_userId'] ?? '',
+                  profile: contact['image'] ?? '',
+                  name: contact['name'] ?? 'Unknown',
+                  chatId: contact['chatId'] ?? '',
+                  phone: contact['phone'] ?? ''),
             ),
           );
         },

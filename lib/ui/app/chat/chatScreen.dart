@@ -1,23 +1,25 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
 import 'package:hushhxtinder/ui/app/chat/message.dart';
 import 'package:hushhxtinder/ui/components/chatBubble.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 class ChatScreen extends StatefulWidget {
   final String userTo;
   final String profile;
   final String name;
   final String chatId;
+  final String phone;
 
   const ChatScreen({
     super.key,
     required this.userTo,
     required this.name,
     required this.profile,
-    required this.chatId,
+    required this.chatId, required this.phone,
   });
 
   @override
@@ -30,7 +32,17 @@ class _ChatScreenState extends State<ChatScreen> {
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage; // To hold the selected image file
   double _uploadProgress = 0.0; // To track image upload progress
-
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      throw 'Could not launch $launchUri';
+    }
+  }
   @override
   void dispose() {
     _msgController.dispose();
@@ -53,7 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
 
       if (imageUrl != null) {
-        await appService.sendMessage(imageUrl, widget.userTo, widget.chatId);
+        await appService.sendMessage(imageUrl, widget.userTo, widget.chatId,true);
         setState(() {
           _selectedImage = null; // Clear selected image after sending
           _uploadProgress = 0.0; // Reset upload progress
@@ -62,7 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } else if (text.isNotEmpty) {
       if (_formKey.currentState != null && _formKey.currentState!.validate()) {
         _formKey.currentState!.save();
-        await appService.sendMessage(text, widget.userTo, widget.chatId);
+        await appService.sendMessage(text, widget.userTo, widget.chatId,false);
         _msgController.clear(); // Clear the input field
       }
     }
@@ -136,11 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   const SizedBox(width: 10),
                   InkWell(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Coming soon'),
-                        ),
-                      );
+                      _makePhoneCall(widget.phone);
                     },
                     child: const Icon(Icons.call, color: Colors.white),
                   ),
@@ -212,10 +220,14 @@ class _ChatScreenState extends State<ChatScreen> {
                               ),
                             );
                           } else {
+                            DateTime? parsedTime;
+                            final lastMessageTimeRaw = message.createAt;
+                            parsedTime = DateTime.parse(lastMessageTimeRaw.toString());
+                            final String lastMessageTime = DateFormat.jm().format(parsedTime);
                             return ChatBubble(
                               text: message.content,
                               isSender: message.isMine,
-                              time: message.createAt.toString(),
+                              time: lastMessageTime,
                             );
                           }
                         },

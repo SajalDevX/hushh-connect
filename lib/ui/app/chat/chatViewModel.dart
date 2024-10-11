@@ -34,10 +34,14 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   /// Method to send a message
-  Future<String?> uploadImageToFirebaseWithProgress(File imageFile, String chatId, {required Function(double) onProgress}) async {
+  Future<String?> uploadImageToFirebaseWithProgress(
+      File imageFile, String chatId,
+      {required Function(double) onProgress}) async {
     try {
-      final String fileName = '${chatId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final Reference ref = _storage.ref().child('chat_images/$chatId').child(fileName);
+      final String fileName =
+          '${chatId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final Reference ref =
+          _storage.ref().child('chat_images/$chatId').child(fileName);
 
       UploadTask uploadTask = ref.putFile(imageFile);
 
@@ -56,8 +60,7 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
-
-  Future<void> sendMessage(String content, String userTo, String chatId) async {
+  Future<void> sendMessage(String content, String userTo, String chatId,bool isImage) async {
     if (currentUserId != null) {
       final message = Message.create(
         content: content,
@@ -69,20 +72,16 @@ class ChatViewModel extends ChangeNotifier {
       try {
         await _supabase.from('message').insert(message.toMap());
 
-        bool isImage = content.contains('http') &&
-            (content.endsWith('.png') || content.endsWith('.jpg') || content.endsWith('.jpeg') || content.endsWith('.gif'));
 
         final lastMessageData = {
-          'message': isImage ? 'Photo' : content, // Use "Image" if it's an image
+          'message': isImage ? 'Photo' : content,
           'time_sent': DateTime.now().toUtc().toIso8601String(),
           'user_from': currentUserId!,
         };
 
-        // Update the last message info in the contact table
         await _supabase
             .from('contact')
-            .update({'last_message': lastMessageData})
-            .eq('chat_id', chatId);
+            .update({'last_message': lastMessageData}).eq('chat_id', chatId);
 
         notifyListeners();
       } catch (e) {
@@ -91,9 +90,8 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
-
-
-  Stream<Map<String, List<Map<String, dynamic>>>> fetchSortedUserDetailsWithLastMessage() {
+  Stream<Map<String, List<Map<String, dynamic>>>>
+      fetchSortedUserDetailsWithLastMessage() {
     final supabaseClient = Supabase.instance.client;
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
@@ -106,82 +104,80 @@ class ChatViewModel extends ChangeNotifier {
         .eq('userId', currentUserId)
         .asyncMap(
           (contacts) async {
-        final userIds =
-        contacts.map((contact) => contact['contact_userId']).toList();
-        final chatIdMap = {
-          for (var contact in contacts)
-            contact['contact_userId']: contact['chat_id']
-        };
-        if (userIds.isEmpty) {
-          print('No user IDs found in contacts');
-          return {
-            'usersWithMessages': <Map<String, dynamic>>[],
-            'usersWithoutMessages': <Map<String, dynamic>>[]
-          };
-        }
-        final response = await supabaseClient
-            .from('users')
-            .select('id,name,images')
-            .filter('id', 'in', '(${userIds.join(",")})');
+            final userIds =
+                contacts.map((contact) => contact['contact_userId']).toList();
+            final chatIdMap = {
+              for (var contact in contacts)
+                contact['contact_userId']: contact['chat_id']
+            };
+            if (userIds.isEmpty) {
+              print('No user IDs found in contacts');
+              return {
+                'usersWithMessages': <Map<String, dynamic>>[],
+                'usersWithoutMessages': <Map<String, dynamic>>[]
+              };
+            }
+            final response = await supabaseClient
+                .from('users')
+                .select('id,name,images,phone')
+                .filter('id', 'in', '(${userIds.join(",")})');
 
-        final List<Map<String, dynamic>> usersWithMessages = [];
-        final List<Map<String, dynamic>> usersWithoutMessages = [];
+            final List<Map<String, dynamic>> usersWithMessages = [];
+            final List<Map<String, dynamic>> usersWithoutMessages = [];
 
-        final List<Map<String, dynamic>> userDetails =
-        (response as List<dynamic>).map<Map<String, dynamic>>((user) {
-          List<dynamic> imageUrls;
-          try {
-            imageUrls =
-            user['images'] != null ? jsonDecode(user['images']) : [];
-          } catch (e) {
-            print('Error decoding images JSON: $e');
-            imageUrls = [];
-          }
-          String firstImageUrl = '';
-          if (imageUrls.isNotEmpty && imageUrls[0] is String) {
-            firstImageUrl = imageUrls[0];
-          }
-          final chatId = chatIdMap[user['id']];
-          final contact = contacts.firstWhere(
+            final List<Map<String, dynamic>> userDetails =
+                (response as List<dynamic>).map<Map<String, dynamic>>((user) {
+              List<dynamic> imageUrls;
+              try {
+                imageUrls =
+                    user['images'] != null ? jsonDecode(user['images']) : [];
+              } catch (e) {
+                print('Error decoding images JSON: $e');
+                imageUrls = [];
+              }
+              String firstImageUrl = '';
+              if (imageUrls.isNotEmpty && imageUrls[0] is String) {
+                firstImageUrl = imageUrls[0];
+              }
+              final chatId = chatIdMap[user['id']];
+              final contact = contacts.firstWhere(
                 (contact) => contact['contact_userId'] == user['id'],
-            orElse: () => <String, dynamic>{},
-          );
-          final lastMessage = contact['last_message'] ?? {};
-          final lastMessageTime =
-              lastMessage['time_sent'] ?? DateTime.now().toIso8601String();
-          final userData = {
-            'contact_userId': user['id'] as String,
-            'name': user['name'] as String,
-            'image': firstImageUrl,
-            'chatId': chatId ?? '',
-            'last_message': lastMessage,
-            'last_message_time': lastMessageTime,
-          };
-          if (lastMessage.isEmpty ||
-              lastMessage['message'] == null ||
-              lastMessage['message'].isEmpty) {
-            usersWithoutMessages.add(userData);
-          } else {
-            usersWithMessages.add(userData);
-          }
+                orElse: () => <String, dynamic>{},
+              );
+              final lastMessage = contact['last_message'] ?? {};
+              final lastMessageTime =
+                  lastMessage['time_sent'] ?? DateTime.now().toIso8601String();
+              final userData = {
+                'contact_userId': user['id'] as String,
+                'name': user['name'] as String,
+                'phone':user['phone'] as String,
+                'image': firstImageUrl,
+                'chatId': chatId ?? '',
+                'last_message': lastMessage,
+                'last_message_time': lastMessageTime,
+              };
+              if (lastMessage.isEmpty ||
+                  lastMessage['message'] == null ||
+                  lastMessage['message'].isEmpty) {
+                usersWithoutMessages.add(userData);
+              } else {
+                usersWithMessages.add(userData);
+              }
 
-          return userData;
-        }).toList();
-        usersWithMessages.sort((a, b) {
-          DateTime timeA = DateTime.parse(a['last_message_time']);
-          DateTime timeB = DateTime.parse(b['last_message_time']);
-          return timeB.compareTo(timeA);
-        });
-        return {
-          'usersWithMessages': usersWithMessages,
-          'usersWithoutMessages': usersWithoutMessages,
-        };
-      },
-    );
+              return userData;
+            }).toList();
+            usersWithMessages.sort((a, b) {
+              DateTime timeA = DateTime.parse(a['last_message_time']);
+              DateTime timeB = DateTime.parse(b['last_message_time']);
+              return timeB.compareTo(timeA);
+            });
+            return {
+              'usersWithMessages': usersWithMessages,
+              'usersWithoutMessages': usersWithoutMessages,
+            };
+          },
+        );
   }
-
-
-
 
   Future<void> markMessageAsRead(String messageId) async {
     try {

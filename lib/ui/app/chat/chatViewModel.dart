@@ -43,7 +43,7 @@ class ChatViewModel extends ChangeNotifier {
 
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
         double progress = snapshot.bytesTransferred / snapshot.totalBytes;
-        onProgress(progress); // Notify the progress
+        onProgress(progress);
       });
 
       TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => {});
@@ -67,14 +67,11 @@ class ChatViewModel extends ChangeNotifier {
       );
 
       try {
-        // Insert the message into the Supabase database
         await _supabase.from('message').insert(message.toMap());
 
-        // Check if the content is an image (URL)
         bool isImage = content.contains('http') &&
             (content.endsWith('.png') || content.endsWith('.jpg') || content.endsWith('.jpeg') || content.endsWith('.gif'));
 
-        // If it's an image, store "Image" as the last message in the contact table
         final lastMessageData = {
           'message': isImage ? 'Photo' : content, // Use "Image" if it's an image
           'time_sent': DateTime.now().toUtc().toIso8601String(),

@@ -5,7 +5,7 @@ import 'package:hushhxtinder/ui/app/chat/chatViewModel.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // Import flutter_svg for SVG handling
+import 'package:flutter_svg/flutter_svg.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -150,7 +150,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                       ? contact['last_message']['message'] ??
                                           'No messages yet'
                                       : 'No messages yet';
-
+                                  final unreadCount = contact['unread_count'];
                                   final lastMessageTimeRaw =
                                       contact['last_message'] != null &&
                                               contact['last_message']
@@ -163,7 +163,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                   final String lastMessageTime =
                                       DateFormat.jm().format(parsedTime);
                                   return buildChatBox(
-                                      contact, lastMessage, lastMessageTime);
+                                      contact, lastMessage, lastMessageTime,);
                                 },
                               ),
                             ],
@@ -192,7 +192,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
     );
   }
 
-  /// Build user boxes for users without messages (horizontal list)
   Widget buildUserWithoutMessageBox(BuildContext context,
       Map<String, dynamic> contact, ChatViewModel chatViewModel) {
     return GestureDetector(

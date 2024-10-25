@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/models/profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -7,6 +8,7 @@ class GetUserViewModel extends ChangeNotifier {
   bool isLoading = false;
   ProfileData? profile;
   List<String> imageUrls = [];
+  final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
   Future<ProfileData?> fetchUserById(String uid) async {
     if (isLoading) return profile;
@@ -58,22 +60,45 @@ class GetUserViewModel extends ChangeNotifier {
     }
   }
 
-  // Future<ProfileData?> fetchUserById(String uid) async {
-  //   final supabase = Supabase.instance.client;
+  Future<void> blockUser(String blockedUserId) async {
+    final supabaseClient = Supabase.instance.client;
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-  //   try {
-  //     final response = await supabase
-  //         .from('profiles')
-  //         .select()
-  //         .eq('uid', uid)
-  //         .single(); // Ensure that only a single row is expected
+    if (currentUserId == null) {
+      print("No current user ID found.");
+      return;
+    }
 
-  //     return ProfileData.fromJson(response);
-  //   } catch (e) {
-  //     if (e is PostgrestException && e.code == 'PGRST116') {
-  //       print('Error: ${e.message}');
-  //     }
-  //     throw e;
-  //   }
-  // }
+    try {
+      // Fetch the current user's blocked users list
+      final response = await supabaseClient
+          .from('users')
+          .select('blocked_users')
+          .eq('id', currentUserId)
+          .single();
+
+
+
+      List<String> blockedUsers = response['blocked_users'] != null
+          ? List<String>.from(response['blocked_users'])
+          : [];
+
+      if (!blockedUsers.contains(blockedUserId)) {
+        blockedUsers.add(blockedUserId);
+      }
+
+      final updateResponse = await supabaseClient
+          .from('users')
+          .update({'blocked_users': blockedUsers})
+          .eq('id', currentUserId);
+
+      final rpcResponse = await supabaseClient.rpc('remove_blocked_user_connections', params: {
+        'user_id': currentUserId,
+        'blocked_user_id': blockedUserId
+      });
+    } catch (e) {
+      print('Exception in blockUser: $e');
+    }
+  }
+
 }

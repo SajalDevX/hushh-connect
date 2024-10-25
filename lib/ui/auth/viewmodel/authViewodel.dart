@@ -15,12 +15,14 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 class AuthViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? verificationId;
+
   // FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
+
   // AuthViewModel() {
   //   _initializeFirebaseMessaging();
   // }
@@ -42,19 +44,28 @@ class AuthViewModel extends ChangeNotifier {
   final List<File?> _images = List.generate(6, (_) => null);
 
   String get instagram => _instagram;
+
   String get twitter => _twitter;
+
   String get youtube => _youtube;
+
   String get linkedin => _linkedin;
+
   String get other => _other;
 
   // Getters for the office info
   String? get company => _company;
+
   String? get role => _role;
+
   String? get tasks => _tasks;
 
   String get email => _email;
+
   String get name => _name;
+
   String get phoneNumber => _phoneNumber;
+
   String? get location => _location;
 
   // Getters for images
@@ -235,11 +246,9 @@ class AuthViewModel extends ChangeNotifier {
         smsCode: otpController.text,
       );
 
-      // Attempt to sign in with the credential
       final userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
 
-      // Attempt to save the user to Supabase
       if (FirebaseAuth.instance.currentUser != null) {
         await saveUserToSupabase(FirebaseAuth.instance.currentUser);
       } else {
@@ -251,7 +260,14 @@ class AuthViewModel extends ChangeNotifier {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('OTP verified successfully!')),
       );
-      context.go("/authLocation");
+      final bool isNew = await isNewUser(phoneNumber);
+      print("The output of newuser search is : $isNew");
+      if (!isNew) {
+        updateProgress(11);
+        context.go('/main');
+      } else {
+        context.go("/authLocation");
+      }
     } catch (e) {
       if (e is FirebaseAuthException) {
         // Handle OTP verification failure
@@ -265,6 +281,21 @@ class AuthViewModel extends ChangeNotifier {
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<bool> isNewUser(String phoneNumber) async {
+    final supabaseClient = supabase.Supabase.instance.client;
+
+    final response = await supabaseClient
+        .from('users')
+        .select('phone')
+        .eq('phone', phoneNumber)
+        .maybeSingle();
+    if (response != null) {
+      return false;
+    } else {
+      return true;
     }
   }
 

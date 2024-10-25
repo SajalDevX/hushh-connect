@@ -261,8 +261,41 @@ class _UserProfileDetailScreenState extends State<UserProfileDetailScreen> {
   Widget _buildBlockProfileBox(ProfileData profile) {
     return _buildSimpleActionBox(
       title: "Block ${profile.name}",
+      textColor: Colors.white, // Set the block button's text to red
+      onTap: () async {
+        // Show a confirmation dialog before blocking the user
+        bool? confirmed = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor:  const Color(0xff111419),
+              title: const Text("Confirm Block",style: TextStyle(color: Colors.white),),
+              content: Text("Are you sure you want to block ${profile.name}?",style: const TextStyle(color: Colors.white),),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false), // Cancel
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true), // Confirm
+                  child: const Text("Block", style: TextStyle(color: Colors.red)), // Block button in red
+                ),
+              ],
+            );
+          },
+        );
+
+        // If the user confirmed the action, proceed with blocking
+        if (confirmed == true) {
+          final userDetailViewModel =
+          Provider.of<GetUserViewModel>(context, listen: false);
+          await userDetailViewModel.blockUser(widget.uid);
+        }
+      },
     );
   }
+
+
 
   Widget _buildReportProfileBox(ProfileData profile) {
     return _buildSimpleActionBox(

@@ -34,8 +34,6 @@ class ProfileViewModel extends ChangeNotifier {
 
       final data = response;
 
-      // Check if 'images' is a JSON-encoded string or already a List<String>
-
       if (data['images'] != null) {
         if (data['images'] is String) {
           imageUrls = List<String>.from(json.decode(data['images']));
@@ -101,7 +99,6 @@ class ProfileViewModel extends ChangeNotifier {
             'user_images/${FirebaseAuth.instance.currentUser?.uid}/${pickedFile.name}');
         UploadTask uploadTask = ref.putFile(File(pickedFile.path));
 
-        // Wait for the upload to complete
         final TaskSnapshot snapshot = await uploadTask;
         final String downloadUrl = await snapshot.ref.getDownloadURL();
 
@@ -215,4 +212,5 @@ class ProfileViewModel extends ChangeNotifier {
       isLoading = false;
     }
   }
+
 }

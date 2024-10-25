@@ -2,11 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:hushhxtinder/data/models/card_model.dart';
+import 'package:hushhxtinder/ui/app/home/homeViewmodel.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class CurrentUserProfile extends StatefulWidget {
   const CurrentUserProfile(
       {super.key, required this.CardData, required this.onMessageClick});
+
   final List<ImageData> CardData;
   final VoidCallback onMessageClick;
 
@@ -354,7 +357,43 @@ class _ProfileCardState extends State<CurrentUserProfile> {
 
   Widget _buildBlockProfileBox(ImageData data) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () async {
+        bool? confirmed = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: const Color(0xff111419),
+              title: const Text(
+                "Confirm Block",
+                style: TextStyle(color: Colors.white),
+              ),
+              content: Text(
+                "Are you sure you want to block ${data.name}?",
+                style: const TextStyle(color: Colors.white),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false), // Cancel
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true), // Confirm
+                  child: const Text("Block",
+                      style:
+                          TextStyle(color: Colors.red)), // Block button in red
+                ),
+              ],
+            );
+          },
+        );
+
+        // If the user confirmed the action, proceed with blocking
+        if (confirmed == true) {
+          final userDetailViewModel =
+              Provider.of<HomeViewModel>(context, listen: false);
+          await userDetailViewModel.blockUser(data.userId);
+        }
+      },
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xff09141f),

@@ -15,6 +15,67 @@ class HomeViewModel extends ChangeNotifier {
   static const int pageSize = 10;
   List<Map<String, dynamic>> userDetails = [];
 
+  Future<List<String>> fetchBlockedUsers() async {
+    final supabaseClient = Supabase.instance.client;
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (currentUserId == null) {
+      throw Exception('User is not logged in.');
+    }
+
+    final response = await supabaseClient
+        .from('users')
+        .select('blocked_users')
+        .eq('id', currentUserId)
+        .maybeSingle();
+
+    if (response != null && response['blocked_users'] != null) {
+      return List<String>.from(response['blocked_users']);
+    } else {
+      return [];
+    }
+  }
+  Future<void> blockUser(String blockedUserId) async {
+    final supabaseClient = Supabase.instance.client;
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (currentUserId == null) {
+      print("No current user ID found.");
+      return;
+    }
+
+    try {
+      // Fetch the current user's blocked users list
+      final response = await supabaseClient
+          .from('users')
+          .select('blocked_users')
+          .eq('id', currentUserId)
+          .single();
+
+
+
+      List<String> blockedUsers = response['blocked_users'] != null
+          ? List<String>.from(response['blocked_users'])
+          : [];
+
+      if (!blockedUsers.contains(blockedUserId)) {
+        blockedUsers.add(blockedUserId);
+      }
+
+      final updateResponse = await supabaseClient
+          .from('users')
+          .update({'blocked_users': blockedUsers})
+          .eq('id', currentUserId);
+
+      final rpcResponse = await supabaseClient.rpc('remove_blocked_user_connections', params: {
+        'user_id': currentUserId,
+        'blocked_user_id': blockedUserId
+      });
+    } catch (e) {
+      print('Exception in blockUser: $e');
+    }
+  }
+
   Future<void> fetchUsers() async {
     if (isLoading) return;
     isLoading = true;
@@ -31,14 +92,19 @@ class HomeViewModel extends ChangeNotifier {
       final from = currentPage * pageSize;
       final to = from + pageSize - 1;
 
+      // Fetch blocked users
+      final blockedUsers = await fetchBlockedUsers();
+
+      // Fetch users excluding blocked users
       final response = await supabaseClient
           .from('users')
           .select('*')
           .neq('id', currentUserId)
+          .not('id', 'in', blockedUsers) // Exclude blocked users
           .range(from, to);
 
       final fetchedUsers =
-          List<Map<String, dynamic>>.from(response as List<dynamic>);
+      List<Map<String, dynamic>>.from(response as List<dynamic>);
 
       if (fetchedUsers.isEmpty) {
         print('No users found.');
@@ -57,7 +123,7 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> fetchUsersNearby() async {
     if (isLoading) return;
-    isLoading = true; // Set loading without notifying
+    isLoading = true;
     notifyListeners(); // Notify that the loading state has changed
 
     const double radiusInMiles = 10.0;
@@ -78,29 +144,33 @@ class HomeViewModel extends ChangeNotifier {
 
       const radiusInMeters = radiusInMiles * 1609.34;
 
+      // Fetch blocked users
+      final blockedUsers = await fetchBlockedUsers();
+
       // Call the RPC function and join with product data
       final response = await supabaseClient.rpc('fetch_users_nearby', params: {
         'longitude': currentLon,
         'latitude': currentLat,
         'radius': radiusInMeters,
         'current_user_id': currentUserId
-      }).select(
-          '*, product_table(*)'); // Include the product data for each user
+      }).select('*, product_table(*)');
 
-      // Ensure the response is not null
       final fetchedUsers = List<Map<String, dynamic>>.from(response);
+
       if (fetchedUsers.isNotEmpty) {
-        // Process the fetched users and their products
-        fetchedUsers.forEach((user) {
-          // Convert the product data using fromJson method
+        // Exclude blocked users manually after fetching
+        final filteredUsers = fetchedUsers.where((user) {
+          return !blockedUsers.contains(user['id']);
+        }).toList();
+
+        filteredUsers.forEach((user) {
           user['products'] = (user['product_table'] as List<dynamic>?)
               ?.map((item) => Product.fromJson(item as Map<String, dynamic>))
               .toList();
         });
 
-        // Shuffle the users and add them to the list
-        fetchedUsers.shuffle();
-        users.addAll(fetchedUsers);
+        filteredUsers.shuffle();
+        users.addAll(filteredUsers);
         currentPage++;
       } else {
         print('No nearby users found.');
@@ -108,8 +178,8 @@ class HomeViewModel extends ChangeNotifier {
     } catch (e) {
       print('Exception: $e');
     } finally {
-      isLoading = false; // Reset the loading state
-      notifyListeners(); // Notify listeners only once at the end
+      isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -129,7 +199,6 @@ class HomeViewModel extends ChangeNotifier {
         throw Exception('No current user ID found.');
       }
 
-      // Check if the contact already exists
       final existingContact = await supabaseClient
           .from('contact')
           .select('id')
@@ -184,25 +253,26 @@ class HomeViewModel extends ChangeNotifier {
       final from = currentPage * pageSize;
       final to = from + pageSize - 1;
 
+      // Fetch blocked users
+      final blockedUsers = await fetchBlockedUsers();
+
+      // Fetch users and their products, excluding blocked users
       final response = await supabaseClient
           .from('users')
           .select('*, product_table(*)')
           .neq('id', currentUserId)
+          .not('id', 'in', blockedUsers) // Exclude blocked users
           .range(from, to);
 
-      // Check if response is empty
       if (response.isEmpty) {
         print('No users found.');
-        // Update state to reflect no users found
         isLoading = false;
         notifyListeners();
         return;
       }
 
-      // Process the fetched data
       final fetchedUsers = List<Map<String, dynamic>>.from(response);
 
-      // Convert product data using fromJson
       fetchedUsers.forEach((user) {
         user['products'] = (user['product_table'] as List<dynamic>?)
             ?.map((item) => Product.fromJson(item as Map<String, dynamic>))
@@ -377,4 +447,6 @@ class HomeViewModel extends ChangeNotifier {
       return null;
     }
   }
+
+
 }

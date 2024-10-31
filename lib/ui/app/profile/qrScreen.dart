@@ -65,36 +65,34 @@ class _GenerateQrPromptScreenState extends State<GenerateQrPromptScreen> {
           ),
           _qrGenerated
               ? const Center(
-                  child:
-                      CircularProgressIndicator()) // Showing loader when generated
+            child: CircularProgressIndicator(),
+          )
               : Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'You haven\'t generated a QR code yet.',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color:
-                              Colors.white, // White text to contrast background
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _generateQrCode,
-                        child: const Text('Generate QR Code'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Colors.deepPurple, // Customize button color
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 24),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                        ),
-                      ),
-                    ],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'You haven\'t generated a QR code yet.',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
                   ),
                 ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _generateQrCode,
+                  child: const Text('Generate QR Code'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 24),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -111,6 +109,7 @@ class QrScreen extends StatelessWidget {
 
     return Scaffold(
       body: Stack(
+        alignment: Alignment.center,
         children: [
           // Background image
           Container(
@@ -118,8 +117,7 @@ class QrScreen extends StatelessWidget {
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'lib/assets/images/app_bg.jpeg'), // Background image
+                image: AssetImage('lib/assets/images/app_bg.jpeg'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -135,80 +133,89 @@ class QrScreen extends StatelessWidget {
               },
             ),
           ),
+          // Heading positioned at the top center
+          const Positioned(
+            top: 60,
+            left: 0,
+            right: 0,
+            child: Text(
+              "QR Code",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Center(
-                child: Card(
+              CircleAvatar(
+                backgroundImage: NetworkImage(data.profile_img),
+                radius: 32,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                data.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                   color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  elevation: 8,
-                  child: Container(
-                    height: 410,
-                    width: 350,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
-                    child: Column(
-                      children: [
-                        QrImageView(
-                          data: qrData,
-                          version: QrVersions.auto,
-                          size: 296,
-                          dataModuleStyle: const QrDataModuleStyle(
-                            dataModuleShape: QrDataModuleShape.square,
-                            color: Color.fromARGB(255, 126, 13, 146),
-                          ),
-                          eyeStyle: const QrEyeStyle(
-                            eyeShape: QrEyeShape.square,
-                            color: Color.fromARGB(255, 79, 9, 93),
-                          ),
-                          gapless: false,
-                        ),
-                        const SizedBox(height: 16),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            "@${data.name.toUpperCase()}",
-                            style: GoogleFonts.figtree(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 32,
-                              color: const Color.fromARGB(255, 113, 16, 130),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
+                ),
+              ),
+              const Text(
+                'WhatsApp contact',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 16),
+              QrImageView(
+                data: qrData,
+                version: QrVersions.auto,
+                size: 300,
+                dataModuleStyle: const QrDataModuleStyle(
+                  dataModuleShape: QrDataModuleShape.square,
+                  color: Colors.white,
+                ),
+                eyeStyle: const QrEyeStyle(
+                  eyeShape: QrEyeShape.square,
+                  color: Colors.white,
+                ),
+                gapless: false,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Your QR code is private. If you share it with someone,\nthey can scan it with their camera to see your\nprofile.',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                },
+                child: const Text(
+                  'Reset QR code',
+                  style: TextStyle(
+                    color: Colors.green,
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
-              Card(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                elevation: 8,
-                child: Container(
-                  height: 72,
-                  width: 350,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: IconButton(
-                    icon: const Icon(Icons.share,
-                        color: Color.fromARGB(255, 97, 24, 130)),
-                    onPressed: () {
-                      String profileLink =
-                          'https://stumato.store/profile/${data.uid}';
-                      Share.share(
-                          'Check out this profile: ${data.name}.\n$profileLink');
-                    },
-                  ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Share.share('Check out this profile: ${data.name}');
+                },
+                child: const Text('Share QR Code'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 12, horizontal: 24),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
               ),
             ],
